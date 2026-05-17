@@ -30,7 +30,7 @@ button{cursor:pointer;}
 .tb-brand{display:flex;flex-direction:column;}
 .tb-eyebrow{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--ruby);font-weight:600;margin-bottom:1px;}
 .tb-name{font-family:var(--ff-serif);font-size:22px;color:var(--cocoa);font-weight:300;line-height:1;}
-.tb-avatar{width:34px;height:34px;border-radius:10px;background:var(--cocoa);display:flex;align-items:center;justify-content:center;font-family:var(--ff-serif);font-size:14px;color:var(--linen);font-style:italic;border:none;}
+.tb-gear{width:34px;height:34px;border-radius:10px;background:var(--cocoa);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--linen);border:none;cursor:pointer;}
 .nb{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 6px;opacity:.32;transition:opacity .18s;}
 .nb.on{opacity:1;}
 .nb-icon{font-size:15px;color:var(--linen);line-height:1;}
@@ -129,6 +129,10 @@ button{cursor:pointer;}
 .payday-banner{background:linear-gradient(135deg,var(--cocoa),#5C3020);border-radius:var(--r-lg);padding:20px;color:var(--linen);}
 .profile-chip{background:var(--linen);border-radius:10px;padding:6px 12px;font-size:12px;color:var(--cocoa);font-weight:500;border:none;cursor:pointer;}
 .profile-chip.active{background:var(--cocoa);color:var(--linen);}
+.kid-chip{background:rgba(184,168,200,.25);border-radius:10px;padding:6px 12px;font-size:12px;color:#5A3D7A;font-weight:500;border:none;cursor:pointer;}
+.kid-chip.active{background:var(--lilac);color:white;}
+.pet-chip{background:rgba(195,219,238,.35);border-radius:10px;padding:6px 12px;font-size:12px;color:#2A5C7A;font-weight:500;border:none;cursor:pointer;}
+.pet-chip.active{background:var(--sky);color:var(--cocoa);}
 .day-btn{background:var(--linen);border:none;border-radius:8px;width:34px;height:34px;font-size:11px;font-weight:600;color:var(--cocoa);cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .day-btn.on{background:var(--sage);color:white;}
 .tab-row{display:flex;border-bottom:2px solid var(--mist);margin-bottom:16px;}
@@ -136,12 +140,14 @@ button{cursor:pointer;}
 .tab-btn.on{opacity:1;border-bottom-color:var(--ruby);color:var(--ruby);}
 .nest-group-head{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--cocoa);opacity:.35;font-weight:600;padding:10px 0 6px;border-bottom:1px solid var(--mist);margin-bottom:8px;}
 .fave-badge{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--warm);background:rgba(196,130,74,.1);border-radius:99px;padding:1px 7px;display:inline-block;margin-left:6px;}
+.life-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(195,219,238,.25);border:1px solid rgba(195,219,238,.6);border-radius:99px;padding:5px 12px;font-size:12px;color:var(--ink);margin:3px;}
+.life-pill button{background:none;border:none;color:var(--cocoa);opacity:.4;cursor:pointer;font-size:11px;padding:0;line-height:1;}
+.life-event-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(168,32,64,.06);border:1.5px solid ${sel?'var(--ruby)':'var(--mist)'};border-radius:var(--r-md);padding:10px 14px;cursor:pointer;font-size:13px;margin:4px;transition:all .15s;}
 .hidden{display:none!important;}
 .fade-in{animation:fadeUp .3s ease;}
 </style>
 </head>
 <body>
-
 <div id="onboarding">
 <div class="ob-wrap">
   <div class="ob-step on" id="ob-0">
@@ -179,7 +185,7 @@ button{cursor:pointer;}
   <div class="ob-step" id="ob-3">
     <div class="ob-nav-row"><button class="ob-back" onclick="obGo(2)">&#8592;</button><div class="ob-prog" id="prog-3"></div></div>
     <div class="ob-h">what comes in each month?</div>
-    <p class="ob-sub">use your net take-home &#8212; after taxes, insurance, and any pre-tax deductions. this is what actually lands in your account.</p>
+    <p class="ob-sub">use your net take-home, after taxes, insurance, and any pre-tax deductions. this is what actually lands in your account.</p>
     <div id="ob-income-list" class="stack" style="gap:10px;"></div>
     <button class="btn-add" onclick="addObIncome()">+ add income source</button>
     <button class="btn-primary" onclick="obSave3()">continue</button>
@@ -219,8 +225,9 @@ button{cursor:pointer;}
 
   <div class="ob-step" id="ob-5">
     <div class="ob-nav-row"><button class="ob-back" onclick="obGo(4)">&#8592;</button><div class="ob-prog" id="prog-5"></div></div>
-    <div class="ob-h">tell us about your life.</div>
-    <p class="ob-sub">the more context we have, the smarter the suggestions. all optional.</p>
+    <div class="ob-h">what's shaping your life right now?</div>
+    <p class="ob-sub">the more you share, the more this becomes yours. pick everything that applies.</p>
+    <div id="life-events-pills" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;"></div>
     <div class="card" style="padding:0;overflow:hidden;">
       <div class="toggle-row">
         <div><div class="toggle-lbl">i am a parent or guardian</div><div class="toggle-sub">children, dependents, activities, planning</div></div>
@@ -245,33 +252,15 @@ button{cursor:pointer;}
       <div id="support-section" class="hidden" style="padding:0 16px 14px;border-top:1px solid var(--mist);">
         <div style="margin-top:12px;">
           <div class="field"><label class="lbl">who are you supporting?</label>
-            <select class="inp" id="ob-support-type" style="padding:11px 14px;" onchange="document.getElementById('ob-support-other-wrap').classList.toggle('hidden',this.value!=='other')">
+            <select class="inp" id="ob-support-type" style="padding:11px 14px;">
               <option value="aging_parent">aging parent</option><option value="sibling">sibling</option>
               <option value="adult_child">adult child</option><option value="grandparent">grandparent</option>
               <option value="partner">partner or spouse</option><option value="roommate">shared household</option>
               <option value="other">someone else</option>
             </select>
           </div>
-          <div class="field hidden" id="ob-support-other-wrap" style="margin-top:8px;"><label class="lbl">a little more detail</label><input class="inp" id="ob-support-note" placeholder="e.g. monthly transfer to a family member"/></div>
           <div class="field" style="margin-top:8px;"><label class="lbl">monthly amount (if known)</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ob-support-cost" placeholder="0"/></div></div>
         </div>
-      </div>
-      <div class="toggle-row" style="border-bottom:none;">
-        <div><div class="toggle-lbl">i have a big life change coming</div><div class="toggle-sub">planning ahead makes it manageable</div></div>
-        <label class="toggle"><input type="checkbox" id="tog-life" onchange="toggleLifeChange()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-      </div>
-      <div id="life-section" class="hidden" style="padding:0 16px 14px;border-top:1px solid var(--mist);">
-        <div style="margin-top:12px;" class="field"><label class="lbl">what's coming?</label>
-          <select class="inp" id="ob-life-type" style="padding:11px 14px;" onchange="document.getElementById('ob-life-other-wrap').classList.toggle('hidden',this.value!=='other')">
-            <option value="family_planning">family planning (new baby, ivf, adoption)</option>
-            <option value="moving">moving out or relocating</option><option value="buying_home">buying a home</option>
-            <option value="getting_married">getting married</option><option value="going_to_college">going to college</option>
-            <option value="home_renovation">home renovation</option><option value="changing_jobs">changing jobs</option>
-            <option value="layoff">recent layoff</option><option value="divorce">navigating a divorce</option>
-            <option value="sabbatical">planning a sabbatical</option><option value="other">something else</option>
-          </select>
-        </div>
-        <div class="field hidden" style="margin-top:8px;" id="ob-life-other-wrap"><label class="lbl">tell us more</label><input class="inp" id="ob-life-other" placeholder="what's on the horizon?"/></div>
       </div>
     </div>
     <button class="btn-primary" onclick="obSave5()">continue</button>
@@ -280,16 +269,25 @@ button{cursor:pointer;}
 
   <div class="ob-step" id="ob-6">
     <div class="ob-nav-row"><button class="ob-back" onclick="obGo(5)">&#8592;</button><div class="ob-prog" id="prog-6"></div></div>
-    <div class="ob-h">what are you building toward?</div>
-    <p class="ob-sub">these are your nests &#8212; savings goals you fund a little at a time. choose what fits your life right now.</p>
-    <div id="starter-nests-container"></div>
-    <div id="custom-nests-ob" class="stack" style="gap:10px;margin-top:4px;"></div>
-    <button class="btn-add" onclick="addCustomObNest()">+ add your own</button>
-    <button class="btn-primary" onclick="obSave6()">continue</button>
-    <button class="ob-skip" onclick="obGo(7)">i'll set this up later</button>
+    <div class="ob-h">would you like to stay in the loop?</div>
+    <p class="ob-sub">occasionally we share updates, ask for your input, and run giveaways up to $150. drop your email if you want in. totally optional.</p>
+    <div class="field"><label class="lbl">email address (optional)</label><input class="inp" id="ob-email" type="email" placeholder="you@example.com"/></div>
+    <button class="btn-primary" onclick="obSave6Email()">continue</button>
+    <button class="ob-skip" onclick="obGo(7)">skip for now</button>
   </div>
 
   <div class="ob-step" id="ob-7">
+    <div class="ob-nav-row"><button class="ob-back" onclick="obGo(6)">&#8592;</button><div class="ob-prog" id="prog-7"></div></div>
+    <div class="ob-h">what are you building toward?</div>
+    <p class="ob-sub">these are your nests, savings goals you fund a little at a time. choose what fits your life right now.</p>
+    <div id="starter-nests-container"></div>
+    <div id="custom-nests-ob" class="stack" style="gap:10px;margin-top:4px;"></div>
+    <button class="btn-add" onclick="addCustomObNest()">+ add your own</button>
+    <button class="btn-primary" onclick="obSave7()">continue</button>
+    <button class="ob-skip" onclick="obGo(8)">i'll set this up later</button>
+  </div>
+
+  <div class="ob-step" id="ob-8">
     <div style="text-align:center;padding:48px 0 20px;">
       <div style="font-size:52px;margin-bottom:16px;">&#127969;</div>
       <div class="ob-h" style="font-size:36px;text-align:center;">you're ready.</div>
@@ -304,7 +302,7 @@ button{cursor:pointer;}
 <div id="app-shell">
   <div id="topbar">
     <div class="tb-brand"><span class="tb-eyebrow">haus money</span><span class="tb-name" id="tb-name">your haus</span></div>
-    <button class="tb-avatar" onclick="openSettings()" id="tb-av">h</button>
+    <button class="tb-gear" onclick="openSettings()" title="settings">&#9965;</button>
   </div>
   <div id="content"></div>
   <nav id="bottomnav">
@@ -317,7 +315,7 @@ button{cursor:pointer;}
   </nav>
 </div>
 <script>
-const KEY='hausmoney_v4';
+const KEY='hausmoney_v5';
 let D=null,activeTab='home';
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D));}catch(e){}}
 function load(){try{const s=localStorage.getItem(KEY);if(s){D=JSON.parse(s);return true;}}catch(e){}return false;}
@@ -330,24 +328,44 @@ const lc=s=>String(s||'').toLowerCase();
 const getCurMonth=()=>new Date().toISOString().slice(0,7);
 const getMonthLabel=()=>new Date().toLocaleString('en-US',{month:'long',year:'numeric'});
 
-let OB={name:'',shared:'no',income:[],paydays:{type:'',dates:[],freq:'biweekly',day:5},
-  kids:[],pets:[],supportSomeone:false,supportType:'',supportNote:'',supportCost:0,
-  lifeChange:false,lifeType:'',lifeOther:'',selectedStarters:{},customNests:[]};
-const OB_TOTAL=6;
+const SPARKLE='\u2728';
+
+// Life events multi-select
+const ALL_LIFE_EVENTS=[
+  {id:'family_planning',label:'family planning',icon:'\u{1F338}',desc:'new baby, ivf, adoption'},
+  {id:'moving',label:'moving or relocating',icon:'\u{1F4E6}',desc:'new city, new chapter'},
+  {id:'buying_home',label:'buying a home',icon:'\u{1F511}',desc:'down payment, closing costs'},
+  {id:'getting_married',label:'getting married',icon:'\u{1F48D}',desc:'the proposal, the day, the honeymoon'},
+  {id:'going_to_college',label:'going to college',icon:'\u{1F393}',desc:'tuition, supplies, living costs'},
+  {id:'home_renovation',label:'home renovation',icon:'\u{1F527}',desc:'projects and the unexpected'},
+  {id:'changing_jobs',label:'changing jobs',icon:'\u{1F4BC}',desc:'transition, negotiation, benefits gap'},
+  {id:'layoff',label:'navigating a layoff',icon:'\u{1F309}',desc:'bridge, reset, rebuild'},
+  {id:'divorce',label:'navigating a divorce',icon:'\u{1F331}',desc:'legal, transition, fresh start'},
+  {id:'sabbatical',label:'planning a sabbatical',icon:'\u{1F305}',desc:'intentional time away, funded'},
+  {id:'retirement',label:'planning for retirement',icon:'\u{1F3D6}\uFE0F',desc:'the long horizon'},
+  {id:'caregiver',label:'becoming a caregiver',icon:'\u{1F9E1}',desc:'for a parent, spouse, or loved one'},
+];
+
+let OB={name:'',shared:'no',income:[],email:'',
+  paydays:{type:'',dates:[],freq:'biweekly',day:5},
+  kids:[],pets:[],supportSomeone:false,supportType:'',supportCost:0,
+  lifeEvents:[],selectedStarters:{},customNests:[]};
+const OB_TOTAL=7;
 
 const NEST_DEFS=[
   {group:'foundation',label:'foundation',nests:[
     {id:'emergency',emoji:'\u{1F6E1}',name:'emergency fund',desc:'3 to 6 months of expenses. the foundation everything else rests on.',goal:5000,monthly:200,note:'start here. even a small cushion changes how you move through the world.',fave:true,pre:true},
-    {id:'deductibles',emoji:'\u{1F4CB}',name:'insurance deductibles',desc:'medical, auto, and home. ready before you need them.',goal:2500,monthly:100,note:'cover what your insurance will not, before you have to.',fave:true},
+    {id:'deductibles',emoji:'\u{1F4CB}',name:'insurance deductibles',desc:'medical, auto, home, and pet insurance deductibles. ready before you need them.',goal:2500,monthly:100,note:'cover what your insurance will not, before you have to.',fave:true},
     {id:'subscriptions',emoji:'\u{1F504}',name:'annual subscriptions',desc:'the bills that hit once a year and always feel like a surprise.',goal:400,monthly:35,note:'set it aside monthly and the renewal never catches you off guard.',fave:true},
   ]},
   {group:'life',label:'life and living',nests:[
-    {id:'vacation',emoji:'\u{2708}',name:'vacation',desc:'rest is not a luxury. fund it like it matters.',goal:2000,monthly:150,note:''},
-    {id:'holiday',emoji:'\u{1F381}',name:'holidays and gifts',desc:'every birthday, holiday, celebration -- planned for, not scrambled.',goal:800,monthly:60,note:''},
+    {id:'vacation',emoji:'\u2708\uFE0F',name:'vacation',desc:'rest is not a luxury. fund it like it matters.',goal:2000,monthly:150,note:''},
+    {id:'holiday',emoji:'\u{1F381}',name:'holidays and gifts',desc:'every birthday, holiday, celebration, planned for, not scrambled.',goal:800,monthly:60,note:''},
     {id:'home_repair',emoji:'\u{1F527}',name:'home repairs',desc:'something always needs attention. this fund means it is never a crisis.',goal:2000,monthly:100,note:''},
     {id:'house',emoji:'\u{1F511}',name:'buying a home',desc:'down payment, closing costs, and everything the move brings.',goal:20000,monthly:500,note:''},
+    {id:'engagement',emoji:'\u{1F48D}',name:'engagement and wedding',desc:'the proposal, the day, the honeymoon. works for any couple.',goal:10000,monthly:300,note:''},
     {id:'sabbatical',emoji:'\u{1F305}',name:'sabbatical fund',desc:'a planned pause, funded in advance.',goal:15000,monthly:400,note:'intentional time away from work to rest, reset, or pursue something meaningful. this covers the income gap.',fave:true},
-    {id:'haus_money',emoji:'\u{1F3E1}',name:'haus money',desc:'your spontaneous opportunity fund. intentional freedom.',goal:2000,monthly:100,note:'where bonus money, birthday money, and windfalls go. pull from here and feel good about it.',fave:true},
+    {id:'haus_money',emoji:SPARKLE,name:'haus money',desc:'your spontaneous opportunity fund. intentional freedom.',goal:2000,monthly:100,note:'where bonus money, birthday money, and windfalls go. pull from here and feel good about it.',fave:true},
   ]},
   {group:'health',label:'health and protection',nests:[
     {id:'medical',emoji:'\u{1F48A}',name:'medical',desc:'copays, prescriptions, unexpected visits.',goal:1500,monthly:100,note:''},
@@ -355,7 +373,7 @@ const NEST_DEFS=[
   ]},
   {group:'growth',label:'growth and future',nests:[
     {id:'car',emoji:'\u{1F697}',name:'car fund',desc:'repairs, maintenance, or your next vehicle.',goal:3000,monthly:100,note:''},
-    {id:'education',emoji:'\u{1F393}',name:'education',desc:'courses, certifications, tuition.',goal:3000,monthly:150,note:''},
+    {id:'education',emoji:'\u{1F393}',name:'education',desc:'courses, certifications, tuition.',goal:3000,monthly:150,note:'',fave:true},
     {id:'business',emoji:'\u{1F4BC}',name:'business fund',desc:'startup costs, tools, and the investment your next chapter deserves.',goal:2000,monthly:100,note:''},
   ]},
 ];
@@ -368,7 +386,8 @@ function obGo(step){
   for(let i=1;i<=OB_TOTAL+1;i++){const p=document.getElementById('prog-'+i);if(!p)continue;p.innerHTML=Array.from({length:OB_TOTAL},(_,j)=>`<div class="ob-dot${j<step?' done':''}"></div>`).join('');}
   if(step===3)renderObIncomeList();
   if(step===4)renderDatePicker();
-  if(step===6)renderStarterNests();
+  if(step===5)renderLifeEventPills();
+  if(step===7)renderStarterNests();
   window.scrollTo(0,0);
 }
 
@@ -414,10 +433,24 @@ function renderDatePicker(){
 function selectPayDay(i,btn){OB.paydays.day=i;document.querySelectorAll('[id^=pd-day-]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
 function obSave4(){const sel=document.getElementById('pd-freq');if(sel)OB.paydays.freq=sel.value;obGo(5);}
 
+// Multi-select life events
+function renderLifeEventPills(){
+  const container=document.getElementById('life-events-pills');if(!container)return;
+  container.innerHTML=ALL_LIFE_EVENTS.map(e=>{
+    const sel=OB.lifeEvents.includes(e.id);
+    return`<button onclick="toggleLifeEvent('${e.id}',this)" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;border:1.5px solid ${sel?'var(--ruby)':'var(--mist)'};background:${sel?'rgba(168,32,64,.07)':'var(--white)'};cursor:pointer;font-size:12px;color:${sel?'var(--ruby)':'var(--ink)'};font-weight:${sel?600:400};margin:3px;transition:all .15s;" data-evid="${e.id}">
+      <span>${e.icon}</span><span>${e.label}</span>
+    </button>`;
+  }).join('');
+}
+function toggleLifeEvent(id,btn){
+  const idx=OB.lifeEvents.indexOf(id);if(idx>=0)OB.lifeEvents.splice(idx,1);else OB.lifeEvents.push(id);
+  renderLifeEventPills();
+}
+
 function toggleKids(){const on=document.getElementById('tog-kids').checked;document.getElementById('kids-section').classList.toggle('hidden',!on);if(on&&!OB.kids.length)addObKid();}
 function togglePets(){const on=document.getElementById('tog-pets').checked;document.getElementById('pets-section').classList.toggle('hidden',!on);if(on&&!OB.pets.length)addObPet();}
 function toggleSupport(){document.getElementById('support-section').classList.toggle('hidden',!document.getElementById('tog-support').checked);}
-function toggleLifeChange(){document.getElementById('life-section').classList.toggle('hidden',!document.getElementById('tog-life').checked);}
 
 function addObKid(){OB.kids.push({id:uid(),name:'',age:''});renderObKidList();}
 function renderObKidList(){
@@ -431,7 +464,7 @@ function renderObKidList(){
       </div>
     </div>`).join('');
 }
-function addObPet(){OB.pets.push({id:uid(),name:'',type:'dog',otherType:''});renderObPetList();}
+function addObPet(){OB.pets.push({id:uid(),name:'',type:'dog'});renderObPetList();}
 function renderObPetList(){
   document.getElementById('pets-list').innerHTML=OB.pets.map((p,i)=>`
     <div class="income-row" style="margin-bottom:8px;">
@@ -440,7 +473,7 @@ function renderObPetList(){
       <div class="inp-row">
         <div class="field"><label class="lbl">name</label><input class="inp" value="${esc(p.name)}" placeholder="name" oninput="OB.pets[${i}].name=lc(this.value)"/></div>
         <div class="field"><label class="lbl">type</label>
-          <select class="inp" style="padding:11px 14px;" onchange="OB.pets[${i}].type=this.value;renderObPetList()">
+          <select class="inp" style="padding:11px 14px;" onchange="OB.pets[${i}].type=this.value">
             ${['dog','cat','bird','rabbit','hamster','fish','reptile','other'].map(t=>`<option value="${t}" ${p.type===t?'selected':''}>${t}</option>`).join('')}
           </select></div>
       </div>
@@ -450,27 +483,27 @@ function renderObPetList(){
 function obSave5(){
   if(document.getElementById('tog-support').checked){
     OB.supportSomeone=true;OB.supportType=document.getElementById('ob-support-type').value;
-    OB.supportNote=document.getElementById('ob-support-note')?.value||'';
     OB.supportCost=parseFloat(document.getElementById('ob-support-cost').value)||0;
-  }
-  if(document.getElementById('tog-life').checked){
-    OB.lifeChange=true;OB.lifeType=document.getElementById('ob-life-type').value;
-    OB.lifeOther=document.getElementById('ob-life-other')?.value||'';
   }
   if(!document.getElementById('tog-kids').checked)OB.kids=[];
   if(!document.getElementById('tog-pets').checked)OB.pets=[];
   obGo(6);
 }
 
+function obSave6Email(){
+  OB.email=document.getElementById('ob-email').value.trim();obGo(7);
+}
+
 function getContextualNests(){
-  const c=[];
-  if(OB.kids.length){c.push({id:'backtoschool',emoji:'\u{1F4DA}',name:'back to school',desc:'supplies, clothes, and registration. hits every august.',goal:600,monthly:50,note:'start it in january.'});c.push({id:'kidactivities',emoji:'\u26BD',name:'kids activities',desc:'sports, classes, camps.',goal:1200,monthly:100,note:''});}
+  const c=[];const le=OB.lifeEvents;
+  if(OB.kids.length){c.push({id:'backtoschool',emoji:'\u{1F4DA}',name:'back to school',desc:'supplies, clothes, registration. hits every august.',goal:600,monthly:50,note:'start it in january.'});c.push({id:'kidactivities',emoji:'\u26BD',name:'kids activities',desc:'sports, classes, camps.',goal:1200,monthly:100,note:''});}
   if(OB.pets.length)c.push({id:'petcare',emoji:'\u{1F43E}',name:'pet care',desc:'vet, grooming, food, boarding.',goal:1500,monthly:100,note:''});
-  if(OB.lifeType==='family_planning'){c.push({id:'baby',emoji:'\u{1F37C}',name:'baby fund',desc:'gear, childcare, medical, and leave gaps.',goal:5000,monthly:300,note:''});c.push({id:'fertility',emoji:'\u{1F338}',name:'fertility fund',desc:'ivf, appointments, treatments.',goal:15000,monthly:500,note:''});}
-  if(OB.lifeType==='buying_home')c.push({id:'house2',emoji:'\u{1F511}',name:'buying a home',desc:'down payment, closing costs, moving.',goal:20000,monthly:500,note:''});
-  if(OB.lifeType==='moving')c.push({id:'mov2',emoji:'\u{1F4E6}',name:'moving costs',desc:'deposit, first month, movers.',goal:3000,monthly:150,note:''});
-  if(OB.lifeType==='divorce')c.push({id:'fresh',emoji:'\u{1F331}',name:'fresh start fund',desc:'transition costs, deposits, and the rebuild.',goal:5000,monthly:200,note:''});
-  if(OB.lifeType==='layoff')c.push({id:'bridge',emoji:'\u{1F309}',name:'bridge fund',desc:'covering essentials while you land your next thing.',goal:10000,monthly:0,note:''});
+  if(le.includes('family_planning')){c.push({id:'baby',emoji:'\u{1F37C}',name:'baby fund',desc:'gear, childcare, medical, and leave gaps.',goal:5000,monthly:300,note:''});c.push({id:'fertility',emoji:'\u{1F338}',name:'fertility fund',desc:'ivf, appointments, treatments.',goal:15000,monthly:500,note:''});}
+  if(le.includes('buying_home'))c.push({id:'house2',emoji:'\u{1F511}',name:'buying a home',desc:'down payment, closing costs, moving.',goal:20000,monthly:500,note:''});
+  if(le.includes('moving'))c.push({id:'mov2',emoji:'\u{1F4E6}',name:'moving costs',desc:'deposit, first month, movers.',goal:3000,monthly:150,note:''});
+  if(le.includes('divorce'))c.push({id:'fresh',emoji:'\u{1F331}',name:'fresh start fund',desc:'transition costs, deposits, and the rebuild.',goal:5000,monthly:200,note:''});
+  if(le.includes('layoff'))c.push({id:'bridge',emoji:'\u{1F309}',name:'bridge fund',desc:'covering essentials while you land your next thing.',goal:10000,monthly:0,note:''});
+  if(le.includes('getting_married'))c.push({id:'wed2',emoji:'\u{1F48D}',name:'engagement and wedding',desc:'the proposal, the day, the honeymoon.',goal:10000,monthly:300,note:''});
   if(OB.supportSomeone)c.push({id:'support_fund',emoji:'\u{1F49B}',name:'support fund',desc:'a dedicated fund for the people you carry.',goal:2000,monthly:150,note:''});
   return c;
 }
@@ -503,39 +536,42 @@ function addCustomObNest(){
   const id=uid();const div=document.createElement('div');div.className='income-row';div.id='cob-'+id;
   div.innerHTML=`<div class="fb" style="margin-bottom:8px;"><span class="lbl">custom nest</span><button class="btn-ghost" onclick="document.getElementById('cob-${id}').remove()">remove</button></div>
     <div class="inp-row"><div class="field"><label class="lbl">name</label><input class="inp" data-cid="${id}" data-cf="name" placeholder="e.g. cruise 2027"/></div>
-    <div class="field"><label class="lbl">emoji</label><input class="inp" data-cid="${id}" data-cf="emoji" placeholder="&#128674;" maxlength="2" style="text-align:center;font-size:20px;"/></div></div>
+    <div class="field"><label class="lbl">emoji</label><input class="inp" data-cid="${id}" data-cf="emoji" placeholder="&#127958;" maxlength="2" style="text-align:center;font-size:20px;"/></div></div>
     <div class="inp-row"><div class="field"><label class="lbl">goal</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" data-cid="${id}" data-cf="goal" placeholder="0"/></div></div>
     <div class="field"><label class="lbl">monthly</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" data-cid="${id}" data-cf="monthly" placeholder="0"/></div></div></div>
     <div class="field" style="margin-top:4px;"><label class="lbl">target date</label><input class="inp" type="month" data-cid="${id}" data-cf="deadline"/></div>`;
   document.getElementById('custom-nests-ob').appendChild(div);
 }
 
-function obSave6(){
+function obSave7(){
   const allDefs={};allStarterNests().forEach(n=>allDefs[n.id]=n);getContextualNests().forEach(n=>allDefs[n.id]=n);
   const nests=[];
   Object.keys(OB.selectedStarters).filter(id=>OB.selectedStarters[id]).forEach(id=>{
-    const def=allDefs[id];if(def)nests.push({id:uid(),emoji:def.emoji,name:def.name,goal:def.goal,saved:0,monthly:def.monthly,deadline:'',note:def.note||'',lastContributed:null,startingGoal:def.goal});
+    const def=allDefs[id];if(def){
+      const nm=def.name==='haus money'?{...def,emoji:SPARKLE}:def;
+      nests.push({id:uid(),emoji:nm.emoji,name:nm.name,goal:nm.goal,saved:0,monthly:nm.monthly,deadline:'',note:nm.note||'',lastContributed:null,startingGoal:nm.goal,log:[]});
+    }
   });
   document.querySelectorAll('#custom-nests-ob .income-row').forEach(row=>{
     const inputs=row.querySelectorAll('[data-cid]');if(!inputs.length)return;
     const cid=inputs[0].dataset.cid;const get=cf=>row.querySelector(`[data-cid="${cid}"][data-cf="${cf}"]`)?.value||'';
     const name=get('name').trim();if(!name)return;
-    nests.push({id:uid(),emoji:get('emoji')||'\u{1F3AF}',name,goal:parseFloat(get('goal'))||0,saved:0,monthly:parseFloat(get('monthly'))||0,deadline:get('deadline')||'',note:'',lastContributed:null,startingGoal:parseFloat(get('goal'))||0});
+    nests.push({id:uid(),emoji:get('emoji')||'\u{1F3AF}',name,goal:parseFloat(get('goal'))||0,saved:0,monthly:parseFloat(get('monthly'))||0,deadline:get('deadline')||'',note:'',lastContributed:null,startingGoal:parseFloat(get('goal'))||0,log:[]});
   });
-  OB.customNests=nests;obGo(7);
+  OB.customNests=nests;obGo(8);
 }
 
 function launchApp(){
   const monthly=OB.income.reduce((s,i)=>{const a=i.amount||0,f={monthly:1,biweekly:2.167,weekly:4.333,'twice-monthly':2}[i.freq]||1;return s+a*f;},0);
   let nests=[...OB.customNests];
   if(!nests.find(n=>n.name.toLowerCase().includes('emergency')))
-    nests.unshift({id:uid(),emoji:'\u{1F6E1}',name:'emergency fund',goal:5000,saved:0,monthly:200,deadline:'',note:'start here. even a small cushion changes how you move through the world.',lastContributed:null,startingGoal:5000});
-  D={name:lc(OB.name),shared:OB.shared,income:OB.income,monthlyIncome:Math.round(monthly),
+    nests.unshift({id:uid(),emoji:'\u{1F6E1}',name:'emergency fund',goal:5000,saved:0,monthly:200,deadline:'',note:'start here. even a small cushion changes how you move through the world.',lastContributed:null,startingGoal:5000,log:[]});
+  D={name:lc(OB.name),shared:OB.shared,income:OB.income,monthlyIncome:Math.round(monthly),email:OB.email,
     paydays:OB.paydays,budget:{plan:[],months:{}},nests,debts:[],transactions:[],
     kids:OB.kids.map(k=>({...k,chores:[],allowance:0,allowanceSplit:{givePct:10,savePct:25,spendPct:65},allowanceDay:'sunday',allowanceFreq:'weekly',birthday:'',activities:[]})),
     pets:OB.pets.map(p=>({...p,groomingCost:0,groomingFreq:'monthly',foodCost:0,foodFreq:'monthly',boardingCost:0,boardingFreq:'annually',extraExpenses:[]})),
-    supportSomeone:OB.supportSomeone,supportType:OB.supportType,supportNote:OB.supportNote,supportCost:OB.supportCost,
-    lifeChange:OB.lifeChange,lifeType:OB.lifeType,lifeOther:OB.lifeOther,
+    supportSomeone:OB.supportSomeone,supportType:OB.supportType,supportCost:OB.supportCost,
+    lifeEvents:OB.lifeEvents,
     debtMethod:'avalanche',hiddenLifeTabs:[],createdAt:Date.now()};
   save();startApp();
 }
@@ -545,7 +581,7 @@ function startApp(){
   document.getElementById('app-shell').classList.add('show');
   updateTopbar();nav('home',document.querySelector('.nb[data-tab=home]'));
 }
-function updateTopbar(){const n=D.name||'friend';document.getElementById('tb-name').textContent=n+"'s haus";document.getElementById('tb-av').textContent=n.charAt(0);}
+function updateTopbar(){const n=D.name||'friend';document.getElementById('tb-name').textContent=n+"'s haus";}
 
 function nav(tab,btn){
   activeTab=tab;document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
@@ -569,7 +605,7 @@ function fmtDl(dl){if(!dl)return'';try{return new Date(dl+'-01').toLocaleString(
 function ensureMonth(){const m=getCurMonth();D.budget.months=D.budget.months||{};if(!D.budget.months[m])D.budget.months[m]={actuals:{},logged:[]};return D.budget.months[m];}
 function closeModal(id){document.getElementById(id)?.remove();}
 
-// HOME
+// HOME - with budget surplus wins and seasonal kids/life surfacing
 function renderHome(){
   const income=D.monthlyIncome||0;const mData=ensureMonth();
   const spent=D.budget.plan.reduce((s,b)=>s+(mData.actuals[b.id]||0),0);
@@ -577,13 +613,25 @@ function renderHome(){
   const totalDebt=D.debts.reduce((s,d)=>s+(d.balance||0),0);
   const h=new Date().getHours();const name=(D.name||'friend').split(' ')[0];
   const greeting=h<12?'good morning':h<17?'good afternoon':'good evening';
-  const sugs=getSmartSuggestions();
-  const upcoming=D.nests.filter(n=>n.deadline&&n.saved<n.goal).map(n=>{const d=new Date(n.deadline+'-01'),now=new Date();return{...n,months:Math.max(0,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()))};}).filter(n=>n.months<=3).sort((a,b)=>a.months-b.months);
+
+  // Budget surplus wins: categories under budget
+  const surplusWins=[];
+  D.budget.plan.forEach(b=>{const s=mData.actuals[b.id]||0;const diff=b.budgeted-s;if(diff>=20&&s>0){const topNest=D.nests.filter(n=>n.saved<n.goal).sort((a,b2)=>b2.monthly-a.monthly)[0];if(topNest)surplusWins.push({budget:b,diff,nest:topNest});}});
+
+  // Seasonal surfacing within 3 months
+  const now=new Date();const mo=now.getMonth();
+  const seasonalItems=[];
+  const hasKids=D.kids&&D.kids.length>0;
+  if(hasKids){
+    if(mo>=5&&mo<=7)seasonalItems.push({icon:'\u2600\uFE0F',label:'summer camp season',note:'registration opens early. lock in spots before they fill.',nestHint:'kids activities'});
+    if(mo>=6&&mo<=8)seasonalItems.push({icon:'\u{1F4DA}',label:'back to school',note:'supplies, shoes, clothes, and registration. typically $200 to $600 per child.',nestHint:'back to school'});
+    if(mo>=1&&mo<=2)seasonalItems.push({icon:'\u2764\uFE0F',label:'valentines and classroom',note:'cards, treats, and the little things add up fast.',nestHint:'holiday'});
+    if(mo>=9&&mo<=10)seasonalItems.push({icon:'\u{1F383}',label:'halloween',note:'costumes and parties. plan it now before the rush.',nestHint:'holiday'});
+  }
+  if(mo>=9&&mo<=11)seasonalItems.push({icon:'\u{1F381}',label:'holiday season',note:'gifts, travel, hosting. the earlier you plan, the better it feels.',nestHint:'holidays and gifts'});
+  if(mo===2)seasonalItems.push({icon:'\u{1F33C}',label:'spring break coming',note:'set aside something now if you are traveling.',nestHint:'vacation'});
+
   const topNests=D.nests.slice(0,4).map(n=>{const p=pct(n.saved,n.goal);return`<div class="nest-card ${nestClass(p)}" style="padding:14px;"><div class="fc" style="margin-bottom:6px;"><span style="font-size:16px;">${n.emoji}</span><span style="font-size:13px;font-weight:500;flex:1;">${esc(n.name)}</span><span style="font-size:11px;font-weight:600;color:${p>=100?'var(--sage)':p>=50?'var(--warm)':'var(--ruby)'};">${p}%</span></div><div class="fc" style="justify-content:space-between;margin-bottom:5px;"><span style="font-family:var(--ff-serif);font-size:17px;color:var(--cocoa);">${$(n.saved)}</span><span class="sub">of ${$(n.goal)}</span></div><div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:${p}%;height:100%;background:${p>=100?'var(--sage)':p>=50?'var(--warm)':'var(--ruby)'};"></div></div></div>`;}).join('');
-  const wins=[];
-  const funded=D.nests.filter(n=>n.saved>=n.goal&&n.goal>0);if(funded.length)wins.push(`${funded[0].emoji} ${funded[0].name} is fully funded. that's real progress.`);
-  const ef=D.nests.find(n=>n.name.toLowerCase().includes('emergency'));if(ef&&ef.saved>0&&ef.saved<ef.goal)wins.push(`your emergency fund is ${pct(ef.saved,ef.goal)}% there. every dollar you add changes the math.`);
-  if(margin>0&&spent>0)wins.push(`you have kept ${$(margin)} unspent this month. that's yours to direct.`);
 
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
     ${isPayday()?`<div class="payday-banner"><span style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--sky);display:block;margin-bottom:6px;">today is payday</span><span style="font-family:var(--ff-serif);font-size:22px;color:var(--linen);display:block;margin-bottom:10px;">let's take control.</span><div class="stack" style="gap:6px;">${D.nests.filter(n=>n.monthly>0&&n.saved<n.goal).slice(0,3).map(n=>`<div class="fc" style="background:rgba(255,255,255,.07);border-radius:10px;padding:9px 12px;gap:10px;"><span>${n.emoji}</span><span style="font-size:12px;color:var(--linen);flex:1;">${esc(n.name)}</span><span style="font-size:12px;font-weight:600;color:var(--sky);">${$(n.monthly)}</span></div>`).join('')}</div></div>`:''}
@@ -599,28 +647,23 @@ function renderHome(){
         <div class="stat-mini"><span class="stat-mini-lbl">total debt</span><span class="stat-mini-val" style="color:${totalDebt>0?'#E8A0AF':'rgba(245,239,228,.4)'};">${$(totalDebt)}</span></div>
       </div>
     </div>
-    ${upcoming.length?`<div class="card" style="background:rgba(168,32,64,.04);border-color:rgba(168,32,64,.2);"><span class="sec-head" style="color:var(--ruby);">coming up soon</span>${upcoming.map(n=>`<div class="row-item"><div class="fc"><span style="font-size:16px;">${n.emoji}</span><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${esc(n.name)}</div><div class="sub">${fmtDl(n.deadline)} &middot; ${$(n.goal-n.saved)} still needed</div></div><span style="font-size:11px;font-weight:600;color:var(--ruby);">${n.months===0?'this month':n.months===1?'1 mo':n.months+' mo'}</span></div></div>`).join('')}</div>`:''}
-    ${sugs.length?`<div class="stack" style="gap:8px;"><span class="sec-head">haus thoughts</span>${sugs.map(s=>`<div class="suggestion"><span class="sug-icon">${s.icon}</span><p class="sug-text">${s.text}</p></div>`).join('')}</div>`:''}
-    ${D.nests.length?`<div><div class="fb" style="margin-bottom:10px;"><span class="sec-head" style="margin:0;">your nests</span><button onclick="nav('nests',document.querySelector('.nb[data-tab=nests]'))" style="background:none;border:none;font-size:11px;color:var(--ruby);font-weight:500;cursor:pointer;">see all</button></div><div class="g2" style="gap:10px;">${topNests}</div>${wins.length?`<div class="stack" style="gap:6px;margin-top:10px;">${wins.slice(0,2).map(w=>`<div style="border-left:3px solid var(--sage);padding:11px 14px;display:flex;gap:10px;background:rgba(106,140,110,.06);border-radius:0 10px 10px 0;"><span style="font-size:16px;flex-shrink:0;">&#10022;</span><p style="font-size:12.5px;line-height:1.65;color:var(--ink);">${w}</p></div>`).join('')}</div>`:''}</div>`:`<div class="card" style="text-align:center;padding:32px 20px;"><div style="font-size:36px;margin-bottom:10px;">&#129319;</div><span class="card-title" style="display:block;margin-bottom:6px;">no nests yet</span><p class="sub">add your first savings goal and give this money a home.</p><button class="btn-ruby btn-sm" style="margin-top:14px;" onclick="nav('nests',document.querySelector('.nb[data-tab=nests]'))">+ create a nest</button></div>`}
+    ${surplusWins.length?`<div class="stack" style="gap:8px;"><span class="sec-head">budget wins this month</span>${surplusWins.slice(0,2).map(w=>`<div style="background:rgba(106,140,110,.06);border:1px solid rgba(106,140,110,.25);border-radius:var(--r-md);padding:14px;"><div class="fc" style="margin-bottom:8px;"><span style="font-size:18px;">${w.budget.emoji||'\u{1F4CC}'}</span><p style="font-size:13px;line-height:1.55;flex:1;">you came in ${$(w.diff)} under on ${w.budget.name} this month. route it to your ${esc(w.nest.name)} nest to make it count.</p></div><button class="btn-sky btn-sm" onclick="quickRouteToNest('${w.nest.id}',${w.diff})">route ${$(w.diff)} to ${esc(w.nest.name)}</button></div>`).join('')}</div>`:''}
+    ${seasonalItems.length?`<div class="stack" style="gap:8px;"><span class="sec-head">on your radar</span>${seasonalItems.map(s=>{const targetNest=D.nests.find(n=>n.name.toLowerCase().includes(s.nestHint.toLowerCase()));return`<div class="suggestion"><span class="sug-icon">${s.icon}</span><div style="flex:1;"><p class="sug-text" style="margin-bottom:6px;"><strong>${s.label}:</strong> ${s.note}</p>${targetNest?`<button class="btn-sky btn-sm" onclick="openDeposit('${targetNest.id}')">add to ${esc(targetNest.name)}</button>`:`<button class="btn-sky btn-sm" onclick="openNewNest({name:'${esc(s.label.toLowerCase())} fund',emoji:'${s.icon}'})">create a nest</button>`}</div></div>`;}).join('')}</div>`:''}
+    ${D.nests.length?`<div><div class="fb" style="margin-bottom:10px;"><span class="sec-head" style="margin:0;">your nests</span><button onclick="nav('nests',document.querySelector('.nb[data-tab=nests]'))" style="background:none;border:none;font-size:11px;color:var(--ruby);font-weight:500;cursor:pointer;">see all</button></div><div class="g2" style="gap:10px;">${topNests}</div></div>`:`<div class="card" style="text-align:center;padding:32px 20px;"><div style="font-size:36px;margin-bottom:10px;">&#129319;</div><span class="card-title" style="display:block;margin-bottom:6px;">no nests yet</span><p class="sub">add your first savings goal and give this money a home.</p><button class="btn-ruby btn-sm" style="margin-top:14px;" onclick="nav('nests',document.querySelector('.nb[data-tab=nests]'))">+ create a nest</button></div>`}
     <div style="text-align:center;padding:4px 0;"><span style="font-family:var(--ff-serif);font-size:12px;color:var(--cocoa);opacity:.15;font-style:italic;letter-spacing:1px;">by solari haus</span></div>
   </div>`;
 }
 
-function getSmartSuggestions(){
-  const sugs=[];const now=new Date();const mo=now.getMonth();
-  if(D.kids&&D.kids.length&&mo>=5&&mo<=7)sugs.push({icon:'\u{1F4DA}',text:'back to school hits harder than it should. a small monthly set-aside now means august does not catch you off guard.'});
-  if(mo>=9){const hol=D.nests.find(n=>n.name.includes('holiday'));if(!hol||hol.saved<(hol?.goal||800)*.5)sugs.push({icon:'\u{1F381}',text:`the holidays arrive faster than they feel. even ${$(50*(12-mo))} set aside between now and december makes a real difference.`});}
-  const ef=D.nests.find(n=>n.name.toLowerCase().includes('emergency'));
-  const mExp=D.budget.plan.reduce((s,b)=>s+b.budgeted,0)||D.monthlyIncome*.6;
-  if(!ef)sugs.push({icon:'\u{1F6E1}',text:`an emergency fund is the first thing worth building. three months of expenses is around ${$(Math.round(mExp*3))}. starting anywhere counts.`});
-  else if(ef.saved<mExp*3){const mo2=ef.monthly||1;sugs.push({icon:'\u{1F6E1}',text:`your emergency fund is ${pct(ef.saved,mExp*3)}% of three months of expenses. at ${$(mo2)}/month, you will reach it around ${monthsToDate(Math.ceil((mExp*3-ef.saved)/mo2))}.`});}
-  D.nests.forEach(n=>{if(n.goal>0&&n.saved<n.goal&&n.deadline&&n.monthly>0){const needed=calcNeeded(n);if(needed&&n.monthly<needed*.85)sugs.push({icon:'\u{1F4CA}',text:`your ${n.name} goal of ${$(n.goal)} by ${fmtDl(n.deadline)} needs about ${$(needed)}/month. you currently have ${$(n.monthly)} set.`});}});
-  return sugs.slice(0,3);
+function quickRouteToNest(nestId,amount){
+  const n=D.nests.find(x=>x.id===nestId);if(!n)return;
+  n.saved=Math.min(n.goal,n.saved+amount);n.lastContributed=today();
+  n.log=n.log||[];n.log.push({id:uid(),type:'routed from budget surplus',amount,date:today()});
+  D.transactions=D.transactions||[];D.transactions.push({id:uid(),type:'deposit',depositType:'budget_surplus',nestId,amount,date:today()});
+  save();renderHome();
 }
 
 // BUDGET
 let budgetView='plan';
-
 function renderBudget(){
   const income=D.monthlyIncome||0;const mData=ensureMonth();
   const spent=D.budget.plan.reduce((s,b)=>s+(mData.actuals[b.id]||0),0);
@@ -628,21 +671,13 @@ function renderBudget(){
   const budgeted=D.budget.plan.reduce((s,b)=>s+b.budgeted,0);
   const totalPlanned=budgeted+nestAlloc;const unallocated=income-totalPlanned;
   const trueMargin=income-spent-nestAlloc;
-  const fixedSpent=D.budget.plan.filter(b=>['housing','transport','insurance','subscriptions'].includes(b.group)).reduce((s,b)=>s+(mData.actuals[b.id]||b.budgeted),0);
-  const investSpent=D.budget.plan.filter(b=>b.group==='investing').reduce((s,b)=>s+(mData.actuals[b.id]||b.budgeted),0);
-  const fixedPct=income>0?Math.round(fixedSpent/income*100):0;
-  const investPct=income>0?Math.round(investSpent/income*100):0;
-  const savingsPct=income>0?Math.round(nestAlloc/income*100):0;
-  const gfPct=income>0?Math.round(Math.max(0,spent-fixedSpent-investSpent)/income*100):0;
-
-  const pctBar=(label,val,min,max)=>`<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;"><span style="font-size:12px;font-weight:500;">${label}</span><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:14px;font-weight:600;color:${val>=min&&val<=max?'var(--sage)':'var(--ruby)'};">${val}%</span><span style="font-size:10px;color:var(--cocoa);opacity:.35;">target ${min}&ndash;${max}%</span></div></div><div class="bar-track" style="height:5px;"><div class="bar-fill" style="width:${Math.min(100,val)}%;height:100%;background:${val>=min&&val<=max?'var(--sage)':val<min?'var(--sky)':'var(--ruby)'};"></div></div></div>`;
 
   if(budgetView==='plan'){
     const planRows=D.budget.plan.map(b=>`<div style="padding:12px 0;border-bottom:1px solid var(--mist);"><div class="fb"><div class="fc"><span style="font-size:16px;">${b.emoji||'\u{1F4CC}'}</span><span style="font-size:13px;font-weight:500;">${esc(b.name)}</span></div><div class="fc" style="gap:6px;"><span style="font-family:var(--ff-serif);font-size:16px;color:var(--cocoa);">${$(b.budgeted)}</span><button class="btn-icon" onclick="openEditBudget('${b.id}')">&#9998;</button><button class="btn-icon" onclick="D.budget.plan=D.budget.plan.filter(x=>x.id!=='${b.id}');save();renderBudget()">&#10005;</button></div></div></div>`).join('');
     document.getElementById('content').innerHTML=`<div class="stack fade-in">
       <div class="tab-row"><button class="tab-btn on">plan</button><button class="tab-btn" onclick="budgetView='track';renderBudget()">track</button><button class="tab-btn" onclick="budgetView='history';renderBudget()">history</button></div>
       <div class="card-dark" style="background:linear-gradient(135deg,var(--cocoa),#5C3020);">
-        <span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">${getMonthLabel()} &mdash; your plan</span>
+        <span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">${getMonthLabel()} your plan</span>
         <div class="g3" style="gap:8px;">
           <div class="stat-mini"><span class="stat-mini-lbl">net income</span><span class="stat-mini-val" style="color:var(--sky);font-size:16px;">${$(income)}</span></div>
           <div class="stat-mini"><span class="stat-mini-lbl">planned out</span><span class="stat-mini-val" style="color:var(--linen);font-size:16px;">${$(totalPlanned)}</span></div>
@@ -650,30 +685,30 @@ function renderBudget(){
         </div>
       </div>
       <div class="card" style="background:${Math.abs(unallocated)<50?'rgba(106,140,110,.07)':'rgba(168,32,64,.05)'};border-color:${Math.abs(unallocated)<50?'rgba(106,140,110,.25)':'rgba(168,32,64,.18)'};">
-        <div class="fc"><span style="font-size:20px;">${Math.abs(unallocated)<50?'&#9989;':'&#9888;&#65039;'}</span><div><div style="font-size:13px;font-weight:500;">${Math.abs(unallocated)<50?'every dollar has a plan.':'some dollars are still floating.'}</div><div class="sub">${$(Math.abs(unallocated))} ${unallocated>=0?'not yet assigned':'over your income'}</div></div></div>
+        <div class="fc" style="margin-bottom:${unallocated>50?'10px':'0'};"><span style="font-size:20px;">${Math.abs(unallocated)<50?'&#9989;':'&#128270;'}</span><div><div style="font-size:13px;font-weight:500;">${Math.abs(unallocated)<50?'every dollar has a plan.':'these dollars are waiting on a job. assign them.'}</div><div class="sub">${$(Math.abs(unallocated))} ${unallocated>=0?'not yet assigned':'over your income'}</div></div></div>
+        ${unallocated>50?`<button class="btn-sky btn-sm" onclick="openDistributeToNests(${Math.floor(unallocated)})">distribute to nests</button>`:''}
       </div>
-      ${!D.budget.plan.length?`<div class="card" style="text-align:center;padding:28px 20px;"><div style="font-size:32px;margin-bottom:10px;">&#128203;</div><span class="card-title" style="display:block;margin-bottom:8px;">start with what goes out every month</span><p class="sub" style="margin-bottom:16px;line-height:1.7;">add rent, utilities, subscriptions &mdash; the fixed stuff. once you see it all, your true margin becomes clear.</p><button class="btn-ruby" onclick="openAddBudget()">+ add your first expense</button></div>`:`<div class="card" style="padding:0;overflow:hidden;"><div style="padding:16px 20px 0;" class="fb"><span class="card-title">monthly expenses</span><button class="btn-ruby btn-sm" onclick="openAddBudget()">+ add</button></div><div style="padding:0 16px 8px;">${planRows}</div></div>`}
-      ${nestAlloc>0?`<div class="card"><div class="card-hdr"><span class="card-title">nest contributions</span></div>${D.nests.filter(n=>n.monthly>0).map(n=>`<div class="row-item"><div class="fb"><div class="fc"><span>${n.emoji}</span><span style="font-size:13px;">${esc(n.name)}</span></div><span style="font-size:13px;font-weight:500;color:var(--cocoa);">${$(n.monthly)}/mo</span></div></div>`).join('')}</div>`:''}
-      ${D.budget.plan.length?`<div class="card"><span class="sec-head">how your spending breaks down</span><p style="font-size:11px;color:var(--cocoa);opacity:.4;margin-bottom:12px;line-height:1.6;">a rough guide to healthy allocation. your numbers, compared to the ranges.</p>${pctBar('fixed costs',fixedPct,50,60)}${pctBar('investing and retirement',investPct,10,20)}${pctBar('nest contributions',savingsPct,5,10)}${pctBar('flexible spending',gfPct,20,35)}</div>`:''}
+      ${!D.budget.plan.length?`<div class="card" style="text-align:center;padding:28px 20px;"><div style="font-size:32px;margin-bottom:10px;">&#128203;</div><span class="card-title" style="display:block;margin-bottom:8px;">start with what goes out every month</span><p class="sub" style="margin-bottom:16px;line-height:1.7;">add rent, utilities, subscriptions. the fixed stuff. once you see it all, your true margin becomes clear.</p><button class="btn-ruby" onclick="openAddBudget()">+ add your first expense</button></div>`:`<div class="card" style="padding:0;overflow:hidden;"><div style="padding:16px 20px 0;" class="fb"><span class="card-title">monthly expenses</span><button class="btn-ruby btn-sm" onclick="openAddBudget()">+ add</button></div><div style="padding:0 16px 8px;">${planRows}</div></div>`}
+      ${nestAlloc>0?`<div class="card"><div class="card-hdr"><span class="card-title">nest contributions</span><span style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);">${$(nestAlloc)}/mo</span></div>${D.nests.filter(n=>n.monthly>0).map(n=>`<div class="row-item"><div class="fb"><div class="fc"><span>${n.emoji}</span><span style="font-size:13px;">${esc(n.name)}</span></div><span style="font-size:13px;font-weight:500;color:var(--cocoa);">${$(n.monthly)}/mo</span></div></div>`).join('')}</div>`:''}
       <button class="btn-add" onclick="openAddBudget()">+ add expense</button>
     </div>`;
 
   } else if(budgetView==='track'){
     const trackRows=D.budget.plan.map(b=>{const s=mData.actuals[b.id]||0;const diff=b.budgeted-s;const over=diff<0;const p=b.budgeted>0?pct(s,b.budgeted):0;
-      return`<div style="padding:13px 0;border-bottom:1px solid var(--mist);"><div class="fb" style="margin-bottom:4px;"><div class="fc"><span style="font-size:15px;">${b.emoji||'\u{1F4CC}'}</span><span style="font-size:13px;font-weight:500;">${esc(b.name)}</span></div><div class="fc" style="gap:8px;"><span style="font-size:11px;font-weight:600;color:${over?'var(--ruby)':'var(--sage)'};">${over?'':'+'}${$(Math.abs(diff))}</span><button class="btn-ruby btn-sm" onclick="openLogExpense('${b.id}')">log</button></div></div><div class="fb" style="margin:2px 0 5px;"><span class="sub">spent ${$(s)}</span><span class="sub">planned ${$(b.budgeted)}</span></div><div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:${Math.min(100,p)}%;height:100%;background:${over?'var(--ruby)':p>80?'var(--warm)':'var(--sky)'};"></div></div></div>`;}).join('');
+      return`<div style="padding:13px 0;border-bottom:1px solid var(--mist);"><div class="fb" style="margin-bottom:4px;"><div class="fc"><span style="font-size:15px;">${b.emoji||'\u{1F4CC}'}</span><span style="font-size:13px;font-weight:500;">${esc(b.name)}</span></div><div class="fc" style="gap:8px;"><span style="font-size:11px;font-weight:600;color:${over?'var(--ruby)':'var(--sage)'};">${over?'':'+'}${$(Math.abs(diff))}</span><button class="btn-ruby btn-sm" onclick="openLogExpense('${b.id}')">log</button>${!over&&diff>=10?`<button class="btn-sky btn-sm" onclick="openReallocateFromBudget('${b.id}',${Math.floor(diff)})">allocate</button>`:''}</div></div><div class="fb" style="margin:2px 0 5px;"><span class="sub">spent ${$(s)}</span><span class="sub">planned ${$(b.budgeted)}</span></div><div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:${Math.min(100,p)}%;height:100%;background:${over?'var(--ruby)':p>80?'var(--warm)':'var(--sky)'};"></div></div></div>`;}).join('');
     const recent=(mData.logged||[]).slice(-5).reverse();
     document.getElementById('content').innerHTML=`<div class="stack fade-in">
       <div class="tab-row"><button class="tab-btn" onclick="budgetView='plan';renderBudget()">plan</button><button class="tab-btn on">track</button><button class="tab-btn" onclick="budgetView='history';renderBudget()">history</button></div>
       <div class="card-dark" style="background:linear-gradient(135deg,var(--cocoa),#5C3020);">
-        <span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">${getMonthLabel()} &mdash; what's actually happened</span>
+        <span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">${getMonthLabel()} what's actually happened</span>
         <div class="g3" style="gap:8px;">
           <div class="stat-mini"><span class="stat-mini-lbl">net income</span><span class="stat-mini-val" style="color:var(--sky);font-size:16px;">${$(income)}</span></div>
           <div class="stat-mini"><span class="stat-mini-lbl">spent so far</span><span class="stat-mini-val" style="color:${spent>budgeted?'var(--ruby)':'var(--linen)'};font-size:16px;">${$(spent)}</span></div>
           <div class="stat-mini"><span class="stat-mini-lbl">true margin</span><span class="stat-mini-val" style="color:${trueMargin>=0?'var(--linen)':'var(--ruby)'};font-size:16px;">${$(trueMargin)}</span></div>
         </div>
       </div>
-      ${trueMargin>0?`<div class="suggestion"><span class="sug-icon">&#10022;</span><p class="sug-text">you have ${$(trueMargin)} in true margin this month. real money to direct &mdash; toward a nest, a debt, or whatever matters most right now.</p></div>`:''}
-      ${D.budget.plan.length?`<div class="card" style="padding:0;overflow:hidden;"><div style="padding:16px 20px 0;" class="fb"><span class="card-title">category tracker</span><button class="btn-ruby btn-sm" onclick="openLogExpenseGeneral()">+ log expense</button></div><div style="padding:0 16px 8px;">${trackRows||'<p style="padding:16px 0;text-align:center;" class="sub">set up your plan first.</p>'}</div></div>`:`<div class="card" style="text-align:center;padding:24px;"><p class="sub">build your plan first &mdash; then this tab comes to life.</p><button class="btn-ruby btn-sm" style="margin-top:12px;" onclick="budgetView='plan';renderBudget()">go to plan</button></div>`}
+      ${trueMargin>0?`<div class="suggestion"><span class="sug-icon">&#10022;</span><p class="sug-text">you have ${$(trueMargin)} in true margin this month. real money to direct toward a nest, a debt, or whatever matters most right now.</p></div>`:''}
+      ${D.budget.plan.length?`<div class="card" style="padding:0;overflow:hidden;"><div style="padding:16px 20px 0;" class="fb"><span class="card-title">category tracker</span><button class="btn-ruby btn-sm" onclick="openLogExpenseGeneral()">+ log expense</button></div><div style="padding:0 16px 8px;">${trackRows||'<p style="padding:16px 0;text-align:center;" class="sub">set up your plan first.</p>'}</div></div>`:`<div class="card" style="text-align:center;padding:24px;"><p class="sub">build your plan first, then this tab comes to life.</p><button class="btn-ruby btn-sm" style="margin-top:12px;" onclick="budgetView='plan';renderBudget()">go to plan</button></div>`}
       ${recent.length?`<div class="card"><span class="sec-head">recently logged</span>${recent.map(l=>`<div class="row-item"><div class="fb"><div><div style="font-size:13px;">${esc(l.note||l.category)}</div><div class="sub">${l.date}</div></div><span style="font-size:13px;font-weight:500;color:var(--ruby);">${$(l.amount)}</span></div></div>`).join('')}</div>`:''}
     </div>`;
 
@@ -689,15 +724,65 @@ function renderBudget(){
   }
 }
 
+function openDistributeToNests(amount){
+  const candidates=D.nests.filter(n=>n.saved<n.goal);
+  if(!candidates.length)return;
+  const perNest=Math.floor(amount/candidates.length);
+  let html=`<p style="font-size:13px;color:var(--cocoa);opacity:.5;margin-bottom:14px;line-height:1.6;">distribute ${$(amount)} across your active nests. adjust how much goes where.</p>`;
+  html+=candidates.map((n,i)=>{const after=Math.min(n.goal,n.saved+perNest);const p=pct(after,n.goal);
+    let daysCloser='';if(n.monthly>0&&n.deadline){const d=new Date(n.deadline+'-01'),now=new Date();const totalMo=Math.max(1,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()));const daysPerDollar=totalMo*30/(Math.max(1,n.goal-n.saved));const daysSaved=Math.round(perNest*daysPerDollar);if(daysSaved>0)daysCloser=`<span class="sub" style="color:var(--sage);"> ${daysSaved} days closer to your goal</span>`;}
+    return`<div style="padding:12px 0;border-bottom:1px solid var(--mist);"><div class="fc" style="margin-bottom:6px;"><span style="font-size:16px;">${n.emoji}</span><span style="font-size:13px;font-weight:500;flex:1;">${esc(n.name)}</span></div><div class="fc" style="gap:8px;margin-bottom:4px;"><div class="amt-wrap" style="flex:1;"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="dist-${n.id}" value="${perNest}"/></div></div><div class="sub" style="margin-bottom:2px;">after: ${$(after)} (${p}%)${daysCloser}</div></div>`;
+  }).join('');
+  document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-distribute" onclick="closeModal('modal-distribute')"><div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hdr"><span class="sheet-title">distribute to nests</span><button class="sheet-close" onclick="closeModal('modal-distribute')">close</button></div>
+    <div class="stack" style="gap:4px;">${html}</div>
+    <button class="btn-primary" style="margin-top:16px;" onclick="submitDistribute([${candidates.map(n=>`'${n.id}'`).join(',')}])">confirm distribution</button>
+  </div></div>`);
+}
+function submitDistribute(nestIds){
+  nestIds.forEach(id=>{const n=D.nests.find(x=>x.id===id);if(!n)return;const amt=parseFloat(document.getElementById('dist-'+id)?.value)||0;if(!amt)return;n.saved=Math.min(n.goal,n.saved+amt);n.lastContributed=today();n.log=n.log||[];n.log.push({id:uid(),type:'distribution from budget',amount:amt,date:today()});D.transactions=D.transactions||[];D.transactions.push({id:uid(),type:'deposit',depositType:'distribution',nestId:id,amount:amt,date:today()});});
+  save();closeModal('modal-distribute');renderBudget();
+}
+
+function openReallocateFromBudget(budgetId,diff){
+  const b=D.budget.plan.find(x=>x.id===budgetId);if(!b)return;
+  const nOpts=D.nests.filter(n=>n.saved<n.goal).map(n=>`<option value="${n.id}">${n.emoji} ${esc(n.name)}</option>`).join('');
+  document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-realloc" onclick="closeModal('modal-realloc')"><div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hdr"><span class="sheet-title">reallocate savings</span><button class="sheet-close" onclick="closeModal('modal-realloc')">close</button></div>
+    <div class="stack" style="gap:12px;">
+      <div style="background:rgba(106,140,110,.08);border:1px solid rgba(106,140,110,.25);border-radius:var(--r-md);padding:12px 14px;"><span style="font-size:13px;font-weight:500;">${b.emoji||'\u{1F4CC}'} ${esc(b.name)}</span><div class="sub">you came in ${$(diff)} under budget this month</div></div>
+      <div class="field"><label class="lbl">send to which nest</label><select class="inp" id="ra-nest" style="padding:11px 14px;" onchange="updateReallocPreview('${budgetId}',${diff})">${nOpts}</select></div>
+      <div class="field"><label class="lbl">amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ra-amt" value="${diff}" oninput="updateReallocPreview('${budgetId}',${diff})"/></div></div>
+      <div id="ra-preview"></div>
+      <button class="btn-primary" onclick="submitRealloc('${budgetId}')">send it</button>
+    </div>
+  </div></div>`);
+  updateReallocPreview(budgetId,diff);
+}
+function updateReallocPreview(budgetId,maxDiff){
+  const nestId=document.getElementById('ra-nest')?.value;const amt=parseFloat(document.getElementById('ra-amt')?.value)||0;
+  const n=D.nests.find(x=>x.id===nestId);const preview=document.getElementById('ra-preview');if(!preview||!n)return;
+  const after=Math.min(n.goal,n.saved+amt);const p=pct(after,n.goal);
+  let daysNote='';if(n.monthly>0&&n.deadline){const d=new Date(n.deadline+'-01'),now=new Date();const totalMo=Math.max(1,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()));const daysPerDollar=totalMo*30/(Math.max(1,n.goal-n.saved));const days=Math.round(amt*daysPerDollar);if(days>0)daysNote=`<div class="sub" style="color:var(--sage);margin-top:2px;">that's ${days} days closer to ${fmtDl(n.deadline)}</div>`;}
+  preview.innerHTML=`<div class="suggestion"><p class="sug-text">${$(n.saved)} + ${$(amt)} = <strong>${$(after)}</strong> (${p}%)</p>${daysNote}</div>`;
+}
+function submitRealloc(budgetId){
+  const nestId=document.getElementById('ra-nest')?.value;const amt=parseFloat(document.getElementById('ra-amt')?.value)||0;
+  if(!nestId||!amt)return;const n=D.nests.find(x=>x.id===nestId);if(!n)return;
+  n.saved=Math.min(n.goal,n.saved+amt);n.lastContributed=today();n.log=n.log||[];n.log.push({id:uid(),type:'reallocated from budget',amount:amt,date:today()});
+  D.transactions=D.transactions||[];D.transactions.push({id:uid(),type:'deposit',depositType:'reallocation',nestId,amount:amt,date:today()});
+  save();closeModal('modal-realloc');renderBudget();
+}
+
 const BUDGET_CATS=[
   {emoji:'\u{1F3E0}',name:'rent or mortgage',group:'housing'},{emoji:'\u{1F4A1}',name:'utilities',group:'housing'},{emoji:'\u{1F4F1}',name:'phone',group:'housing'},{emoji:'\u{1F310}',name:'internet',group:'housing'},
-  {emoji:'\u{1F6D2}',name:'groceries',group:'food'},{emoji:'\u{1F37D}',name:'dining out',group:'food'},{emoji:'\u2615',name:'coffee',group:'food'},
+  {emoji:'\u{1F6D2}',name:'groceries',group:'food'},{emoji:'\u{1F37D}\uFE0F',name:'dining out',group:'food'},{emoji:'\u2615',name:'coffee',group:'food'},
   {emoji:'\u26FD',name:'gas',group:'transport'},{emoji:'\u{1F68C}',name:'transit or rideshare',group:'transport'},{emoji:'\u{1F698}',name:'car payment',group:'transport'},
   {emoji:'\u{1F3AC}',name:'streaming services',group:'subscriptions'},{emoji:'\u{1F4E6}',name:'annual memberships',group:'subscriptions'},
-  {emoji:'\u{1F457}',name:'clothing',group:'personal'},{emoji:'\u{1F485}',name:'personal care',group:'personal'},{emoji:'\u{1F389}',name:'entertainment',group:'personal'},{emoji:'\u{1F90D}',name:'giving or tithing',group:'personal'},{emoji:'\u2728',name:'childcare',group:'personal'},{emoji:'\u26BD',name:'kids activities',group:'personal'},
+  {emoji:'\u{1F457}',name:'clothing',group:'personal'},{emoji:'\u{1F485}',name:'personal care',group:'personal'},{emoji:'\u{1F389}',name:'entertainment',group:'personal'},{emoji:'\u{1F90D}',name:'giving or tithing',group:'personal'},{emoji:'\u{1F4DA}',name:'childcare',group:'personal'},{emoji:'\u26BD',name:'kids activities',group:'personal'},
   {emoji:'\u{1F4C8}',name:'investing (post-tax)',group:'investing'},
-  {emoji:'\u2764',name:'health insurance',group:'insurance',warn:true},{emoji:'\u{1FA77}',name:'dental and vision',group:'insurance',warn:true},{emoji:'\u{1F697}',name:'auto insurance',group:'insurance',warn:true},{emoji:'\u{1F3E0}',name:'renters or homeowners insurance',group:'insurance',warn:true},
-  {emoji:'\u{1F3CB}',name:'gym or fitness',group:'health'},{emoji:'\u{1F48A}',name:'prescriptions',group:'health'},
+  {emoji:'\u2764\uFE0F',name:'health insurance',group:'insurance',warn:true},{emoji:'\u{1FA77}',name:'dental and vision',group:'insurance',warn:true},{emoji:'\u{1F697}',name:'auto insurance',group:'insurance',warn:true},{emoji:'\u{1F3E0}',name:'renters or homeowners insurance',group:'insurance',warn:true},
+  {emoji:'\u{1F3CB}\uFE0F',name:'gym or fitness',group:'health'},{emoji:'\u{1F48A}',name:'prescriptions',group:'health'},
 ];
 
 function openAddBudget(){
@@ -757,7 +842,7 @@ function openLogExpense(budgetId){
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-log-exp" onclick="closeModal('modal-log-exp')"><div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-hdr"><span class="sheet-title">log expense</span><button class="sheet-close" onclick="closeModal('modal-log-exp')">close</button></div>
     <div class="stack" style="gap:12px;">
-      <div style="padding:10px 12px;background:var(--linen);border-radius:var(--r-md);"><div class="fc"><span style="font-size:18px;">${b.emoji||'\u{1F4CC}'}</span><span style="font-size:14px;font-weight:500;">${esc(b.name)}</span></div><div class="sub" style="margin-top:2px;">planned ${$(b.budgeted)} &middot; logged so far ${$(cur)}</div></div>
+      <div style="padding:10px 12px;background:var(--linen);border-radius:var(--r-md);"><div class="fc"><span style="font-size:18px;">${b.emoji||'\u{1F4CC}'}</span><span style="font-size:14px;font-weight:500;">${esc(b.name)}</span></div><div class="sub" style="margin-top:2px;">planned ${$(b.budgeted)} logged so far ${$(cur)}</div></div>
       <div class="field"><label class="lbl">amount spent</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="log-amt" placeholder="0" autofocus/></div></div>
       <div class="field"><label class="lbl">note (optional)</label><input class="inp" id="log-note" placeholder="e.g. grocery run, electric bill..."/></div>
       <div class="field"><label class="lbl">date</label><input class="inp" type="date" id="log-date" value="${today()}"/></div>
@@ -788,7 +873,7 @@ function submitLogExpense(budgetId){
   save();closeModal('modal-log-exp');renderBudget();
 }
 
-// NESTS
+// NESTS - with activity log per nest
 let nestSort='deadline';
 function renderNests(){
   const totalSaved=D.nests.reduce((s,n)=>s+n.saved,0);const totalGoal=D.nests.reduce((s,n)=>s+n.goal,0);const totalMonthly=D.nests.reduce((s,n)=>s+(n.monthly||0),0);
@@ -800,7 +885,9 @@ function renderNests(){
   else if(nestSort==='amount-desc')rest.sort((a,b)=>b.goal-a.goal);
   const sorted=(ef&&ef.saved<ef.goal)?[ef,...rest]:[...D.nests.filter(n=>n.name.toLowerCase().includes('emergency')),...rest];
 
-  const cards=sorted.map(n=>{const p=pct(n.saved,n.goal);const needed=calcNeeded(n);
+  const cards=sorted.map(n=>{
+    const p=pct(n.saved,n.goal);const needed=calcNeeded(n);
+    const log=n.log||[];const recentLog=log.slice(-8).reverse();
     return`<div class="nest-card ${nestClass(p)}">
       <div class="fb" style="margin-bottom:10px;"><div class="fc"><span style="font-size:22px;">${n.emoji}</span><div><div style="font-size:14px;font-weight:500;">${esc(n.name)}</div>
         ${n.deadline?`<div class="sub">${fmtDl(n.deadline)}</div>`:''}
@@ -812,8 +899,9 @@ function renderNests(){
       <div class="bar-track" style="height:6px;margin-bottom:10px;"><div class="bar-fill" style="width:${p}%;height:100%;background:${p>=100?'var(--sage)':p>=50?'var(--warm)':'var(--ruby)'};"></div></div>
       ${needed&&n.monthly>0&&n.monthly<needed*.9?`<div class="recalc" style="margin-bottom:10px;"><div class="recalc-lbl">to reach goal on time</div><div class="recalc-num">${$(needed)}/mo</div><div class="recalc-sub">you have ${$(n.monthly)}/mo set. ${$(needed-n.monthly)} gap.</div></div>`:''}
       ${n.note?`<p style="font-size:12px;color:var(--cocoa);opacity:.4;margin-bottom:10px;line-height:1.5;">${esc(n.note)}</p>`:''}
-      <div style="display:flex;gap:8px;"><button class="btn-sky" style="flex:1;padding:9px;font-size:13px;" onclick="openDeposit('${n.id}')">+ add funds</button><button style="background:var(--linen);border:none;border-radius:var(--r-md);padding:9px 14px;font-size:13px;color:var(--ruby);font-weight:500;cursor:pointer;" onclick="openWithdraw('${n.id}')">withdraw</button></div>
-    </div>`;}).join('');
+      <div style="display:flex;gap:8px;margin-bottom:10px;"><button class="btn-sky" style="flex:1;padding:9px;font-size:13px;" onclick="openDeposit('${n.id}')">+ add funds</button><button style="background:var(--linen);border:none;border-radius:var(--r-md);padding:9px 14px;font-size:13px;color:var(--ruby);font-weight:500;cursor:pointer;" onclick="openWithdraw('${n.id}')">withdraw</button></div>
+      ${recentLog.length?`<details style="margin-top:4px;"><summary style="font-size:11px;color:var(--cocoa);opacity:.5;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;">activity log (${log.length})</summary><div style="margin-top:8px;">${recentLog.map(e=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--mist);font-size:12px;"><div><span style="color:var(--ink);">${esc(e.type)}</span><span class="sub" style="display:block;">${e.date}</span></div><span style="font-weight:500;color:${e.type.includes('withdraw')?'var(--ruby)':'var(--sage)'};">${e.type.includes('withdraw')?'-':'+'} ${$(e.amount)}</span></div>`).join('')}</div></details>`:''}`
+  ;}).join(`</div>`);
 
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
     <div class="card-dark" style="background:linear-gradient(135deg,var(--cocoa),#4A2A18);">
@@ -840,7 +928,7 @@ function openNewNest(pf){
     <div class="sheet-hdr"><span class="sheet-title">new nest</span><button class="sheet-close" onclick="closeModal('modal-new-nest')">close</button></div>
     <div class="stack" style="gap:12px;">
       <div class="inp-row"><div class="field"><label class="lbl">name</label><input class="inp" id="nn-name" placeholder="e.g. cruise 2027" value="${esc(pf.name||'')}"/></div>
-      <div class="field"><label class="lbl">emoji</label><input class="inp" id="nn-emoji" placeholder="&#128674;" maxlength="2" style="text-align:center;font-size:20px;" value="${esc(pf.emoji||'')}"/></div></div>
+      <div class="field"><label class="lbl">emoji</label><input class="inp" id="nn-emoji" placeholder="&#127958;" maxlength="2" style="text-align:center;font-size:20px;" value="${esc(pf.emoji||'')}"/></div></div>
       <div class="inp-row"><div class="field"><label class="lbl">goal amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="nn-goal" placeholder="0" value="${pf.goal||''}" oninput="updateNestPreview()"/></div></div>
       <div class="field"><label class="lbl">already saved</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="nn-saved" placeholder="0"/></div></div></div>
       <div class="inp-row"><div class="field"><label class="lbl">monthly amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="nn-monthly" placeholder="0" value="${pf.monthly||''}" oninput="updateNestPreview()"/></div></div>
@@ -857,14 +945,15 @@ function updateNestPreview(){
   const preview=document.getElementById('nest-preview');if(!preview)return;
   const gap=Math.max(0,goal-saved);if(gap<=0||(!monthly&&!deadline)){preview.innerHTML='';return;}
   let text='';
-  if(monthly>0){const months=Math.ceil(gap/monthly);text=`at ${$(monthly)}/month, you will reach ${$(goal)} around <strong>${monthsToDate(months)}</strong> &#10024;`;}
-  else if(deadline){const d=new Date(deadline+'-01'),now=new Date();const months=Math.max(1,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()));const needed=Math.ceil(gap/months);text=`to reach ${$(goal)} by ${fmtDl(deadline)}, you will need <strong>${$(needed)}/month</strong> &#10024;`;}
+  if(monthly>0){const months=Math.ceil(gap/monthly);text=`at ${$(monthly)}/month, you will reach ${$(goal)} around <strong>${monthsToDate(months)}</strong> ${SPARKLE}`;}
+  else if(deadline){const d=new Date(deadline+'-01'),now=new Date();const months=Math.max(1,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()));const needed=Math.ceil(gap/months);text=`to reach ${$(goal)} by ${fmtDl(deadline)}, you will need <strong>${$(needed)}/month</strong> ${SPARKLE}`;}
   preview.innerHTML=`<div class="suggestion"><p class="sug-text">${text}</p></div>`;
 }
 function submitNewNest(){
   const name=document.getElementById('nn-name').value.trim();if(!name)return;
   const goal=parseFloat(document.getElementById('nn-goal').value)||0;
-  D.nests.push({id:uid(),emoji:document.getElementById('nn-emoji').value||'\u{1F3AF}',name,goal,saved:parseFloat(document.getElementById('nn-saved').value)||0,monthly:parseFloat(document.getElementById('nn-monthly').value)||0,deadline:document.getElementById('nn-deadline').value||'',note:document.getElementById('nn-note').value||'',lastContributed:null,startingGoal:goal});
+  const emoji=name.toLowerCase()==='haus money'?SPARKLE:(document.getElementById('nn-emoji').value||'\u{1F3AF}');
+  D.nests.push({id:uid(),emoji,name,goal,saved:parseFloat(document.getElementById('nn-saved').value)||0,monthly:parseFloat(document.getElementById('nn-monthly').value)||0,deadline:document.getElementById('nn-deadline').value||'',note:document.getElementById('nn-note').value||'',lastContributed:null,startingGoal:goal,log:[]});
   save();closeModal('modal-new-nest');renderNests();
 }
 function openEditNest(id){
@@ -878,7 +967,7 @@ function openEditNest(id){
       <div class="field"><label class="lbl">monthly</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="en-monthly" value="${n.monthly||0}"/></div></div></div>
       <div class="field"><label class="lbl">target date</label><input class="inp" type="month" id="en-deadline" value="${n.deadline||''}"/></div>
       <div class="field"><label class="lbl">notes</label><textarea class="inp" id="en-note" style="resize:vertical;min-height:60px;">${esc(n.note||'')}</textarea></div>
-      <button class="btn-primary" onclick="const n=D.nests.find(x=>x.id==='${id}');if(n){n.name=document.getElementById('en-name').value.trim()||n.name;n.emoji=document.getElementById('en-emoji').value||n.emoji;n.goal=parseFloat(document.getElementById('en-goal').value)||0;n.monthly=parseFloat(document.getElementById('en-monthly').value)||0;n.deadline=document.getElementById('en-deadline').value||'';n.note=document.getElementById('en-note').value||'';save();closeModal('modal-edit-nest');renderNests();}">save changes</button>
+      <button class="btn-primary" onclick="const n=D.nests.find(x=>x.id==='${id}');if(n){n.name=document.getElementById('en-name').value.trim()||n.name;n.emoji=n.name.toLowerCase()==='haus money'?SPARKLE:(document.getElementById('en-emoji').value||n.emoji);n.goal=parseFloat(document.getElementById('en-goal').value)||0;n.monthly=parseFloat(document.getElementById('en-monthly').value)||0;n.deadline=document.getElementById('en-deadline').value||'';n.note=document.getElementById('en-note').value||'';save();closeModal('modal-edit-nest');renderNests();}">save changes</button>
       <button style="background:none;border:none;color:var(--ruby);opacity:.5;font-size:12px;cursor:pointer;text-align:center;" onclick="if(confirm('remove this nest?')){D.nests=D.nests.filter(x=>x.id!=='${id}');save();closeModal('modal-edit-nest');renderNests();}">remove this nest</button>
     </div>
   </div></div>`);
@@ -890,7 +979,6 @@ function openDeposit(nestId){
     <div class="stack" style="gap:12px;">
       <div class="field"><label class="lbl">which nest</label><select class="inp" id="dep-nest" style="padding:11px 14px;" onchange="updateDepositPreview()">${opts}</select></div>
       <div class="field"><label class="lbl">amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="dep-amt" placeholder="0" oninput="updateDepositPreview()"/></div></div>
-      <div class="field"><label class="lbl">type</label><select class="inp" id="dep-type" style="padding:11px 14px;"><option value="payday">payday distribution &mdash; my planned amount</option><option value="extra">extra contribution &mdash; above and beyond</option></select></div>
       <div class="field"><label class="lbl">date</label><input class="inp" type="date" id="dep-date" value="${today()}"/></div>
       <div id="dep-preview"></div>
       <button class="btn-primary" onclick="submitDeposit()">add to nest</button>
@@ -903,13 +991,14 @@ function updateDepositPreview(){
   if(!preview||!n||amt<=0){if(preview)preview.innerHTML='';return;}
   const after=Math.min(n.goal,n.saved+amt);const p=pct(after,n.goal);const funded=after>=n.goal;
   const gap=n.goal-after;const mo=n.monthly>0&&gap>0?Math.ceil(gap/n.monthly):null;
-  preview.innerHTML=`<div class="suggestion"><p class="sug-text">${$(n.saved)} + ${$(amt)} = <strong>${$(after)}</strong> (${p}%)${funded?' &#10024; fully funded!':''}${mo?`<br><span style="opacity:.7;">at ${$(n.monthly)}/month, you will be there by <strong>${monthsToDate(mo)}</strong> &#10024;</span>`:''}</p></div>`;
+  preview.innerHTML=`<div class="suggestion"><p class="sug-text">${$(n.saved)} + ${$(amt)} = <strong>${$(after)}</strong> (${p}%)${funded?' '+SPARKLE+' fully funded!':''}${mo?`<br><span style="opacity:.7;">at ${$(n.monthly)}/month, you will be there by <strong>${monthsToDate(mo)}</strong> ${SPARKLE}</span>`:''}</p></div>`;
 }
 function submitDeposit(){
   const nestId=document.getElementById('dep-nest')?.value;const amt=parseFloat(document.getElementById('dep-amt')?.value)||0;
   if(!nestId||amt<=0)return;const n=D.nests.find(x=>x.id===nestId);if(!n)return;
   n.saved=Math.min(n.goal,n.saved+amt);n.lastContributed=today();
-  D.transactions=D.transactions||[];D.transactions.push({id:uid(),type:'deposit',depositType:document.getElementById('dep-type')?.value,nestId,amount:amt,date:document.getElementById('dep-date')?.value||today()});
+  n.log=n.log||[];n.log.push({id:uid(),type:'deposit',amount:amt,date:document.getElementById('dep-date')?.value||today()});
+  D.transactions=D.transactions||[];D.transactions.push({id:uid(),type:'deposit',nestId,amount:amt,date:document.getElementById('dep-date')?.value||today()});
   save();closeModal('modal-deposit');renderNests();
 }
 function openWithdraw(nestId){
@@ -921,89 +1010,127 @@ function openWithdraw(nestId){
       <div class="field"><label class="lbl">amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="wd-amt" placeholder="0" oninput="updateWithdrawPreview()"/></div></div>
       <div class="field"><label class="lbl">what is this for?</label><input class="inp" id="wd-reason" placeholder="e.g. vet visit, car repair"/></div>
       <div class="field"><label class="lbl">date</label><input class="inp" type="date" id="wd-date" value="${today()}"/></div>
-      <div id="wd-preview"></div><div id="wd-recalc"></div>
+      <div id="wd-preview"></div>
       <button class="btn-primary" style="background:var(--ruby);" onclick="submitWithdraw()">confirm withdrawal</button>
     </div>
   </div></div>`);
 }
 function updateWithdrawPreview(){
   const nestId=document.getElementById('wd-nest')?.value;const amt=parseFloat(document.getElementById('wd-amt')?.value)||0;
-  const n=D.nests.find(x=>x.id===nestId);const preview=document.getElementById('wd-preview');const recalc=document.getElementById('wd-recalc');
+  const n=D.nests.find(x=>x.id===nestId);const preview=document.getElementById('wd-preview');
   if(!preview||!n)return;const after=Math.max(0,n.saved-amt);const p=pct(after,n.goal);
   preview.innerHTML=`<div class="suggestion"><p class="sug-text">${$(n.saved)} - ${$(amt)} = <strong>${$(after)}</strong> (${p}% funded)</p></div>`;
-  if(recalc&&n.deadline&&after<n.goal){const d=new Date(n.deadline+'-01'),now=new Date();const months=Math.max(1,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()));const needed=Math.ceil((n.goal-after)/months);recalc.innerHTML=`<div class="recalc"><div class="recalc-lbl">updated monthly needed</div><div class="recalc-num">${$(needed)}/mo</div><div class="recalc-sub">to still reach ${$(n.goal)} by ${fmtDl(n.deadline)}</div></div>`;}else if(recalc)recalc.innerHTML='';
 }
 function submitWithdraw(){
   const nestId=document.getElementById('wd-nest')?.value;const amt=parseFloat(document.getElementById('wd-amt')?.value)||0;
   if(!nestId||amt<=0)return;const n=D.nests.find(x=>x.id===nestId);if(!n)return;
-  n.saved=Math.max(0,n.saved-amt);D.transactions=D.transactions||[];D.transactions.push({id:uid(),type:'withdrawal',nestId,amount:amt,reason:document.getElementById('wd-reason')?.value||'',date:document.getElementById('wd-date')?.value||today()});
+  n.saved=Math.max(0,n.saved-amt);
+  n.log=n.log||[];n.log.push({id:uid(),type:'withdrawal',amount:amt,date:document.getElementById('wd-date')?.value||today()});
+  D.transactions=D.transactions||[];D.transactions.push({id:uid(),type:'withdrawal',nestId,amount:amt,reason:document.getElementById('wd-reason')?.value||'',date:document.getElementById('wd-date')?.value||today()});
   save();closeModal('modal-withdraw');renderNests();
 }
 
-// DEBT
+// DEBT - with details expand/collapse, credit card first, suggestion cards
+const DEBT_SUGGESTIONS=[
+  {id:'credit_card',emoji:'\u{1F4B3}',name:'credit card',hint:'visa, mastercard, store card...'},
+  {id:'student_loan',emoji:'\u{1F393}',name:'student loan',hint:'federal or private student loans'},
+  {id:'car_loan',emoji:'\u{1F697}',name:'car loan',hint:'auto financing'},
+  {id:'medical',emoji:'\u{1F48A}',name:'medical debt',hint:'hospital, clinic, or procedure bills'},
+  {id:'personal_loan',emoji:'\u{1F4C4}',name:'personal loan',hint:'bank or online lender'},
+  {id:'line_of_credit',emoji:'\u{1F3E6}',name:'line of credit',hint:'home equity or personal LOC'},
+  {id:'family_loan',emoji:'\u{1F91D}',name:'family or friend loan',hint:'a loan from someone you know'},
+  {id:'other',emoji:'\u{1F4CB}',name:'other debt',hint:'describe it below'},
+];
+
 function renderDebt(){
   const total=D.debts.reduce((s,d)=>s+(d.balance||0),0);const method=D.debtMethod||'avalanche';
   const sorted=[...D.debts].sort((a,b)=>method==='snowball'?(a.balance-b.balance):(b.rate-a.rate));
-  const METHODS={avalanche:{label:'high interest first',desc:'attack the highest rate debt while paying minimums on everything else. saves the most money over time. once gone, roll that payment to the next.'},snowball:{label:'smallest balance first',desc:'eliminate the smallest balance first. the quick wins build real momentum. each payoff makes the next feel possible.'},hybrid:{label:'extra cash as it comes',desc:'apply any extra money immediately &mdash; a bonus, a side hustle payout, a birthday gift. small moves add up faster than people expect.'}};
+  const METHODS={avalanche:{label:'high interest first',desc:'attack the highest rate debt while paying minimums on everything else. saves the most money over time. once gone, roll that payment to the next.'},snowball:{label:'smallest balance first',desc:'eliminate the smallest balance first. the quick wins build real momentum. each payoff makes the next feel possible.'},hybrid:{label:'extra cash as it comes',desc:'apply any extra money immediately. a bonus, a side hustle payout, a birthday gift. small moves add up faster than people expect.'}};
+
   const cards=D.debts.map(d=>{
-    const monthly=(d.min||0)+(d.extra||0);const months=monthly>0?Math.ceil((d.balance||0)/monthly):null;
+    const monthly=(d.min||0)+(d.extra||0);
+    const months=monthly>0?Math.ceil((d.balance||0)/monthly):null;
     const totalPaid=(d.payments||[]).reduce((s,p)=>s+p.amount,0);const origBal=d.originalBalance||d.balance;const progPct=origBal>0?Math.min(100,Math.round(totalPaid/origBal*100)):0;
     return`<div class="card">
       <div style="font-family:var(--ff-serif);font-size:13px;color:var(--cocoa);opacity:.5;margin-bottom:3px;">${d.rate}% APR</div>
       <div class="fb" style="margin-bottom:6px;"><div class="fc"><span style="font-size:20px;">${d.emoji||'\u{1F4B3}'}</span><div><div style="font-size:14px;font-weight:500;">${esc(d.name)}</div>${months?`<div class="sub">est. payoff ${monthsToDate(months)}</div>`:''}</div></div>
         <div class="fc" style="gap:6px;"><span style="font-family:var(--ff-serif);font-size:22px;color:var(--cocoa);">${$(d.balance)}</span><button class="btn-icon" onclick="openEditDebt('${d.id}')">&#9998;</button><button class="btn-icon" onclick="if(confirm('remove?')){D.debts=D.debts.filter(x=>x.id!=='${d.id}');save();renderDebt();}">&#10005;</button></div></div>
-      ${totalPaid>0?`<div style="margin-bottom:10px;"><div class="bar-track" style="height:5px;margin-bottom:4px;"><div class="bar-fill" style="width:${progPct}%;height:100%;background:var(--sage);"></div></div><div class="sub">${progPct}% paid down &middot; ${$(totalPaid)} applied</div></div>`:''}
+      ${totalPaid>0?`<div style="margin-bottom:10px;"><div class="bar-track" style="height:5px;margin-bottom:4px;"><div class="bar-fill" style="width:${progPct}%;height:100%;background:var(--sage);"></div></div><div class="sub">${progPct}% paid down ${$(totalPaid)} applied</div></div>`:''}
       <div class="g4" style="margin-bottom:10px;">
-        ${[{l:'balance',f:'balance',pre:'$'},{l:'rate %',f:'rate',pre:''},{l:'minimum',f:'min',pre:'$'},{l:'extra to principal',f:'extra',pre:'$'}].map(({l,f,pre})=>`<div class="ie-field"><span class="ie-lbl">${l}</span><div class="amt-wrap" style="border:1.5px solid var(--mist);border-radius:8px;padding:5px 8px;"><span class="amt-pre">${pre}</span><input type="number" class="amt-inp" style="font-size:12px;" value="${d[f]||0}" oninput="const x=D.debts.find(y=>y.id==='${d.id}');if(x){x['${f}']=+this.value;save();}"/></div></div>`).join('')}
+        ${[{l:'balance',f:'balance',pre:'$'},{l:'rate %',f:'rate',pre:''},{l:'minimum',f:'min',pre:'$'},{l:'extra',f:'extra',pre:'$'}].map(({l,f,pre})=>`<div class="ie-field"><span class="ie-lbl">${l}</span><div class="amt-wrap" style="border:1.5px solid var(--mist);border-radius:8px;padding:5px 8px;"><span class="amt-pre">${pre}</span><input type="number" class="amt-inp" style="font-size:12px;" value="${d[f]||0}" onblur="const x=D.debts.find(y=>y.id==='${d.id}');if(x){x['${f}']=+this.value;save();}"/></div></div>`).join('')}
       </div>
-      <div class="suggestion" style="margin-bottom:10px;"><span class="sug-icon">&#128202;</span><p class="sug-text">at ${$(monthly)}/month, you clear ${$(d.balance)} in ~${months||'?'} months.${d.extra>0?` your extra ${$(d.extra)} to principal is cutting that down.`:' even a small extra payment shortens the timeline more than you would expect.'}</p></div>
+      <div class="suggestion" style="margin-bottom:10px;"><span class="sug-icon">&#128202;</span><p class="sug-text">at ${$(monthly)}/month, you clear ${$(d.balance)} in about ${months||'?'} months.${d.extra>0?` your extra ${$(d.extra)} to principal is cutting that down.`:' even a small extra payment shortens the timeline more than you would expect.'}</p></div>
       <div class="fb" style="margin-bottom:6px;"><span class="sub">total applied: ${$(totalPaid)}</span><button class="btn-ruby btn-sm" onclick="openLogPayment('${d.id}')">log payment</button></div>
-      ${(d.payments||[]).slice(-3).reverse().map(p=>`<div class="row-item" style="padding:6px 0;"><div class="fb"><span class="sub">${p.date} &middot; ${p.type||'payment'}</span><span style="font-size:12px;font-weight:500;color:var(--sage);">${$(p.amount)}</span></div></div>`).join('')}
+      ${(d.payments||[]).slice(-3).reverse().map(p=>`<div class="row-item" style="padding:6px 0;"><div class="fb"><span class="sub">${p.date} ${p.type||'payment'}</span><span style="font-size:12px;font-weight:500;color:var(--sage);">${$(p.amount)}</span></div></div>`).join('')}
     </div>`;}).join('');
+
+  // Payoff strategy in details element (collapsible, clean)
+  const strategyHtml=D.debts.length>=2?`<details class="card" style="padding:14px;"><summary style="font-family:var(--ff-serif);font-size:19px;color:var(--cocoa);list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:0;">payoff strategy <span style="font-size:11px;color:var(--cocoa);opacity:.4;font-family:var(--ff-sans);font-weight:normal;">tap to see</span></summary>
+    <div style="margin-top:14px;">
+      <p style="font-size:12.5px;color:var(--cocoa);opacity:.5;margin-bottom:12px;line-height:1.65;">all roads lead to zero. choose the approach that fits how you think.</p>
+      ${Object.entries(METHODS).map(([k,v])=>`<div class="fc" style="padding:10px 12px;background:var(--white);border:1.5px solid ${method===k?'var(--ruby)':'var(--mist)'};border-radius:var(--r-md);cursor:pointer;gap:10px;margin-bottom:6px;" onclick="D.debtMethod='${k}';save();renderDebt();">
+        <div style="width:18px;height:18px;border-radius:50%;border:2px solid ${method===k?'var(--ruby)':'var(--mist)'};background:${method===k?'var(--ruby)':'transparent'};flex-shrink:0;"></div>
+        <div><div style="font-size:13px;font-weight:500;">${v.label}</div><div class="sub" style="line-height:1.5;margin-top:2px;">${v.desc}</div></div></div>`).join('')}
+      <div style="background:rgba(195,219,238,.12);border:1px solid rgba(195,219,238,.4);border-radius:var(--r-md);padding:14px;margin-top:10px;"><span class="sec-head">payoff order (${method})</span>
+        ${sorted.map((d,i)=>{
+          const mo=(d.min||0)+(d.extra||0);
+          let runBal=d.balance,totalMo=0;
+          if(mo>0){while(runBal>0&&totalMo<600){const interest=runBal*(d.rate/100/12);runBal=Math.max(0,runBal-mo+interest);totalMo++;}}
+          const payoffDate=mo>0?monthsToDate(totalMo):'unknown';
+          const totalInterest=mo>0?Math.max(0,mo*totalMo-d.balance):0;
+          return`<div class="fc" style="padding:8px 0;border-bottom:1px solid rgba(195,219,238,.4);gap:8px;"><div style="width:24px;height:24px;border-radius:50%;flex-shrink:0;background:${i===0?'var(--ruby)':'var(--mist)'};display:flex;align-items:center;justify-content:center;"><span style="font-size:11px;font-weight:700;color:${i===0?'white':'var(--cocoa)'};opacity:${i===0?1:.5};">${i+1}</span></div>
+          <div style="flex:1;"><div style="font-size:13px;font-weight:${i===0?600:400};">${d.emoji} ${esc(d.name)}</div><div class="sub">${mo>0?`payoff around ${payoffDate} ~${$(Math.round(totalInterest))} in interest`:'set a payment to project'}</div></div>
+          <span style="font-size:11px;font-weight:600;color:${i===0?'var(--ruby)':'var(--cocoa)'};">${method==='snowball'?$(d.balance):d.rate+'%'}</span></div>`;
+        }).join('')}
+      </div>
+    </div>
+  </details>`:'';
 
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
     ${total>0?`<div class="card-dark" style="background:linear-gradient(135deg,#7A1030,var(--ruby));"><span class="sec-head" style="color:rgba(255,255,255,.5);margin-bottom:8px;">total debt</span><span style="font-family:var(--ff-serif);font-size:40px;color:white;display:block;font-weight:300;">${$(total)}</span></div>`:`<div class="card-dark" style="background:linear-gradient(135deg,var(--sage),#3D6B41);"><span style="font-family:var(--ff-serif);font-size:30px;color:white;display:block;font-weight:300;">no debt on record.</span></div>`}
     <button class="btn-add" onclick="openAddDebt()">+ add a debt</button>
-    ${D.debts.length>=2?`<details class="card"><summary style="font-family:var(--ff-serif);font-size:19px;color:var(--cocoa);list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;">payoff strategy <span style="font-size:12px;color:var(--cocoa);opacity:.4;font-family:var(--ff-sans);">tap to expand</span></summary>
-      <div style="margin-top:14px;"><p style="font-size:12.5px;color:var(--cocoa);opacity:.5;margin-bottom:12px;line-height:1.65;">all roads lead to zero. choose the approach your brain will actually stick with.</p>
-        ${Object.entries(METHODS).map(([k,v])=>`<div class="fc" style="padding:10px 12px;background:var(--white);border:1.5px solid ${method===k?'var(--ruby)':'var(--mist)'};border-radius:var(--r-md);cursor:pointer;gap:10px;margin-bottom:6px;" onclick="D.debtMethod='${k}';save();renderDebt();">
-          <div style="width:18px;height:18px;border-radius:50%;border:2px solid ${method===k?'var(--ruby)':'var(--mist)'};background:${method===k?'var(--ruby)':'transparent'};flex-shrink:0;"></div>
-          <div><div style="font-size:13px;font-weight:500;">${v.label}</div><div class="sub" style="line-height:1.5;margin-top:2px;">${v.desc}</div></div></div>`).join('')}
-        <div class="card" style="background:rgba(195,219,238,.12);border-color:rgba(195,219,238,.4);margin-top:10px;"><span class="sec-head">your payoff order</span>
-          ${sorted.map((d,i)=>`<div class="fc" style="padding:7px 0;"><div style="width:24px;height:24px;border-radius:50%;flex-shrink:0;background:${i===0?'var(--ruby)':'var(--mist)'};display:flex;align-items:center;justify-content:center;"><span style="font-size:11px;font-weight:700;color:${i===0?'white':'var(--cocoa)'};opacity:${i===0?1:.5};">${i+1}</span></div><span style="font-size:13px;flex:1;">${d.emoji||'\u{1F4B3}'} ${esc(d.name)}</span><span class="pill" style="background:${i===0?'rgba(168,32,64,.1)':'rgba(232,225,214,.8)'};color:${i===0?'var(--ruby)':'var(--cocoa)'};">${method==='snowball'?$(d.balance):d.rate+'%'}</span></div>`).join('')}
-        </div>
-      </div>
-    </details>`:''}
+    ${strategyHtml}
     ${cards}
   </div>`;
 }
 
 function openAddDebt(){
+  const sugCards=DEBT_SUGGESTIONS.map(s=>`<div class="fc" style="padding:11px 14px;background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r-md);cursor:pointer;margin-bottom:6px;gap:10px;" onclick="document.getElementById('ad-name').value='${esc(s.name)}';document.getElementById('ad-emoji-display').textContent='${s.emoji}';document.getElementById('ad-emoji-val').value='${s.emoji}';document.getElementById('ad-name').focus()">
+    <span style="font-size:20px;flex-shrink:0;">${s.emoji}</span><div><div style="font-size:13px;font-weight:500;">${s.name}</div><div class="sub">${s.hint}</div></div></div>`).join('');
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-debt" onclick="closeModal('modal-debt')"><div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-hdr"><span class="sheet-title">add a debt</span><button class="sheet-close" onclick="closeModal('modal-debt')">close</button></div>
-    <div class="stack" style="gap:12px;">
-      <div class="inp-row"><div class="field"><label class="lbl">name</label><input class="inp" id="ad-name" placeholder="e.g. car loan"/></div>
-      <div class="field"><label class="lbl">emoji</label><input class="inp" id="ad-emoji" placeholder="&#128663;" maxlength="2" style="text-align:center;font-size:20px;"/></div></div>
-      <div class="inp-row"><div class="field"><label class="lbl">current balance</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ad-balance" placeholder="0"/></div></div>
-      <div class="field"><label class="lbl">interest rate %</label><input class="inp" type="number" id="ad-rate" placeholder="0.00" step="0.01"/></div></div>
-      <div class="inp-row"><div class="field"><label class="lbl">minimum payment</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ad-min" placeholder="0"/></div></div>
-      <div class="field"><label class="lbl">extra to principal</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ad-extra" placeholder="0"/></div></div></div>
-      <button class="btn-primary" onclick="const name=document.getElementById('ad-name').value.trim();if(!name)return;const balance=parseFloat(document.getElementById('ad-balance').value)||0;D.debts.push({id:uid(),emoji:document.getElementById('ad-emoji').value||'\u{1F4B3}',name,balance,originalBalance:balance,rate:parseFloat(document.getElementById('ad-rate').value)||0,min:parseFloat(document.getElementById('ad-min').value)||0,extra:parseFloat(document.getElementById('ad-extra').value)||0,payments:[]});save();closeModal('modal-debt');renderDebt();">add debt</button>
+    <div class="stack" style="gap:14px;">
+      <div><span class="sec-head">what kind of debt?</span>${sugCards}</div>
+      <div class="card" style="padding:14px;">
+        <div class="fc" style="margin-bottom:10px;"><span id="ad-emoji-display" style="font-size:24px;">\u{1F4B3}</span><span class="lbl" style="margin-left:8px;">selected type</span></div>
+        <input type="hidden" id="ad-emoji-val" value="\u{1F4B3}"/>
+        <div class="field" style="margin-bottom:10px;"><label class="lbl">name or description</label><input class="inp" id="ad-name" placeholder="e.g. chase freedom card"/></div>
+        <div class="inp-row" style="margin-bottom:10px;"><div class="field"><label class="lbl">current balance</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ad-balance" placeholder="0"/></div></div>
+        <div class="field"><label class="lbl">interest rate %</label><input class="inp" type="number" id="ad-rate" placeholder="0.00" step="0.01"/></div></div>
+        <div class="inp-row" style="margin-bottom:10px;"><div class="field"><label class="lbl">minimum payment</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ad-min" placeholder="0"/></div></div>
+        <div class="field"><label class="lbl">extra to principal</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ad-extra" placeholder="0"/></div></div></div>
+        <button class="btn-primary" onclick="submitAddDebt()">add debt</button>
+      </div>
     </div>
   </div></div>`);
+}
+function submitAddDebt(){
+  const name=document.getElementById('ad-name').value.trim();if(!name)return;
+  const balance=parseFloat(document.getElementById('ad-balance').value)||0;
+  D.debts.push({id:uid(),emoji:document.getElementById('ad-emoji-val').value||'\u{1F4B3}',name,balance,originalBalance:balance,rate:parseFloat(document.getElementById('ad-rate').value)||0,min:parseFloat(document.getElementById('ad-min').value)||0,extra:parseFloat(document.getElementById('ad-extra').value)||0,payments:[]});
+  save();closeModal('modal-debt');renderDebt();
 }
 function openEditDebt(id){
   const d=D.debts.find(x=>x.id===id);if(!d)return;
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-edit-debt" onclick="closeModal('modal-edit-debt')"><div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-hdr"><span class="sheet-title">edit</span><button class="sheet-close" onclick="closeModal('modal-edit-debt')">close</button></div>
     <div class="stack" style="gap:12px;">
-      <div class="inp-row"><div class="field"><label class="lbl">name</label><input class="inp" id="ed-name" value="${esc(d.name)}"/></div>
-      <div class="field"><label class="lbl">emoji</label><input class="inp" id="ed-emoji" value="${esc(d.emoji||'\u{1F4B3}')}" maxlength="2" style="text-align:center;font-size:20px;"/></div></div>
+      <div class="field"><label class="lbl">name</label><input class="inp" id="ed-name" value="${esc(d.name)}"/></div>
       <div class="inp-row"><div class="field"><label class="lbl">balance</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ed-balance" value="${d.balance||0}"/></div></div>
       <div class="field"><label class="lbl">rate %</label><input class="inp" type="number" id="ed-rate" value="${d.rate||0}" step="0.01"/></div></div>
       <div class="inp-row"><div class="field"><label class="lbl">minimum</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ed-min" value="${d.min||0}"/></div></div>
       <div class="field"><label class="lbl">extra to principal</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ed-extra" value="${d.extra||0}"/></div></div></div>
-      <button class="btn-primary" onclick="const d=D.debts.find(x=>x.id==='${id}');if(d){d.name=document.getElementById('ed-name').value.trim()||d.name;d.emoji=document.getElementById('ed-emoji').value||d.emoji;d.balance=parseFloat(document.getElementById('ed-balance').value)||0;d.rate=parseFloat(document.getElementById('ed-rate').value)||0;d.min=parseFloat(document.getElementById('ed-min').value)||0;d.extra=parseFloat(document.getElementById('ed-extra').value)||0;save();closeModal('modal-edit-debt');renderDebt();}">save</button>
+      <button class="btn-primary" onclick="const d=D.debts.find(x=>x.id==='${id}');if(d){d.name=document.getElementById('ed-name').value.trim()||d.name;d.balance=parseFloat(document.getElementById('ed-balance').value)||0;d.rate=parseFloat(document.getElementById('ed-rate').value)||0;d.min=parseFloat(document.getElementById('ed-min').value)||0;d.extra=parseFloat(document.getElementById('ed-extra').value)||0;save();closeModal('modal-edit-debt');renderDebt();}">save</button>
     </div>
   </div></div>`);
 }
@@ -1021,7 +1148,7 @@ function openLogPayment(debtId){
   </div></div>`);
 }
 
-// FORECAST
+// FORECAST - horizons first, then projected output, then sliders
 function renderForecast(){
   function projectNests(months){return D.nests.map(n=>{const proj=Math.min(n.goal,n.saved+(n.monthly||0)*months);return{...n,proj,p:pct(proj,n.goal),willFund:proj>=n.goal};});}
   const n6=projectNests(6);const n12=projectNests(12);
@@ -1029,18 +1156,17 @@ function renderForecast(){
   const f6=n6.filter(n=>n.willFund).length;const f12=n12.filter(n=>n.willFund).length;
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
     <div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">your financial forecast</span><span style="font-family:var(--ff-serif);font-size:28px;color:var(--linen);display:block;font-weight:300;">if you stay the course...</span><span style="font-size:12px;color:rgba(245,239,228,.4);">based on your current income, budget, and nest contributions.</span></div>
-    <div class="card"><span class="sec-head">choose a time horizon</span>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="forecast-tabs">
-        ${[3,6,12,18,24].map(m=>`<button class="profile-chip ${m===6?'active':''}" onclick="document.querySelectorAll('#forecast-tabs .profile-chip').forEach(b=>b.classList.remove('active'));this.classList.add('active');showForecast(${m})">${m} months</button>`).join('')}
+    <div class="card"><span class="sec-head">choose a horizon</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="forecast-tabs">
+        ${[1,3,6,12,18,24].map(m=>`<button class="profile-chip ${m===6?'active':''}" onclick="document.querySelectorAll('#forecast-tabs .profile-chip').forEach(b=>b.classList.remove('active'));this.classList.add('active');showForecast(${m})">${m} mo</button>`).join('')}
       </div>
-      <div class="field"><label class="lbl">or pick a specific date</label><input class="inp" type="month" id="forecast-date" onchange="showForecastDate(this.value)" min="${new Date().toISOString().slice(0,7)}"/></div>
     </div>
+    <div id="forecast-output"></div>
     <div class="card" style="background:rgba(195,219,238,.12);border-color:rgba(195,219,238,.4);">
       <span class="sec-head">adjust monthly contributions</span>
       <p style="font-size:12px;color:var(--cocoa);opacity:.5;margin-bottom:10px;line-height:1.6;">change what goes into each nest each month and watch the forecast update.</p>
-      ${D.nests.filter(n=>n.saved<n.goal).slice(0,6).map(n=>`<div class="row-item"><div class="fc"><span style="font-size:16px;">${n.emoji}</span><span style="font-size:13px;flex:1;">${esc(n.name)}</span><div class="amt-wrap" style="width:90px;border:1.5px solid var(--mist);border-radius:8px;padding:4px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;padding:4px 0;" value="${n.monthly}" oninput="const x=D.nests.find(y=>y.id==='${n.id}');if(x){x.monthly=+this.value;save();}"/></div><span class="sub">/mo</span></div></div>`).join('')}
+      ${D.nests.filter(n=>n.saved<n.goal).slice(0,6).map(n=>`<div class="row-item"><div class="fc"><span style="font-size:16px;">${n.emoji}</span><span style="font-size:13px;flex:1;">${esc(n.name)}</span><div class="amt-wrap" style="width:90px;border:1.5px solid var(--mist);border-radius:8px;padding:4px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;padding:4px 0;" value="${n.monthly}" onblur="const x=D.nests.find(y=>y.id==='${n.id}');if(x){x.monthly=+this.value;save();const activeBtn=document.querySelector('#forecast-tabs .profile-chip.active');if(activeBtn)activeBtn.click();}"/></div><span class="sub">/mo</span></div></div>`).join('')}
     </div>
-    <div id="forecast-output"></div>
     <div class="card"><span class="sec-head">6 vs 12 month snapshot</span><div class="g2" style="gap:8px;">
       <div style="background:var(--white);border-radius:12px;padding:12px;border:1px solid var(--mist);"><span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--cocoa);opacity:.4;display:block;margin-bottom:4px;">6 months</span><span style="font-family:var(--ff-serif);font-size:22px;color:var(--cocoa);display:block;">${$(t6)}</span><span class="sub">${f6} nests funded</span></div>
       <div style="background:var(--white);border-radius:12px;padding:12px;border:1px solid var(--mist);"><span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--cocoa);opacity:.4;display:block;margin-bottom:4px;">12 months</span><span style="font-family:var(--ff-serif);font-size:22px;color:var(--cocoa);display:block;">${$(t12)}</span><span class="sub">${f12} nests funded</span></div>
@@ -1049,7 +1175,6 @@ function renderForecast(){
   showForecast(6);
 }
 function showForecast(months){const target=new Date();target.setMonth(target.getMonth()+months);renderForecastOutput(months,target);}
-function showForecastDate(val){if(!val)return;const target=new Date(val+'-01');const now=new Date();const months=Math.max(0,(target.getFullYear()-now.getFullYear())*12+(target.getMonth()-now.getMonth()));document.querySelectorAll('#forecast-tabs .profile-chip').forEach(b=>b.classList.remove('active'));renderForecastOutput(months,target);}
 function renderForecastOutput(months,target){
   const nests=D.nests.map(n=>{const proj=Math.min(n.goal,n.saved+(n.monthly||0)*months);return{...n,proj,p:pct(proj,n.goal),willFund:proj>=n.goal};});
   const debts=D.debts.map(d=>{let bal=d.balance,mo=(d.min||0)+(d.extra||0);for(let i=0;i<months&&bal>0;i++){bal=Math.max(0,bal-mo+(bal*(d.rate/100/12)));}return{...d,projBal:Math.max(0,bal)};});
@@ -1057,126 +1182,171 @@ function renderForecastOutput(months,target){
   const funded=nests.filter(n=>n.willFund).length;const totalS=nests.reduce((s,n)=>s+n.proj,0);const totalDebt=debts.reduce((s,d)=>s+d.projBal,0);
   document.getElementById('forecast-output').innerHTML=`
     <div class="card"><span class="sec-head">projected for ${label}</span>
-      <div class="stack" style="gap:10px;margin-bottom:14px;">${nests.map(n=>`<div><div class="fb" style="margin-bottom:4px;"><div class="fc"><span>${n.emoji}</span><span style="font-size:13px;font-weight:${n.willFund?600:400};">${esc(n.name)}</span>${n.willFund?` <span class="pill" style="background:rgba(106,140,110,.12);color:var(--sage);font-size:10px;">funded &#10003;</span>`:''}</div><span style="font-size:13px;font-weight:500;color:${n.willFund?'var(--sage)':'var(--cocoa)'};">${$(n.proj)}</span></div><div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:${n.p}%;height:100%;background:${n.willFund?'var(--sage)':n.p>50?'var(--warm)':'var(--ruby)'};"></div></div></div>`).join('')}</div>
+      <div class="stack" style="gap:10px;margin-bottom:14px;">${nests.map(n=>`<div><div class="fb" style="margin-bottom:4px;"><div class="fc"><span>${n.emoji}</span><span style="font-size:13px;font-weight:${n.willFund?600:400};">${esc(n.name)}</span>${n.willFund?` <span class="pill" style="background:rgba(106,140,110,.12);color:var(--sage);font-size:10px;">funded ${SPARKLE}</span>`:''}</div><span style="font-size:13px;font-weight:500;color:${n.willFund?'var(--sage)':'var(--cocoa)'};">${$(n.proj)}</span></div><div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:${n.p}%;height:100%;background:${n.willFund?'var(--sage)':n.p>50?'var(--warm)':'var(--ruby)'};"></div></div></div>`).join('')}</div>
       <div style="padding-top:12px;border-top:1px solid var(--mist);"><div class="fb"><span style="font-size:13px;font-weight:500;">total in nests</span><span style="font-family:var(--ff-serif);font-size:20px;color:var(--cocoa);">${$(totalS)}</span></div><div class="sub">${funded} of ${nests.length} fully funded</div></div>
     </div>
-    ${debts.length?`<div class="card"><span class="sec-head">projected debt balances</span>${debts.map(d=>`<div class="row-item"><div class="fb"><div class="fc"><span style="font-size:16px;">${d.emoji||'\u{1F4B3}'}</span><span style="font-size:13px;">${esc(d.name)}</span></div><div style="text-align:right;"><div style="font-family:var(--ff-serif);font-size:18px;color:${d.projBal<=0?'var(--sage)':'var(--cocoa)'};">${d.projBal<=0?'paid off &#10003;':$(d.projBal)}</div>${d.projBal>0?`<div class="sub">down from ${$(d.balance)}</div>`:''}</div></div></div>`).join('')}<div style="padding-top:12px;border-top:1px solid var(--mist);"><div class="fb"><span style="font-size:13px;font-weight:500;">projected total debt</span><span style="font-family:var(--ff-serif);font-size:20px;color:${totalDebt<=0?'var(--sage)':'var(--cocoa)'};">${totalDebt<=0?'$0 &mdash; clear':$(totalDebt)}</span></div></div></div>`:''}`;
+    ${debts.length?`<div class="card"><span class="sec-head">projected debt balances</span>${debts.map(d=>`<div class="row-item"><div class="fb"><div class="fc"><span style="font-size:16px;">${d.emoji||'\u{1F4B3}'}</span><span style="font-size:13px;">${esc(d.name)}</span></div><div style="text-align:right;"><div style="font-family:var(--ff-serif);font-size:18px;color:${d.projBal<=0?'var(--sage)':'var(--cocoa)'};">${d.projBal<=0?'paid off '+SPARKLE:$(d.projBal)}</div>${d.projBal>0?`<div class="sub">down from ${$(d.balance)}</div>`:''}</div></div></div>`).join('')}<div style="padding-top:12px;border-top:1px solid var(--mist);"><div class="fb"><span style="font-size:13px;font-weight:500;">projected total debt</span><span style="font-family:var(--ff-serif);font-size:20px;color:${totalDebt<=0?'var(--sage)':'var(--cocoa)'};">${totalDebt<=0?'$0, clear':$(totalDebt)}</span></div></div></div>`:''}`;
 }
 
-// LIFE
+// LIFE TAB - with life events multi-select management, pet expenses by type, distinct chip colors, seasonal surfacing
 let activeLifeSection='kids',activeKidId=null,activePetId=null;
+
+const PET_EXPENSES={
+  dog:[{name:'food',freq:'monthly',icon:'\u{1F356}'},{name:'vet checkup',freq:'biannual',icon:'\u{1FA7A}'},{name:'flea and tick prevention',freq:'monthly',icon:'\u{1F48A}'},{name:'grooming',freq:'monthly',icon:'\u2702\uFE0F'},{name:'boarding or daycare',freq:'monthly',icon:'\u{1F3E8}'},{name:'toys and treats',freq:'monthly',icon:'\u{1F9F8}'},{name:'training',freq:'monthly',icon:'\u{1F415}'}],
+  cat:[{name:'food',freq:'monthly',icon:'\u{1F356}'},{name:'vet checkup',freq:'biannual',icon:'\u{1FA7A}'},{name:'flea prevention',freq:'monthly',icon:'\u{1F48A}'},{name:'litter',freq:'monthly',icon:'\u{1F4E6}'},{name:'grooming',freq:'quarterly',icon:'\u2702\uFE0F'},{name:'toys',freq:'monthly',icon:'\u{1F9F8}'}],
+  bird:[{name:'food and seed',freq:'monthly',icon:'\u{1F33E}'},{name:'vet checkup',freq:'annual',icon:'\u{1FA7A}'},{name:'cage accessories',freq:'quarterly',icon:'\u{1F6CF}\uFE0F'},{name:'grooming (nail/beak)',freq:'quarterly',icon:'\u2702\uFE0F'}],
+  rabbit:[{name:'hay and pellets',freq:'monthly',icon:'\u{1F33E}'},{name:'vet checkup',freq:'annual',icon:'\u{1FA7A}'},{name:'bedding',freq:'monthly',icon:'\u{1F6CF}\uFE0F'},{name:'grooming',freq:'monthly',icon:'\u2702\uFE0F'}],
+  hamster:[{name:'food',freq:'monthly',icon:'\u{1F33E}'},{name:'bedding',freq:'monthly',icon:'\u{1F6CF}\uFE0F'},{name:'vet checkup',freq:'annual',icon:'\u{1FA7A}'}],
+  fish:[{name:'food',freq:'monthly',icon:'\u{1F41F}'},{name:'tank supplies',freq:'monthly',icon:'\u{1F4A7}'},{name:'vet checkup',freq:'annual',icon:'\u{1FA7A}'}],
+  reptile:[{name:'food',freq:'monthly',icon:'\u{1F41E}'},{name:'habitat supplies',freq:'quarterly',icon:'\u{1F308}'},{name:'vet checkup',freq:'annual',icon:'\u{1FA7A}'},{name:'uvb bulbs',freq:'annual',icon:'\u{1F4A1}'}],
+  other:[{name:'food',freq:'monthly',icon:'\u{1F356}'},{name:'vet checkup',freq:'annual',icon:'\u{1FA7A}'},{name:'supplies',freq:'monthly',icon:'\u{1F4E6}'}]
+};
+
 function renderLife(){
   const hasKids=D.kids&&D.kids.length>0;const hasPets=D.pets&&D.pets.length>0;
-  const vis=id=>!(D.hiddenLifeTabs||[]).includes(id);
-  if(!hasKids&&!hasPets&&!D.supportSomeone&&!D.lifeChange){
-    document.getElementById('content').innerHTML=`<div class="stack fade-in"><div class="card" style="text-align:center;padding:40px 20px;"><div style="font-size:44px;margin-bottom:12px;">&#10022;</div><span class="card-title" style="display:block;margin-bottom:8px;">your life, your context</span><p class="sub" style="line-height:1.75;max-width:280px;margin:0 auto;">add the people, pets, and commitments that shape your finances. the more we know, the smarter the suggestions.</p><div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;justify-content:center;"><button class="btn-ruby btn-sm" onclick="openAddKid()">+ child or dependent</button><button class="btn-sky btn-sm" onclick="openAddPet()">+ pet</button></div></div></div>`;return;
-  }
+  const lifeEvents=(D.lifeEvents||[]);
   const tabs=[];
-  if(hasKids)tabs.push({id:'kids',label:'kids'});if(hasPets)tabs.push({id:'pets',label:'pets'});
-  if(D.supportSomeone&&vis('support'))tabs.push({id:'support',label:'support'});
-  if(D.lifeChange&&vis('life'))tabs.push({id:'life_event',label:'life event'});
+  if(hasKids)tabs.push({id:'kids',label:'kids'});
+  if(hasPets)tabs.push({id:'pets',label:'pets'});
+  if(D.supportSomeone)tabs.push({id:'support',label:'support'});
+  if(lifeEvents.length)tabs.push({id:'life_events',label:'life events'});
+
+  if(!tabs.length){
+    document.getElementById('content').innerHTML=`<div class="stack fade-in"><div class="card" style="text-align:center;padding:40px 20px;"><div style="font-size:44px;margin-bottom:12px;">&#10022;</div><span class="card-title" style="display:block;margin-bottom:8px;">your life, your context</span><p class="sub" style="line-height:1.75;max-width:280px;margin:0 auto;">add the people, pets, and commitments that shape your finances. the more context you build, the smarter the suggestions.</p><div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;justify-content:center;"><button class="btn-ruby btn-sm" onclick="openAddKid()">+ child</button><button class="btn-sky btn-sm" onclick="openAddPet()">+ pet</button><button class="btn-secondary btn-sm" style="flex:0;" onclick="openManageLifeEvents()">+ life events</button></div></div></div>`;return;
+  }
+
   if(!tabs.find(t=>t.id===activeLifeSection)&&tabs.length)activeLifeSection=tabs[0].id;
   let sectionHtml='';
 
   if(activeLifeSection==='kids'&&hasKids){
-    const kid=activeKidId?D.kids.find(k=>k.id===activeKidId):D.kids[0];
-    if(kid){
-      activeKidId=kid.id;const age=parseInt(kid.age)||0;
-      const now=new Date();const weekKey=`w${Math.floor(now.getTime()/(7*24*3600000))}`;
-      const chores=kid.chores||[];
-      const weekEarned=chores.reduce((s,ch)=>s+(ch.days||[]).reduce((ss,d)=>ss+((ch.done&&ch.done[weekKey+'_'+d])?(ch.pay||0):0),0),0);
-      const weekPotential=chores.reduce((s,ch)=>s+(ch.days||[]).length*(ch.pay||0),0);
-      const split=kid.allowanceSplit||{givePct:10,savePct:25,spendPct:65};const allow=kid.allowance||0;
-      const giveAmt=Math.round(allow*split.givePct/100*100)/100;const saveAmt=Math.round(allow*split.savePct/100*100)/100;const spendAmt=Math.round((allow-giveAmt-saveAmt)*100)/100;
-      const kidSel=D.kids.map(k=>`<button class="profile-chip ${k.id===activeKidId?'active':''}" onclick="activeKidId='${k.id}';renderLife()">${esc(k.name||'child')}</button>`).join('');
-      const activities=kid.activities||[];const mo=now.getMonth();
-      const seasonal=[];
-      if(age<5){seasonal.push({icon:'\u{1F37C}',label:'ongoing',note:'infant and toddler care is one of the biggest household expenses. childcare, diapers, formula &mdash; make sure your budget reflects the actual number.'});seasonal.push({icon:'\u{1F4CB}',label:'open enrollment',note:'update your insurance and flex spending to include your child. dcfsa can offset childcare costs significantly.'});}
-      else if(age>=5&&age<=12){if(mo>=5&&mo<=7)seasonal.push({icon:'\u2600\uFE0F',label:'summer',note:'day camps, sports programs, and activity fees spike. start the nest in january if you can.'});if(mo>=6&&mo<=8)seasonal.push({icon:'\u{1F4DA}',label:'back to school',note:'supplies, shoes, new clothes, registration. typically $200 to $600 per child.'});seasonal.push({icon:'\u{1F382}',label:'birthday',note:`${kid.name?kid.name+"'s":'your child\u2019s'} birthday &mdash; plan it now. last-minute celebrations always cost more.`});}
-      else if(age>=13&&age<=17){seasonal.push({icon:'\u{1F393}',label:'college prep',note:'test fees, application costs, campus visits &mdash; these start adding up in high school. a small nest now goes far.'});seasonal.push({icon:'\u{1F698}',label:'driving age',note:'added insurance costs and potential car needs are coming. start planning.'});}
-      else if(age>=18){seasonal.push({icon:'\u{1F393}',label:'college expenses',note:'tuition deposits, dorm supplies, ongoing costs. be clear on who covers what and when.'});seasonal.push({icon:'\u{1F4CB}',label:'insurance',note:'know when your child ages off your plan. that date matters more than people realize.'});}
-      seasonal.push({icon:'\u{1F384}',label:'holiday gifts',note:'start the gift nest in september. december costs more than it should.'});
-      sectionHtml=`
-        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">${kidSel}<button class="btn-add" style="padding:5px 12px;font-size:12px;border-radius:99px;flex-shrink:0;" onclick="openAddKid()">+ add</button></div>
-        <div style="background:linear-gradient(135deg,rgba(184,168,200,.3),rgba(195,219,238,.3));border-radius:var(--r-lg);padding:18px;display:flex;gap:14px;align-items:center;">
-          <div style="width:52px;height:52px;border-radius:16px;background:var(--white);display:flex;align-items:center;justify-content:center;font-size:24px;">&#10024;</div>
-          <div style="flex:1;"><span style="font-family:var(--ff-serif);font-size:24px;color:var(--cocoa);display:block;">${esc(kid.name||'child')}</span><span class="sub">age ${kid.age||'?'}${kid.birthday?' &middot; birthday: '+kid.birthday:''}</span></div>
-          <button class="btn-icon" onclick="openEditKid('${kid.id}')">&#9998;</button>
+    const kid=activeKidId?D.kids.find(k=>k.id===activeKidId)||D.kids[0]:D.kids[0];
+    activeKidId=kid.id;const age=parseInt(kid.age)||0;
+    const now=new Date();const mo=now.getMonth();const weekKey=`w${Math.floor(now.getTime()/(7*24*3600000))}`;
+    const chores=kid.chores||[];
+    const weekEarned=chores.reduce((s,ch)=>s+(ch.days||[]).reduce((ss,d)=>ss+((ch.done&&ch.done[weekKey+'_'+d])?(ch.pay||0):0),0),0);
+    const weekPotential=chores.reduce((s,ch)=>s+(ch.days||[]).length*(ch.pay||0),0);
+    const split=kid.allowanceSplit||{givePct:10,savePct:25,spendPct:65};const allow=kid.allowance||0;
+    const giveAmt=Math.round(allow*split.givePct/100*100)/100;const saveAmt=Math.round(allow*split.savePct/100*100)/100;const spendAmt=Math.round((allow-giveAmt-saveAmt)*100)/100;
+    const kidSel=D.kids.map(k=>`<button class="kid-chip ${k.id===activeKidId?'active':''}" onclick="activeKidId='${k.id}';renderLife()">${esc(k.name||'child')}</button>`).join('');
+
+    // Seasonal - only within 3 months
+    const seasonal=[];
+    if(mo>=5&&mo<=7)seasonal.push({icon:'\u2600\uFE0F',label:'summer camps',note:'registration opens early. lock in spots now.',nestHint:'kids activities'});
+    if(mo>=6&&mo<=8)seasonal.push({icon:'\u{1F4DA}',label:'back to school',note:'supplies, shoes, clothes, and registration. typically $200 to $600 per child.',nestHint:'back to school'});
+    if(mo>=1&&mo<=2)seasonal.push({icon:'\u2764\uFE0F',label:'valentine classroom',note:'cards, treats, the little things add up.',nestHint:'holiday'});
+    if(mo>=9&&mo<=10)seasonal.push({icon:'\u{1F383}',label:'halloween',note:'costumes, candy, school events.',nestHint:'holiday'});
+    if(mo===2)seasonal.push({icon:'\u{1F33C}',label:'spring break',note:'set aside something now if you are traveling.',nestHint:'vacation'});
+
+    const activities=kid.activities||[];
+    sectionHtml=`
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">${kidSel}<button class="btn-add" style="padding:5px 12px;font-size:12px;border-radius:99px;flex-shrink:0;" onclick="openAddKid()">+ add</button></div>
+      <div style="background:linear-gradient(135deg,rgba(184,168,200,.3),rgba(195,219,238,.3));border-radius:var(--r-lg);padding:18px;display:flex;gap:14px;align-items:center;">
+        <div style="width:52px;height:52px;border-radius:16px;background:var(--lilac);display:flex;align-items:center;justify-content:center;font-size:24px;">${SPARKLE}</div>
+        <div style="flex:1;"><span style="font-family:var(--ff-serif);font-size:24px;color:var(--cocoa);display:block;">${esc(kid.name||'child')}</span><span class="sub">age ${kid.age||'?'}${kid.birthday?' birthday: '+kid.birthday:''}</span></div>
+        <button class="btn-icon" onclick="openEditKid('${kid.id}')">&#9998;</button>
+      </div>
+      <div class="card"><div class="card-hdr"><span class="card-title">chore chart</span><button class="btn-ruby btn-sm" onclick="openAddChore('${kid.id}')">+ chore</button></div>
+        <div class="fb" style="margin-bottom:12px;"><div><span style="font-family:var(--ff-serif);font-size:24px;color:var(--sage);">$${weekEarned.toFixed(2)}</span><span class="sub"> this week</span></div><span class="sub">of $${weekPotential.toFixed(2)} possible</span></div>
+        ${chores.map(ch=>`<div class="row-item"><div class="fb" style="margin-bottom:6px;"><span style="font-size:13px;font-weight:500;">${esc(ch.name)}</span><div class="fc" style="gap:4px;"><span style="font-size:11px;color:var(--sage);font-weight:500;">+$${(ch.pay||0).toFixed(2)}</span><button class="btn-icon" onclick="openEditChore('${kid.id}','${ch.id}')">&#9998;</button><button class="btn-icon" onclick="const k=D.kids.find(x=>x.id==='${kid.id}');if(k){k.chores=k.chores.filter(c=>c.id!=='${ch.id}');save();renderLife();}">&#10005;</button></div></div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">${['M','T','W','Th','F','Sa','Su'].map(d=>{const active=(ch.days||[]).includes(d);if(!active)return'';const done=ch.done&&ch.done[weekKey+'_'+d];return`<button onclick="toggleChore('${kid.id}','${ch.id}','${weekKey}_${d}')" style="width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;font-size:11px;font-weight:600;background:${done?'var(--sage)':'var(--mist)'};color:${done?'white':'var(--cocoa)'};">${d}</button>`;}).join('')}</div>
+        </div>`).join('')}
+        ${!chores.length?`<p style="text-align:center;font-size:13px;color:var(--cocoa);opacity:.4;padding:12px 0;">no chores yet. add one to get started.</p>`:''}
+      </div>
+      <div class="card"><div class="card-hdr"><span class="card-title">allowance</span><button class="btn-icon" onclick="openEditAllowanceSplit('${kid.id}')">&#9998;</button></div>
+        <div class="inp-row" style="margin-bottom:12px;">
+          <div class="field"><label class="lbl">weekly amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="allow-input-${kid.id}" value="${allow}"/></div></div>
+          <div style="display:flex;align-items:flex-end;padding-bottom:2px;"><button class="btn-sky btn-sm" onclick="const k=D.kids.find(x=>x.id==='${kid.id}');if(k){k.allowance=parseFloat(document.getElementById('allow-input-${kid.id}').value)||0;save();renderLife();}">save</button></div>
         </div>
-        <div class="card"><div class="card-hdr"><span class="card-title">chore chart</span><button class="btn-ruby btn-sm" onclick="openAddChore('${kid.id}')">+ chore</button></div>
-          <div class="fb" style="margin-bottom:12px;"><div><span style="font-family:var(--ff-serif);font-size:24px;color:var(--sage);">$${weekEarned.toFixed(2)}</span><span class="sub"> this week</span></div><span class="sub">of $${weekPotential.toFixed(2)} possible</span></div>
-          ${chores.map(ch=>`<div class="row-item"><div class="fb" style="margin-bottom:6px;"><span style="font-size:13px;font-weight:500;">${esc(ch.name)}</span><div class="fc" style="gap:4px;"><span style="font-size:11px;color:var(--sage);font-weight:500;">+$${(ch.pay||0).toFixed(2)}</span><button class="btn-icon" onclick="openEditChore('${kid.id}','${ch.id}')">&#9998;</button><button class="btn-icon" onclick="const k=D.kids.find(x=>x.id==='${kid.id}');if(k){k.chores=k.chores.filter(c=>c.id!=='${ch.id}');save();renderLife();}">&#10005;</button></div></div>
-            <div style="display:flex;gap:5px;flex-wrap:wrap;">${['M','T','W','Th','F','Sa','Su'].map(d=>{const active=(ch.days||[]).includes(d);if(!active)return'';const done=ch.done&&ch.done[weekKey+'_'+d];return`<button onclick="toggleChore('${kid.id}','${ch.id}','${weekKey}_${d}')" style="width:30px;height:30px;border-radius:8px;border:none;cursor:pointer;font-size:11px;font-weight:600;background:${done?'var(--sage)':'var(--mist)'};color:${done?'white':'var(--cocoa)'};">${d}</button>`;}).join('')}</div>
-          </div>`).join('')}
-          ${!chores.length?`<p style="text-align:center;font-size:13px;color:var(--cocoa);opacity:.4;padding:12px 0;">no chores yet. add one to get started.</p>`:''}
+        <div class="field" style="margin-bottom:10px;"><label class="lbl">paid</label>
+          <div class="inp-row"><select class="inp" style="padding:9px 10px;font-size:12px;" onchange="const k=D.kids.find(x=>x.id==='${kid.id}');if(k){k.allowanceFreq=this.value;save();}">${['weekly','biweekly','monthly'].map(f=>`<option value="${f}" ${kid.allowanceFreq===f?'selected':''}>${f}</option>`).join('')}</select>
+          <select class="inp" style="padding:9px 10px;font-size:12px;" onchange="const k=D.kids.find(x=>x.id==='${kid.id}');if(k){k.allowanceDay=this.value;save();}">${['sunday','monday','tuesday','wednesday','thursday','friday','saturday'].map(d=>`<option value="${d}" ${kid.allowanceDay===d?'selected':''}>${d}</option>`).join('')}</select></div>
         </div>
-        <div class="card"><div class="card-hdr"><span class="card-title">allowance</span><button class="btn-icon" onclick="openEditAllowanceSplit('${kid.id}')">&#9998;</button></div>
-          <div class="g2" style="margin-bottom:12px;gap:10px;">
-            <div class="field"><label class="lbl">weekly amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" value="${allow}" onchange="const k=D.kids.find(x=>x.id==='${kid.id}');if(k){k.allowance=+this.value;save();}"/></div></div>
-            <div><label class="lbl">paid on</label><div class="inp-row" style="gap:6px;margin-top:4px;">
-              <select class="inp" style="padding:9px 10px;font-size:12px;" onchange="const k=D.kids.find(x=>x.id==='${kid.id}');if(k){k.allowanceFreq=this.value;save();}">${['weekly','biweekly','monthly'].map(f=>`<option value="${f}" ${kid.allowanceFreq===f?'selected':''}>${f}</option>`).join('')}</select>
-              <select class="inp" style="padding:9px 10px;font-size:12px;" onchange="const k=D.kids.find(x=>x.id==='${kid.id}');if(k){k.allowanceDay=this.value;save();}">${['sunday','monday','tuesday','wednesday','thursday','friday','saturday'].map(d=>`<option value="${d}" ${kid.allowanceDay===d?'selected':''}>${d}</option>`).join('')}</select>
-            </div></div>
-          </div>
-          ${[{l:'\u{1F90D} give',v:giveAmt,p:split.givePct,c:'var(--lilac)'},{l:'\u{1F416} save',v:saveAmt,p:split.savePct,c:'var(--sage)'},{l:'\u{1F6CD} spend',v:spendAmt,p:split.spendPct,c:'var(--warm)'}].map(r=>`<div class="fb row-item"><div><span style="font-size:13px;">${r.l}</span><span class="sub"> &middot; ${r.p}%</span></div><span style="font-family:var(--ff-serif);font-size:17px;color:${r.c};">$${r.v.toFixed(2)}</span></div>`).join('')}
-        </div>
-        <div class="card"><div class="card-hdr"><span class="card-title">activities</span><button class="btn-ruby btn-sm" onclick="openAddActivity('${kid.id}')">+ add</button></div>
-          ${activities.map((act,i)=>`<div class="row-item"><div class="fb"><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${esc(act.name)}</div><div class="sub">${$(act.cost||0)} ${act.freq||''}${act.regDate?' &middot; registration '+fmtDl(act.regDate):''}</div></div><div class="fc" style="gap:4px;"><button class="btn-icon" onclick="openEditActivity('${kid.id}',${i})">&#9998;</button><button class="btn-icon" onclick="const k=D.kids.find(x=>x.id==='${kid.id}');if(k){k.activities.splice(${i},1);save();renderLife();}">&#10005;</button></div></div></div>`).join('')}
-          ${!activities.length?`<p style="text-align:center;font-size:13px;color:var(--cocoa);opacity:.4;padding:12px 0;">no activities yet.</p>`:''}
-        </div>
-        <div class="card"><span class="sec-head">seasonal planning</span>
-          ${seasonal.map((s,i)=>`<div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;${i<seasonal.length-1?'border-bottom:1px solid var(--mist);':''}">
-            <div style="width:36px;height:36px;border-radius:10px;background:var(--linen);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${s.icon}</div>
-            <div style="flex:1;"><div style="font-size:13px;font-weight:500;">${s.label}</div><div class="sub">${s.note}</div></div>
-            <button class="btn-ruby btn-sm" onclick="openNewNest({name:'${esc(s.label)} fund',emoji:'${s.icon}'})" style="flex-shrink:0;">+ nest</button>
-          </div>`).join('')}
-        </div>
-        <button style="background:none;border:none;color:var(--ruby);opacity:.4;font-size:12px;cursor:pointer;text-align:center;width:100%;" onclick="if(confirm('remove?')){D.kids=D.kids.filter(k=>k.id!=='${kid.id}');activeKidId=null;save();renderLife();}">remove ${esc(kid.name||'child')}</button>`;
-    }
+        ${[{l:'\u{1F90D} give',v:giveAmt,p:split.givePct,c:'var(--lilac)'},{l:'\u{1F416} save',v:saveAmt,p:split.savePct,c:'var(--sage)'},{l:'\u{1F6CD}\uFE0F spend',v:spendAmt,p:split.spendPct,c:'var(--warm)'}].map(r=>`<div class="fb row-item"><div><span style="font-size:13px;">${r.l}</span><span class="sub"> ${r.p}%</span></div><span style="font-family:var(--ff-serif);font-size:17px;color:${r.c};">$${r.v.toFixed(2)}</span></div>`).join('')}
+      </div>
+      <div class="card"><div class="card-hdr"><span class="card-title">activities</span><button class="btn-ruby btn-sm" onclick="openAddActivity('${kid.id}')">+ add</button></div>
+        ${activities.map((act,i)=>`<div class="row-item"><div class="fb"><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${esc(act.name)}</div><div class="sub">${$(act.cost||0)} ${act.freq||''}${act.regDate?' reg: '+fmtDl(act.regDate):''}</div></div><div class="fc" style="gap:4px;"><button class="btn-icon" onclick="openEditActivity('${kid.id}',${i})">&#9998;</button><button class="btn-icon" onclick="const k=D.kids.find(x=>x.id==='${kid.id}');if(k){k.activities.splice(${i},1);save();renderLife();}">&#10005;</button></div></div></div>`).join('')}
+        ${!activities.length?`<p style="text-align:center;font-size:13px;color:var(--cocoa);opacity:.4;padding:12px 0;">no activities yet.</p>`:''}
+      </div>
+      ${seasonal.length?`<div class="card"><span class="sec-head">what's coming up</span>${seasonal.map((s,i)=>`<div style="display:flex;gap:12px;align-items:flex-start;padding:12px 0;${i<seasonal.length-1?'border-bottom:1px solid var(--mist);':''}"><div style="width:36px;height:36px;border-radius:10px;background:var(--linen);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${s.icon}</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${s.label}</div><div class="sub">${s.note}</div></div><button class="btn-sky btn-sm" onclick="const n=D.nests.find(x=>x.name.toLowerCase().includes('${s.nestHint.toLowerCase()}'));if(n){openDeposit(n.id);}else{openNewNest({name:'${s.label.toLowerCase()} fund',emoji:'${s.icon}'})}" style="flex-shrink:0;">${D.nests.find(x=>x.name.toLowerCase().includes(s.nestHint.toLowerCase()))?'+ add':'create nest'}</button></div>`).join('')}</div>`:''}
+      <button style="background:none;border:none;color:var(--ruby);opacity:.4;font-size:12px;cursor:pointer;text-align:center;width:100%;" onclick="if(confirm('remove?')){D.kids=D.kids.filter(k=>k.id!=='${kid.id}');activeKidId=null;save();renderLife();}">remove ${esc(kid.name||'child')}</button>`;
   } else if(activeLifeSection==='pets'&&hasPets){
-    const pet=activePetId?D.pets.find(p=>p.id===activePetId):D.pets[0];
-    if(pet){
-      activePetId=pet.id;const petEmoji={dog:'\u{1F415}',cat:'\u{1F408}',bird:'\u{1F426}',rabbit:'\u{1F430}',hamster:'\u{1F439}',fish:'\u{1F420}',reptile:'\u{1F98E}',other:'\u{1F43E}'}[pet.type]||'\u{1F43E}';
-      const petSel=D.pets.map(p=>`<button class="profile-chip ${p.id===activePetId?'active':''}" onclick="activePetId='${p.id}';renderLife()">${esc(p.name||'pet')}</button>`).join('');
-      const fOpts=[['weekly','weekly'],['monthly','monthly'],['quarterly','quarterly'],['biannual','twice a year'],['annually','once a year']];
-      const petNest=D.nests.find(n=>n.name.toLowerCase().includes('pet'));
-      sectionHtml=`
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">${petSel}<button class="btn-add" style="padding:5px 12px;font-size:12px;border-radius:99px;" onclick="openAddPet()">+ add</button></div>
-        <div style="background:linear-gradient(135deg,rgba(195,219,238,.35),rgba(245,239,228,.6));border-radius:var(--r-lg);padding:18px;display:flex;gap:14px;align-items:center;">
-          <div style="width:52px;height:52px;border-radius:16px;background:var(--white);display:flex;align-items:center;justify-content:center;font-size:28px;">${petEmoji}</div>
-          <div><span style="font-family:var(--ff-serif);font-size:24px;color:var(--cocoa);display:block;">${esc(pet.name||'pet')}</span><span class="sub">${pet.otherType||pet.type}</span></div>
-          <button class="btn-icon" style="margin-left:auto;" onclick="openEditPet('${pet.id}')">&#9998;</button>
-        </div>
-        <div class="card"><div class="card-hdr"><span class="card-title">pet expenses</span></div>
-          ${[{lbl:'\u{1F356} food',cF:'foodCost',frF:'foodFreq'},{lbl:'\u2702\uFE0F grooming',cF:'groomingCost',frF:'groomingFreq'},{lbl:'\u{1F3E8} boarding or daycare',cF:'boardingCost',frF:'boardingFreq'}].map(e=>`<div class="row-item"><div style="font-size:13px;font-weight:500;margin-bottom:6px;">${e.lbl}</div><div class="inp-row" style="gap:8px;"><div class="ie-field"><span class="ie-lbl">cost</span><div class="amt-wrap" style="border:1.5px solid var(--mist);border-radius:8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" value="${pet[e.cF]||0}" oninput="const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p['${e.cF}']=+this.value;save();}"/></div></div><div class="ie-field"><span class="ie-lbl">frequency</span><select class="ie-inp" style="padding:8px 10px;" oninput="const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p['${e.frF}']=this.value;save();}">${fOpts.map(([v,l])=>`<option value="${v}" ${pet[e.frF]===v?'selected':''}>${l}</option>`).join('')}</select></div></div></div>`).join('')}
-          ${(pet.extraExpenses||[]).map((e,i)=>`<div class="row-item"><div class="fb" style="margin-bottom:6px;"><span style="font-size:13px;font-weight:500;">${esc(e.name)}</span><button class="btn-ghost" onclick="const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p.extraExpenses.splice(${i},1);save();renderLife();}">remove</button></div><div class="inp-row" style="gap:8px;"><div class="ie-field"><span class="ie-lbl">cost</span><div class="amt-wrap" style="border:1.5px solid var(--mist);border-radius:8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" value="${e.cost||0}" oninput="const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p.extraExpenses[${i}].cost=+this.value;save();}"/></div></div><div class="ie-field"><span class="ie-lbl">frequency</span><select class="ie-inp" style="padding:8px 10px;" oninput="const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p.extraExpenses[${i}].freq=this.value;save();}">${fOpts.map(([v,l])=>`<option value="${v}" ${e.freq===v?'selected':''}>${l}</option>`).join('')}</select></div></div></div>`).join('')}
-          <button class="btn-add" style="margin-top:10px;" onclick="const n=prompt('expense name:');if(n){const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p.extraExpenses=p.extraExpenses||[];p.extraExpenses.push({name:n,cost:0,freq:'monthly'});save();renderLife();}}">+ add expense</button>
-        </div>
-        ${petNest?`<div class="suggestion"><span class="sug-icon">\u{1F423}</span><p class="sug-text">your pet care nest is ${pct(petNest.saved,petNest.goal)}% funded (${$(petNest.saved)} of ${$(petNest.goal)}). <button style="background:none;border:none;color:var(--ruby);font-size:12px;cursor:pointer;" onclick="openDeposit('${petNest.id}')">add to it</button></p></div>`:''}
-        <button style="background:none;border:none;color:var(--ruby);opacity:.4;font-size:12px;cursor:pointer;text-align:center;width:100%;" onclick="if(confirm('remove?')){D.pets=D.pets.filter(p=>p.id!=='${pet.id}');activePetId=null;save();renderLife();}">remove ${esc(pet.name||'pet')}</button>`;
-    }
+    const pet=activePetId?D.pets.find(p=>p.id===activePetId)||D.pets[0]:D.pets[0];
+    activePetId=pet.id;
+    const petEmoji={dog:'\u{1F415}',cat:'\u{1F408}',bird:'\u{1F426}',rabbit:'\u{1F430}',hamster:'\u{1F439}',fish:'\u{1F420}',reptile:'\u{1F98E}',other:'\u{1F43E}'}[pet.type]||'\u{1F43E}';
+    const petSel=D.pets.map(p=>`<button class="pet-chip ${p.id===activePetId?'active':''}" onclick="activePetId='${p.id}';renderLife()">${esc(p.name||'pet')}</button>`).join('');
+    const petExpDefs=PET_EXPENSES[pet.type]||PET_EXPENSES.other;
+    const expenses=pet.expenses||{};
+    const fOpts=[['weekly','weekly'],['monthly','monthly'],['quarterly','quarterly'],['biannual','twice a year'],['annual','once a year']];
+    sectionHtml=`
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">${petSel}<button class="btn-add" style="padding:5px 12px;font-size:12px;border-radius:99px;" onclick="openAddPet()">+ add</button></div>
+      <div style="background:linear-gradient(135deg,rgba(195,219,238,.35),rgba(245,239,228,.6));border-radius:var(--r-lg);padding:18px;display:flex;gap:14px;align-items:center;">
+        <div style="width:52px;height:52px;border-radius:16px;background:var(--white);display:flex;align-items:center;justify-content:center;font-size:28px;">${petEmoji}</div>
+        <div><span style="font-family:var(--ff-serif);font-size:24px;color:var(--cocoa);display:block;">${esc(pet.name||'pet')}</span><span class="sub">${pet.type}</span></div>
+        <button class="btn-icon" style="margin-left:auto;" onclick="openEditPet('${pet.id}')">&#9998;</button>
+      </div>
+      <div class="card"><div class="card-hdr"><span class="card-title">expenses for ${esc(pet.name||'your pet')}</span></div>
+        <p style="font-size:11px;color:var(--cocoa);opacity:.4;margin-bottom:12px;line-height:1.6;">based on what ${pet.type}s typically need. adjust to match yours.</p>
+        ${petExpDefs.map((e,idx)=>{const savedAmt=expenses[e.name]?.cost||0;const savedFreq=expenses[e.name]?.freq||e.freq;return`<div class="row-item"><div class="fc" style="margin-bottom:6px;"><span style="font-size:15px;">${e.icon}</span><span style="font-size:13px;font-weight:500;flex:1;">${e.name}</span></div>
+          <div class="inp-row" style="gap:8px;"><div class="ie-field"><span class="ie-lbl">amount</span><div class="amt-wrap" style="border:1.5px solid var(--mist);border-radius:8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" value="${savedAmt}" onblur="const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p.expenses=p.expenses||{};p.expenses['${e.name}']={cost:+this.value,freq:document.getElementById('pfr-${pet.id}-${idx}').value};save();}"/></div></div>
+          <div class="ie-field"><span class="ie-lbl">how often</span><select id="pfr-${pet.id}-${idx}" class="ie-inp" style="padding:8px 10px;" onblur="const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p.expenses=p.expenses||{};p.expenses['${e.name}']={cost:parseFloat(document.querySelector('[onblur*=\\'${e.name}\\']')?.value)||0,freq:this.value};save();}">${fOpts.map(([v,l])=>`<option value="${v}" ${savedFreq===v?'selected':''}>${l}</option>`).join('')}</select></div></div>
+        </div>`;}).join('')}
+        ${(pet.extraExpenses||[]).map((e,i)=>`<div class="row-item"><div class="fb" style="margin-bottom:6px;"><span style="font-size:13px;font-weight:500;">${esc(e.name)}</span><button class="btn-ghost" onclick="const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p.extraExpenses.splice(${i},1);save();renderLife();}">remove</button></div><div class="inp-row" style="gap:8px;"><div class="ie-field"><span class="ie-lbl">amount</span><div class="amt-wrap" style="border:1.5px solid var(--mist);border-radius:8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" value="${e.cost||0}" onblur="const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p.extraExpenses[${i}].cost=+this.value;save();}"/></div></div><div class="ie-field"><span class="ie-lbl">frequency</span><select class="ie-inp" style="padding:8px 10px;" onchange="const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p.extraExpenses[${i}].freq=this.value;save();}">${fOpts.map(([v,l])=>`<option value="${v}" ${e.freq===v?'selected':''}>${l}</option>`).join('')}</select></div></div></div>`).join('')}
+        <button class="btn-add" style="margin-top:10px;" onclick="const n=prompt('expense name:');if(n){const p=D.pets.find(x=>x.id==='${pet.id}');if(p){p.extraExpenses=p.extraExpenses||[];p.extraExpenses.push({name:n,cost:0,freq:'monthly'});save();renderLife();}}">+ add expense</button>
+      </div>
+      <button style="background:none;border:none;color:var(--ruby);opacity:.4;font-size:12px;cursor:pointer;text-align:center;width:100%;" onclick="if(confirm('remove?')){D.pets=D.pets.filter(p=>p.id!=='${pet.id}');activePetId=null;save();renderLife();}">remove ${esc(pet.name||'pet')}</button>`;
   } else if(activeLifeSection==='support'){
     const typeLabels={aging_parent:'aging parent',sibling:'sibling',adult_child:'adult child',grandparent:'grandparent',partner:'partner or spouse',roommate:'shared household',other:'other'};
-    sectionHtml=`<div class="card"><div class="card-hdr"><span class="card-title">supporting someone</span><button class="btn-icon" onclick="D.hiddenLifeTabs=D.hiddenLifeTabs||[];D.hiddenLifeTabs.push('support');save();renderLife();">&#10005;</button></div>
+    sectionHtml=`<div class="card"><div class="card-hdr"><span class="card-title">supporting someone</span></div>
       <div class="row-item"><div class="fb"><span style="font-size:13px;">who</span><span class="pill" style="background:rgba(184,168,200,.2);color:var(--cocoa);">${typeLabels[D.supportType]||D.supportType}</span></div></div>
-      ${D.supportNote?`<div class="row-item"><span class="sub">${esc(D.supportNote)}</span></div>`:''}
-      <div class="fb row-item"><span style="font-size:13px;">monthly amount</span><div class="amt-wrap" style="width:100px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" value="${D.supportCost||0}" oninput="D.supportCost=+this.value;save();"/></div></div>
-      ${!D.nests.find(n=>n.name.toLowerCase().includes('support'))?`<div class="suggestion" style="margin-top:10px;"><span class="sug-icon">\u{1F49B}</span><p class="sug-text">a dedicated support fund keeps this commitment visible and planned, separate from your own expenses. <button style="background:none;border:none;color:var(--ruby);font-size:12px;cursor:pointer;" onclick="openNewNest({name:'support fund',emoji:'\u{1F49B}'})">create one</button></p></div>`:''}
+      <div class="fb row-item" style="gap:10px;"><span style="font-size:13px;">monthly amount</span><div style="display:flex;align-items:center;gap:8px;"><div class="amt-wrap" style="width:100px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="support-cost-input" value="${D.supportCost||0}"/></div><button class="btn-sky btn-sm" onclick="D.supportCost=parseFloat(document.getElementById('support-cost-input').value)||0;save();">save</button></div></div>
+      ${!D.nests.find(n=>n.name.toLowerCase().includes('support'))?`<div class="suggestion" style="margin-top:10px;"><span class="sug-icon">\u{1F49B}</span><p class="sug-text">a dedicated support fund keeps this commitment visible and planned. <button style="background:none;border:none;color:var(--ruby);font-size:12px;cursor:pointer;" onclick="openNewNest({name:'support fund',emoji:'\u{1F49B}'})">create one</button></p></div>`:''}
     </div>`;
-  } else if(activeLifeSection==='life_event'){
-    const lifeNests=getLifeNestSuggestions(D.lifeType);
-    sectionHtml=`<div class="card"><div class="card-hdr"><span class="card-title">life event</span><button class="btn-icon" onclick="D.hiddenLifeTabs=D.hiddenLifeTabs||[];D.hiddenLifeTabs.push('life');save();renderLife();">&#10005;</button></div>
-      <div class="row-item"><span style="font-size:13px;font-weight:500;">${getLifeLabel(D.lifeType)}</span>${D.lifeOther?`<br><span class="sub">${esc(D.lifeOther)}</span>`:''}</div>
-      ${lifeNests.length?`<div style="margin-top:12px;"><span class="sec-head">suggested nests for this moment</span>${lifeNests.map(n=>`<div class="fc" style="padding:10px 0;border-bottom:1px solid var(--mist);gap:10px;"><span style="font-size:18px;">${n.emoji}</span><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${n.name}</div><div class="sub">${n.note}</div></div><button class="btn-ruby btn-sm" onclick="openNewNest({name:'${esc(n.name)}',emoji:'${n.emoji}',goal:${n.goal},monthly:${n.monthly},note:'${esc(n.note)}'})">+ nest</button></div>`).join('')}</div>`:''}
+  } else if(activeLifeSection==='life_events'){
+    sectionHtml=`<div class="card"><div class="card-hdr"><span class="card-title">your life events</span><button class="btn-sky btn-sm" onclick="openManageLifeEvents()">manage</button></div>
+      <p style="font-size:12px;color:var(--cocoa);opacity:.4;margin-bottom:12px;line-height:1.6;">these shape the suggestions and nests we surface for you.</p>
+      ${lifeEvents.map(id=>{const e=ALL_LIFE_EVENTS.find(x=>x.id===id);if(!e)return'';return`<div class="row-item"><div class="fc"><span style="font-size:18px;">${e.icon}</span><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${e.label}</div><div class="sub">${e.desc}</div></div></div></div>`;}).join('')}
+      <div style="margin-top:14px;"><span class="sec-head">nests we suggest for your situation</span>
+        ${getLifeNestSuggestionsFromEvents(lifeEvents).map(n=>`<div class="fc" style="padding:10px 0;border-bottom:1px solid var(--mist);gap:10px;"><span style="font-size:18px;">${n.emoji}</span><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${n.name}${D.nests.find(x=>x.name.toLowerCase()===n.name.toLowerCase())?` <span class="pill" style="background:rgba(106,140,110,.1);color:var(--sage);font-size:9px;">added</span>`:''}</div><div class="sub">${n.note}</div></div>${!D.nests.find(x=>x.name.toLowerCase()===n.name.toLowerCase())?`<button class="btn-sky btn-sm" onclick="openNewNest({name:'${esc(n.name)}',emoji:'${n.emoji}',goal:${n.goal},monthly:${n.monthly},note:'${esc(n.note)}'})">+ nest</button>`:''}
+        </div>`).join('')}
+      </div>
     </div>`;
   }
 
-  const tabHtml=tabs.map(t=>`<button class="profile-chip ${activeLifeSection===t.id?'active':''}" onclick="activeLifeSection='${t.id}';renderLife()">${t.label}</button>`).join('');
-  document.getElementById('content').innerHTML=`<div class="stack fade-in"><div style="display:flex;gap:8px;flex-wrap:wrap;">${tabHtml}</div>${sectionHtml}<div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-add" style="flex:1;" onclick="openAddKid()">+ child or dependent</button><button class="btn-add" style="flex:1;" onclick="openAddPet()">+ pet</button></div></div>`;
+  const tabHtml=tabs.map(t=>`<button class="${t.id==='kids'?'kid-chip':t.id==='pets'?'pet-chip':'profile-chip'} ${activeLifeSection===t.id?'active':''}" onclick="activeLifeSection='${t.id}';renderLife()">${t.label}</button>`).join('');
+  document.getElementById('content').innerHTML=`<div class="stack fade-in"><div style="display:flex;gap:8px;flex-wrap:wrap;">${tabHtml}<button class="btn-add" style="padding:5px 12px;font-size:12px;border-radius:99px;" onclick="openManageLifeEvents()">life events</button></div>${sectionHtml}<div style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn-add" style="flex:1;" onclick="openAddKid()">+ child</button><button class="btn-add" style="flex:1;" onclick="openAddPet()">+ pet</button></div></div>`;
 }
 
-function getLifeLabel(t){const m={family_planning:'family planning',moving:'moving or relocating',buying_home:'buying a home',getting_married:'getting married',going_to_college:'going to college',home_renovation:'home renovation',changing_jobs:'changing jobs',layoff:'navigating a layoff',divorce:'navigating a divorce',sabbatical:'planning a sabbatical',other:'something else'};return m[t]||t;}
-function getLifeNestSuggestions(t){const m={family_planning:[{emoji:'\u{1F37C}',name:'baby fund',goal:5000,monthly:300,note:'gear, childcare setup, medical, and leave gaps.'},{emoji:'\u{1F338}',name:'fertility fund',goal:15000,monthly:500,note:'ivf, appointments, treatments. costs more than most people expect.'}],moving:[{emoji:'\u{1F4E6}',name:'moving costs',goal:3000,monthly:150,note:'deposit, first month, movers, and the unexpected.'}],buying_home:[{emoji:'\u{1F511}',name:'down payment',goal:20000,monthly:500,note:'typically 3 to 20% of the home price.'},{emoji:'\u{1F527}',name:'home repairs',goal:2000,monthly:100,note:'something always needs attention after you move in.'}],divorce:[{emoji:'\u{1F331}',name:'fresh start fund',goal:5000,monthly:200,note:'deposits, transition costs, and the rebuild.'},{emoji:'\u2696\uFE0F',name:'legal fees',goal:3000,monthly:150,note:'attorney fees and court costs add up. plan ahead.'}],layoff:[{emoji:'\u{1F309}',name:'bridge fund',goal:10000,monthly:0,note:'cover your essentials while you land your next thing.'}],sabbatical:[{emoji:'\u{1F305}',name:'sabbatical fund',goal:15000,monthly:400,note:'intentional time away, funded in advance. covers the income gap.'}],home_renovation:[{emoji:'\u{1F3D7}\uFE0F',name:'renovation fund',goal:10000,monthly:300,note:'always add 20% to whatever the contractor quoted you.'}]};return m[t]||[];}
+function openManageLifeEvents(){
+  const lifeEvents=D.lifeEvents||[];
+  document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-life-events" onclick="closeModal('modal-life-events')"><div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hdr"><span class="sheet-title">life events</span><button class="sheet-close" onclick="closeModal('modal-life-events')">close</button></div>
+    <p style="font-size:13px;color:var(--cocoa);opacity:.5;margin-bottom:14px;line-height:1.65;">pick everything that applies. tap again to remove.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;" id="le-pill-container">
+      ${ALL_LIFE_EVENTS.map(e=>{const sel=lifeEvents.includes(e.id);return`<button onclick="toggleDLifeEvent('${e.id}',this)" data-evid="${e.id}" style="display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:99px;border:1.5px solid ${sel?'var(--ruby)':'var(--mist)'};background:${sel?'rgba(168,32,64,.07)':'var(--white)'};cursor:pointer;font-size:13px;color:${sel?'var(--ruby)':'var(--ink)'};font-weight:${sel?600:400};transition:all .15s;"><span>${e.icon}</span>${e.label}</button>`;}).join('')}
+    </div>
+    <button class="btn-primary" onclick="save();closeModal('modal-life-events');renderLife();">done</button>
+  </div></div>`);
+}
+function toggleDLifeEvent(id,btn){
+  D.lifeEvents=D.lifeEvents||[];const idx=D.lifeEvents.indexOf(id);if(idx>=0)D.lifeEvents.splice(idx,1);else D.lifeEvents.push(id);
+  const sel=D.lifeEvents.includes(id);
+  btn.style.borderColor=sel?'var(--ruby)':'var(--mist)';btn.style.background=sel?'rgba(168,32,64,.07)':'var(--white)';btn.style.color=sel?'var(--ruby)':'var(--ink)';btn.style.fontWeight=sel?600:400;
+}
+
+function getLifeNestSuggestionsFromEvents(events){
+  const out=[];const seen=new Set();
+  const add=(n)=>{if(!seen.has(n.name)){seen.add(n.name);out.push(n);}};
+  if(events.includes('family_planning')){add({emoji:'\u{1F37C}',name:'baby fund',goal:5000,monthly:300,note:'gear, childcare, medical, and leave gaps.'});add({emoji:'\u{1F338}',name:'fertility fund',goal:15000,monthly:500,note:'ivf, appointments, treatments.'});}
+  if(events.includes('buying_home')){add({emoji:'\u{1F511}',name:'down payment',goal:20000,monthly:500,note:'typically 3 to 20% of the home price.'});add({emoji:'\u{1F527}',name:'home repairs',goal:2000,monthly:100,note:'something always needs attention after you move in.'});}
+  if(events.includes('moving'))add({emoji:'\u{1F4E6}',name:'moving costs',goal:3000,monthly:150,note:'deposit, first month, movers, and the unexpected.'});
+  if(events.includes('getting_married'))add({emoji:'\u{1F48D}',name:'engagement and wedding',goal:10000,monthly:300,note:'the proposal, the day, the honeymoon. works for any couple.'});
+  if(events.includes('divorce')){add({emoji:'\u{1F331}',name:'fresh start fund',goal:5000,monthly:200,note:'deposits, transition costs, and the rebuild.'});add({emoji:'\u2696\uFE0F',name:'legal fees',goal:3000,monthly:150,note:'attorney fees and court costs. plan ahead.'});}
+  if(events.includes('layoff'))add({emoji:'\u{1F309}',name:'bridge fund',goal:10000,monthly:0,note:'cover essentials while you land your next thing.'});
+  if(events.includes('sabbatical'))add({emoji:'\u{1F305}',name:'sabbatical fund',goal:15000,monthly:400,note:'intentional time away, funded in advance.'});
+  if(events.includes('home_renovation'))add({emoji:'\u{1F3D7}\uFE0F',name:'renovation fund',goal:10000,monthly:300,note:'always add 20% to whatever the contractor quoted you.'});
+  if(events.includes('going_to_college'))add({emoji:'\u{1F393}',name:'education fund',goal:10000,monthly:200,note:'tuition, supplies, and living costs.'});
+  return out;
+}
 
 function toggleChore(kidId,choreId,dayKey){const k=D.kids.find(x=>x.id===kidId);if(!k)return;const ch=k.chores.find(c=>c.id===choreId);if(!ch)return;if(!ch.done)ch.done={};ch.done[dayKey]=!ch.done[dayKey];save();renderLife();}
 
@@ -1225,7 +1395,7 @@ function openAddActivity(kidId){
       <div class="inp-row"><div class="field"><label class="lbl">cost</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="act-cost" placeholder="0"/></div></div>
       <div class="field"><label class="lbl">how often</label><select class="inp" id="act-freq" style="padding:11px 14px;"><option value="monthly">monthly</option><option value="weekly">weekly</option><option value="seasonal">per season</option><option value="annual">annual</option></select></div></div>
       <div class="field"><label class="lbl">registration date (optional)</label><input class="inp" type="month" id="act-regdate"/></div>
-      <button class="btn-primary" onclick="const sel=document.getElementById('act-select').value;const name=sel==='other'?(document.getElementById('act-custom').value.trim()||'other'):sel;const freq=document.getElementById('act-freq').value;const cost=parseFloat(document.getElementById('act-cost').value)||0;const regDate=document.getElementById('act-regdate').value||'';const k=D.kids.find(x=>x.id==='${kidId}');if(!k)return;k.activities=k.activities||[];k.activities.push({id:uid(),name,cost,freq,regDate});if((freq==='monthly'||freq==='weekly')&&cost>0){const mc=freq==='weekly'?cost*4.33:cost;if(!D.budget.plan.find(b=>b.name.toLowerCase().includes(name.toLowerCase()))){D.budget.plan.push({id:uid(),emoji:'\u26BD',name:k.name+' \u2014 '+name,group:'personal',budgeted:Math.round(mc)});}}save();closeModal('modal-activity');renderLife();">add activity</button>
+      <button class="btn-primary" onclick="const sel=document.getElementById('act-select').value;const name=sel==='other'?(document.getElementById('act-custom').value.trim()||'other'):sel;const freq=document.getElementById('act-freq').value;const cost=parseFloat(document.getElementById('act-cost').value)||0;const regDate=document.getElementById('act-regdate').value||'';const k=D.kids.find(x=>x.id==='${kidId}');if(!k)return;k.activities=k.activities||[];k.activities.push({id:uid(),name,cost,freq,regDate});save();closeModal('modal-activity');renderLife();">add activity</button>
     </div>
   </div></div>`);
 }
@@ -1248,7 +1418,7 @@ function openAddPet(){
     <div class="stack" style="gap:12px;">
       <div class="inp-row"><div class="field"><label class="lbl">name</label><input class="inp" id="ap-name" placeholder="name"/></div>
       <div class="field"><label class="lbl">type</label><select class="inp" id="ap-type" style="padding:11px 14px;">${['dog','cat','bird','rabbit','hamster','fish','reptile','other'].map(t=>`<option value="${t}">${t}</option>`).join('')}</select></div></div>
-      <button class="btn-primary" onclick="const name=document.getElementById('ap-name').value.trim();const type=document.getElementById('ap-type').value;D.pets.push({id:uid(),name:lc(name),type,otherType:'',groomingCost:0,groomingFreq:'monthly',foodCost:0,foodFreq:'monthly',boardingCost:0,boardingFreq:'annually',extraExpenses:[]});activePetId=D.pets[D.pets.length-1].id;activeLifeSection='pets';save();closeModal('modal-pet');renderLife();">add pet</button>
+      <button class="btn-primary" onclick="const name=document.getElementById('ap-name').value.trim();const type=document.getElementById('ap-type').value;D.pets.push({id:uid(),name:lc(name),type,extraExpenses:[],expenses:{}});activePetId=D.pets[D.pets.length-1].id;activeLifeSection='pets';save();closeModal('modal-pet');renderLife();">add pet</button>
     </div>
   </div></div>`);
 }
@@ -1274,9 +1444,7 @@ function openAddChore(kidId){
           <div class="field"><label class="lbl">chore name</label><input class="inp" id="ch-name" placeholder="what's the task?"/></div>
           <div class="field"><label class="lbl">pay per completion</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ch-pay" placeholder="0.50" step="0.25"/></div></div>
           <div class="field"><label class="lbl">active days</label>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">${['M','T','W','Th','F','Sa','Su'].map(d=>`<button type="button" class="day-btn" id="chd-${d}" onclick="this.classList.toggle('on')">${d}</button>`).join('')}</div>
-            <div style="display:flex;gap:6px;margin-top:6px;"><button type="button" style="background:none;border:none;font-size:11px;color:var(--cocoa);opacity:.5;cursor:pointer;" onclick="['M','T','W','Th','F','Sa','Su'].forEach(d=>{const el=document.getElementById('chd-'+d);if(el)el.classList.add('on')})">all days</button><button type="button" style="background:none;border:none;font-size:11px;color:var(--cocoa);opacity:.5;cursor:pointer;" onclick="['M','T','W','Th','F'].forEach(d=>{const el=document.getElementById('chd-'+d);if(el)el.classList.add('on')});['Sa','Su'].forEach(d=>{const el=document.getElementById('chd-'+d);if(el)el.classList.remove('on')})">weekdays only</button></div>
-          </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">${['M','T','W','Th','F','Sa','Su'].map(d=>`<button type="button" class="day-btn" id="chd-${d}" onclick="this.classList.toggle('on')">${d}</button>`).join('')}</div></div>
           <button class="btn-primary" onclick="const name=document.getElementById('ch-name').value.trim();if(!name)return;const pay=parseFloat(document.getElementById('ch-pay').value)||0;const days=['M','T','W','Th','F','Sa','Su'].filter(d=>document.getElementById('chd-'+d)?.classList.contains('on'));const k=D.kids.find(x=>x.id==='${kidId}');if(!k)return;k.chores=k.chores||[];k.chores.push({id:uid(),name,pay,days,done:{}});save();closeModal('modal-chore');renderLife();">add chore</button>
         </div>
       </div>
@@ -1296,32 +1464,69 @@ function openEditChore(kidId,choreId){
   </div></div>`);
 }
 
-// SETTINGS
-const GLOSSARY=[{term:'net pay',def:'what actually lands in your account after taxes, insurance, and deductions. your real number.'},{term:'gross pay',def:'your pay before anything is taken out. it looks bigger, but you never actually see all of it.'},{term:'margin',def:'what is left after your fixed expenses and nest contributions. your margin is what you direct with intention.'},{term:'sinking fund (nest)',def:'money set aside monthly for a future expense you know is coming. instead of getting blindsided, you plan for it. that is what nests are.'},{term:'emergency fund',def:'three to six months of essential expenses, saved and accessible. the foundation that makes everything else feel more manageable.'},{term:'deductible',def:'the amount you pay out of pocket before insurance starts covering costs. having this saved means an accident does not also become a financial crisis.'},{term:'interest rate (APR)',def:'how much extra you pay on a debt each year, as a percentage. the higher the rate, the faster a balance grows if left unpaid.'},{term:'debt avalanche',def:'payoff method: attack highest interest rate first, pay minimums on everything else. saves the most money over time.'},{term:'debt snowball',def:'payoff method: eliminate smallest balance first. slower mathematically, but the quick wins build real momentum.'},{term:'zero-based budgeting',def:'giving every dollar of income a specific job so nothing goes unaccounted. income minus planned outgoing equals zero.'},{term:'fixed costs',def:'expenses that are the same every month: rent, car payment, subscriptions. predictable and non-negotiable.'},{term:'guilt-free spending',def:'money you spend on what you want without tracking or justifying it. works best when fixed costs, savings, and investments are already handled.'},{term:'hsa',def:'a health savings account. contributions reduce taxable income, and unused funds roll over year to year. triple-tax-advantaged.'},{term:'529 plan',def:'a savings account designed for education expenses. contributions grow tax-free when used for qualifying costs.'},{term:'sabbatical',def:'a planned break from work to rest, reset, or pursue something meaningful. a sabbatical fund covers the income gap while you are out.'},{term:'haus money',def:'your spontaneous opportunity fund. where windfalls, bonuses, and birthday money go. pull from here and feel good about it.'}];
-
+// SETTINGS MODAL
 function openSettings(){
+  const incList=D.income||[];
+  const incHtml=incList.map((inc,i)=>`<div class="fc row-item" style="gap:8px;" id="inc-row-${i}"><input class="inp" style="flex:1;padding:9px 12px;" value="${esc(inc.label||'')}" onblur="const x=D.income[${i}];if(x)x.label=this.value;" placeholder="source"/><div class="amt-wrap" style="width:100px;border:1.5px solid var(--mist);border-radius:8px;padding:4px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" value="${inc.amount||0}" onblur="const x=D.income[${i}];if(x){x.amount=+this.value;D.monthlyIncome=D.income.reduce((s,y)=>s+(y.amount||0),0);save();}"/></div><span class="sub">/mo</span><button class="btn-icon" onclick="D.income.splice(${i},1);D.monthlyIncome=D.income.reduce((s,y)=>s+(y.amount||0),0);save();openSettings();">&#10005;</button></div>`).join('');
+
+  const paydays=D.paydays||{type:'biweekly',dates:[],freq:'',day:''};
+  const paydayHtml=`<div class="card" style="padding:14px;">
+    <span class="card-title" style="display:block;margin-bottom:10px;">payday schedule</span>
+    <div class="field" style="margin-bottom:10px;"><label class="lbl">pay frequency</label>
+      <select class="inp" id="set-pay-freq" style="padding:11px 14px;" onchange="document.getElementById('set-pay-specific').classList.toggle('hidden',this.value!=='specific')">
+        ${['weekly','biweekly','twice monthly','monthly','specific'].map(f=>`<option value="${f.replace(' ','_')}" ${paydays.type===f.replace(' ','_')||paydays.freq===f?'selected':''}>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field hidden" id="set-pay-specific"><label class="lbl">dates (comma separated, e.g. 1, 15)</label><input class="inp" id="set-pay-dates" value="${(paydays.dates||[]).join(', ')}" placeholder="1, 15"/></div>
+    <button class="btn-sky btn-sm" onclick="const freq=document.getElementById('set-pay-freq').value;const datesRaw=document.getElementById('set-pay-dates')?.value||'';const dates=datesRaw.split(',').map(x=>parseInt(x.trim())).filter(Boolean);D.paydays={type:freq,dates:dates,freq:freq,day:''};save();">save payday</button>
+  </div>`;
+
+  const TERMS=[
+    {t:'APR / interest rate',d:'the annual cost of borrowing money, expressed as a percentage. on credit cards, the higher the APR, the more you pay when you carry a balance.'},
+    {t:'backdoor Roth',d:'a strategy for high earners to fund a Roth IRA by contributing to a traditional IRA first, then converting it. useful when your income is above the direct Roth contribution limit.'},
+    {t:'cash flow',d:'what is actually moving. income in, expenses out. positive cash flow means more is coming in than going out.'},
+    {t:'DCFSA',d:'dependent care flexible spending account. pre-tax dollars set aside for childcare, after-school programs, or adult dependent care. use-it-or-lose-it, so plan carefully.'},
+    {t:'debt avalanche',d:'paying off debts in order of highest interest rate first. mathematically optimal. saves the most money over time.'},
+    {t:'debt snowball',d:'paying off debts smallest balance first. builds momentum. the quick wins make the next payoff feel possible.'},
+    {t:'deductible',d:'the amount you pay out of pocket before insurance kicks in. a higher deductible usually means lower monthly premiums.'},
+    {t:'emergency fund',d:'3 to 6 months of living expenses kept liquid and untouched. not an investment. not a nest. a floor.'},
+    {t:'fixed costs',d:'expenses that are the same every month regardless of behavior. rent, car payment, subscriptions. not negotiable in the short term.'},
+    {t:'gross pay',d:'what you earn before taxes or deductions. the number on your offer letter.'},
+    {t:'guilt-free spending',d:'money allocated with intention for enjoyment. not impulsive, not regrettable. already accounted for.'},
+    {t:'haus money',d:'the sparkle fund. money set aside specifically for Solari Haus — your community, your business, your vision. treated as a real line item.'},
+    {t:'HSA',d:'health savings account. triple tax advantage: contributions go in pre-tax, grow tax-free, and withdrawals for medical expenses are tax-free. rolls over every year.'},
+    {t:'margin',d:'the gap between what you earn and what you spend. margin is what gives you choices.'},
+    {t:'net pay',d:'what actually hits your account after taxes, benefits, and deductions. the real number to plan from.'},
+    {t:'sabbatical',d:'intentional time away from work, funded in advance. not a layoff. a planned pause.'},
+    {t:'sinking fund (nest)',d:'money set aside consistently over time for a known future expense. a nest here is your version of a sinking fund — named, intentional, and growing.'},
+    {t:'zero-based budgeting',d:'every dollar gets a job. income minus all categories equals zero. you are not leaving money unassigned.'},
+  ];
+
+  const termsHtml=`<details style="background:rgba(195,219,238,.08);border:1px solid rgba(195,219,238,.3);border-radius:var(--r-md);padding:14px;">
+    <summary style="font-family:var(--ff-serif);font-size:19px;color:var(--cocoa);list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:0;">haus terms <span style="font-size:11px;color:var(--cocoa);opacity:.4;font-family:var(--ff-sans);font-weight:normal;">tap to see</span></summary>
+    <p style="font-size:11.5px;color:var(--cocoa);opacity:.4;margin:10px 0 14px;line-height:1.6;">plain language for everything in this app. no jargon. no prerequisites.</p>
+    ${TERMS.map(term=>`<details style="margin-bottom:8px;"><summary style="font-size:13px;font-weight:500;color:var(--cocoa);cursor:pointer;padding:6px 0;border-bottom:1px solid var(--mist);list-style:none;display:flex;justify-content:space-between;align-items:center;">${term.t} <span style="font-size:10px;opacity:.3;">&#9660;</span></summary><p style="font-size:12px;color:var(--cocoa);opacity:.6;line-height:1.7;margin:8px 0 4px;">${term.d}</p></details>`).join('')}
+  </details>`;
+
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-settings" onclick="closeModal('modal-settings')"><div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-hdr"><span class="sheet-title">settings</span><button class="sheet-close" onclick="closeModal('modal-settings')">close</button></div>
-    <div class="stack" style="gap:24px;">
-      <div><span class="sec-head">your profile</span><div class="field"><label class="lbl">name</label><input class="inp" id="set-name" value="${esc(D.name||'')}"/></div></div>
-      <div><span class="sec-head">income</span>
-        <div class="stack" style="gap:10px;">
-          ${D.income.map((inc,i)=>`<div class="card" style="padding:12px;"><span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--cocoa);opacity:.4;display:block;margin-bottom:6px;">income ${i+1}</span>
-            <div class="inp-row"><div class="field"><label class="lbl">source</label><input class="inp" id="si-name-${i}" value="${esc(inc.name||'')}"/></div>
-            <div class="field"><label class="lbl">net amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="si-amt-${i}" value="${inc.amount||0}"/></div></div></div>
-            <div class="field" style="margin-top:8px;"><label class="lbl">frequency</label><select class="inp" id="si-freq-${i}" style="padding:11px 14px;">${[['monthly','monthly'],['biweekly','every 2 weeks'],['weekly','weekly'],['twice-monthly','twice a month']].map(([v,l])=>`<option value="${v}" ${inc.freq===v?'selected':''}>${l}</option>`).join('')}</select></div>
-          </div>`).join('')}
-          <button class="btn-secondary" onclick="D.income.push({id:uid(),name:'',amount:0,freq:'monthly'});save();closeModal('modal-settings');openSettings();">+ add income source</button>
-        </div>
+    <div class="stack" style="gap:16px;">
+      <div class="card" style="padding:14px;">
+        <span class="card-title" style="display:block;margin-bottom:10px;">your name</span>
+        <div class="fc" style="gap:8px;"><input class="inp" style="flex:1;" id="set-name" value="${esc(D.name||'')}"/><button class="btn-sky btn-sm" onclick="const v=document.getElementById('set-name').value.trim();if(v){D.name=v.toLowerCase();save();}">save</button></div>
       </div>
-      <div><span class="sec-head">payday schedule</span><div class="card" style="padding:12px;"><div class="sub" style="margin-bottom:8px;">currently: ${D.paydays?.type==='dates'?'dates '+D.paydays.dates.join(', '):D.paydays?.type==='weekly'?D.paydays.freq+' on '+['sun','mon','tue','wed','thu','fri','sat'][D.paydays.day||5]:'not set'}</div><button class="btn-secondary" onclick="closeModal('modal-settings');obGo(4);document.getElementById('onboarding').style.display='flex';">update payday</button></div></div>
-      <details><summary style="font-family:var(--ff-serif);font-size:19px;color:var(--cocoa);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">haus terms <span style="font-size:11px;color:var(--cocoa);opacity:.4;font-family:var(--ff-sans);">tap to expand</span></summary>
-        <div style="margin-top:14px;"><p style="font-size:12px;color:var(--cocoa);opacity:.45;line-height:1.65;margin-bottom:8px;">plain language definitions for everything in this app. no jargon. no prerequisites.</p>
-          ${GLOSSARY.map(g=>`<div style="padding:10px 0;border-bottom:1px solid var(--mist);"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">${g.term}</div><div style="font-size:12.5px;color:var(--cocoa);opacity:.55;line-height:1.6;">${g.def}</div></div>`).join('')}
-        </div>
-      </details>
-      <button class="btn-primary" onclick="D.name=lc(document.getElementById('set-name').value.trim())||D.name;D.income.forEach((inc,i)=>{const n=document.getElementById('si-name-'+i);const a=document.getElementById('si-amt-'+i);const f=document.getElementById('si-freq-'+i);if(n)inc.name=n.value;if(a)inc.amount=parseFloat(a.value)||0;if(f)inc.freq=f.value;});const monthly=D.income.reduce((s,i)=>{const a=i.amount||0,f={monthly:1,biweekly:2.167,weekly:4.333,'twice-monthly':2}[i.freq]||1;return s+a*f;},0);D.monthlyIncome=Math.round(monthly);updateTopbar();save();closeModal('modal-settings');if(activeTab==='home')renderHome();">save changes</button>
-      <button style="background:none;border:none;color:var(--ruby);opacity:.5;font-size:12px;cursor:pointer;text-align:center;" onclick="if(confirm('this will erase everything and start over. are you sure?')){localStorage.removeItem('${KEY}');location.reload();}">reset and start over</button>
+      <div class="card" style="padding:14px;">
+        <div class="card-hdr"><span class="card-title">income sources</span><button class="btn-sky btn-sm" onclick="D.income.push({label:'',amount:0});save();openSettings();">+ add</button></div>
+        <div class="stack" style="gap:6px;margin-bottom:10px;">${incHtml||'<p class="sub" style="text-align:center;padding:8px 0;">no income sources added.</p>'}</div>
+        <p class="sub" style="text-align:center;">total: <strong>${$(D.monthlyIncome||0)}/mo</strong></p>
+      </div>
+      ${paydayHtml}
+      ${termsHtml}
+      <div class="card" style="padding:14px;border-color:rgba(168,32,64,.2);">
+        <span class="card-title" style="display:block;margin-bottom:6px;color:var(--ruby);">reset</span>
+        <p class="sub" style="margin-bottom:12px;line-height:1.6;">this clears all your data and restarts onboarding. it cannot be undone.</p>
+        <button class="btn-ruby btn-sm" onclick="if(confirm('reset all data? this cannot be undone.')){localStorage.removeItem('hausmoney_v5');location.reload();}">reset everything</button>
+      </div>
     </div>
   </div></div>`);
 }
