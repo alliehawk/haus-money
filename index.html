@@ -371,7 +371,6 @@ function obGo(step){
   const el=document.getElementById('ob-'+step);if(el)el.classList.add('on');
   for(let i=1;i<=OB_TOTAL+1;i++){const p=document.getElementById('prog-'+i);if(!p)continue;p.innerHTML=Array.from({length:OB_TOTAL},(_,j)=>`<div class="ob-dot${j<step?' done':''}"></div>`).join('');}
   if(step===3)renderObIncomeList();
-  if(step===4)renderDatePicker();
   if(step===5)renderLifeEventPills();
   if(step===7)renderStarterNests();
   window.scrollTo(0,0);
@@ -379,7 +378,7 @@ function obGo(step){
 
 function obSave1(){const n=document.getElementById('ob-name').value.trim();if(!n)return;OB.name=lc(n);obGo(2);}
 function selectShared(v,btn){OB.shared=v;document.querySelectorAll('#ob-2 .choice').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
-function obSave3(){if(!OB.income.some(i=>i.amount>0)){alert('add at least one income amount to continue.');return;}obGo(4);}
+function obSave3(){if(!OB.income.some(i=>i.amount>0)){alert('add at least one income amount to continue.');return;}obGo(5);}
 
 function renderObIncomeList(){
   if(!OB.income.length)OB.income=[{id:uid(),name:'',amount:0,freq:'monthly'}];
