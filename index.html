@@ -233,7 +233,7 @@ button{cursor:pointer;}
       </div>
     </div>
     <button class="btn-primary" onclick="obSave5()">continue</button>
-    <button class="ob-skip" onclick="obGo(6)">i'll fill this in later</button>
+    <button class="ob-skip" onclick="obGo(7)">i'll fill this in later</button>
   </div>
 
   <div class="ob-step" id="ob-7">
@@ -419,15 +419,6 @@ function selectPayDay(i,btn){OB.paydays.day=i;document.querySelectorAll('[id^=pd
 function obSave4(){const sel=document.getElementById('pd-freq');if(sel)OB.paydays.freq=sel.value;obGo(5);}
 
 // Multi-select life events
-function renderLifeEventPills(){
-  const container=document.getElementById('life-events-pills');if(!container)return;
-  container.innerHTML=ALL_LIFE_EVENTS.map(e=>{
-    const sel=OB.lifeEvents.includes(e.id);
-    return`<button onclick="toggleLifeEvent('${e.id}',this)" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;border:1.5px solid ${sel?'var(--ruby)':'var(--mist)'};background:${sel?'rgba(168,32,64,.07)':'var(--white)'};cursor:pointer;font-size:12px;color:${sel?'var(--ruby)':'var(--ink)'};font-weight:${sel?600:400};margin:3px;transition:all .15s;" data-evid="${e.id}">
-      <span>${e.icon}</span><span>${e.label}</span>
-    </button>`;
-  }).join('');
-}
 function toggleLifeEvent(id,btn){
   const idx=OB.lifeEvents.indexOf(id);if(idx>=0)OB.lifeEvents.splice(idx,1);else OB.lifeEvents.push(id);
   renderLifeEventPills();
@@ -472,7 +463,7 @@ function obSave5_old_UNUSED(){
   }
   if(!document.getElementById('tog-kids').checked)OB.kids=[];
   if(!document.getElementById('tog-pets').checked)OB.pets=[];
-  obGo(6);
+  obGo(7);
 }
 
 
@@ -1335,11 +1326,6 @@ const AGE_INSIGHTS={
   18:{range:'18 and up',tips:['help them understand the real cost of student loans before they sign anything.','open a Roth IRA if they have earned income. time in the market is the biggest advantage.','building an emergency fund is the first financial priority.']},
 };
 
-function getAgeInsight(age){
-  const n=parseInt(age)||0;
-  if(n<=2)return AGE_INSIGHTS[0];if(n<=5)return AGE_INSIGHTS[3];if(n<=10)return AGE_INSIGHTS[6];
-  if(n<=13)return AGE_INSIGHTS[11];if(n<=17)return AGE_INSIGHTS[14];return AGE_INSIGHTS[18];
-}
 
 function renderLife(){
   const hasKids=D.kids&&D.kids.length>0;
@@ -1441,14 +1427,31 @@ function renderLife(){
   </div>`;
 }
 
-function logChorePayoutAsExpense(kidId,amt){
-  if(!amt)return;
-  const k=D.kids.find(x=>x.id===kidId);if(!k)return;
-  const m=ensureMonth();m.logged=m.logged||[];m.actuals=m.actuals||{};
-  const line=D.budget.plan.find(b=>(b.name||'').toLowerCase().includes('child')||(b.name||'').toLowerCase().includes('kid'));
-  if(line)m.actuals[line.id]=(m.actuals[line.id]||0)+amt;
-  m.logged.push({id:uid(),budgetId:line?line.id:'childcare',amount:amt,category:'chore payout',note:lc(k.name)+' chore payout',date:today()});
-  save();alert('$'+amt.toFixed(2)+' logged as a child expense.');
+
+
+function renderLifeEventsModal(){
+  var container=document.getElementById('life-events-list');
+  if(!container||!D)return;
+  if(!D.lifeEvents)D.lifeEvents=[];
+  container.innerHTML=ALL_LIFE_EVENTS.map(function(e){
+    var sel=D.lifeEvents.indexOf(e.id)>=0;
+    var bg=sel?'var(--ruby)':'var(--mist)';
+    var left=sel?'23px':'3px';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--mist);cursor:pointer;" onclick="event.stopPropagation();toggleLifeEventById(this.dataset.id)" data-id="'+e.id+'">'
+      +'<div style="display:flex;align-items:center;gap:10px;pointer-events:none;">'
+      +'<span style="font-size:18px;">'+e.icon+'</span>'
+      +'<div><div style="font-size:14px;font-weight:500;color:var(--ink);">'+e.label+'</div>'
+      +'<div style="font-size:11px;color:var(--cocoa);opacity:.4;margin-top:1px;">'+e.desc+'</div></div></div>'
+      +'<div style="width:44px;height:24px;border-radius:99px;flex-shrink:0;position:relative;pointer-events:none;background:'+bg+';transition:background .2s;">'
+      +'<div style="position:absolute;top:3px;width:18px;height:18px;border-radius:50%;background:white;box-shadow:0 1px 4px rgba(0,0,0,.2);left:'+left+';transition:left .2s;"></div></div>'
+      +'</div>';
+  }).join('');
+}
+function toggleLifeEventById(id){
+  if(!D.lifeEvents)D.lifeEvents=[];
+  var idx=D.lifeEvents.indexOf(id);
+  if(idx>=0)D.lifeEvents.splice(idx,1);else D.lifeEvents.push(id);
+  save();renderLifeEventsModal();
 }
 
 function toggleDLifeEvent(id, checkbox){
@@ -1462,29 +1465,6 @@ function toggleDLifeEvent(id, checkbox){
   save();
 }
 
-function openManageLifeEvents(){
-  if(!D.lifeEvents)D.lifeEvents=[];
-  function renderEvents(){
-    const rows=ALL_LIFE_EVENTS.map(e=>{
-      const sel=D.lifeEvents.includes(e.id);
-      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--mist);cursor:pointer;" onclick="event.stopPropagation();const idx=D.lifeEvents.indexOf('${e.id}');if(idx>=0)D.lifeEvents.splice(idx,1);else D.lifeEvents.push('${e.id}');save();renderEvents();">
-        <div class="fc" style="gap:10px;pointer-events:none;"><span style="font-size:18px;">${e.icon}</span><div><div class="toggle-lbl">${e.label}</div><div class="toggle-sub">${e.desc}</div></div></div>
-        <div style="width:44px;height:24px;border-radius:99px;background:${sel?'var(--ruby)':'var(--mist)'};flex-shrink:0;position:relative;pointer-events:none;transition:background .2s;">
-          <div style="position:absolute;top:3px;left:${sel?'23':'3'}px;width:18px;height:18px;border-radius:50%;background:white;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:left .2s;"></div>
-        </div>
-      </div>`;
-    }).join('');
-    const container=document.getElementById('life-events-list');
-    if(container)container.innerHTML=rows;
-  }
-  document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-life-events" onclick="closeModal('modal-life-events')"><div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-hdr"><span class="sheet-title">your life events</span><button class="sheet-close" onclick="closeModal('modal-life-events')">close</button></div>
-    <p style="font-size:12px;color:var(--cocoa);opacity:.5;margin-bottom:14px;line-height:1.6;">tap to toggle. each event surfaces nest suggestions built for your situation.</p>
-    <div class="card" style="padding:0;overflow:hidden;" id="life-events-list"></div>
-    <button class="btn-primary" style="margin-top:14px;" onclick="save();closeModal('modal-life-events');renderLife();">done</button>
-  </div></div>`);
-  renderEvents();
-}
 
 
 function getLifeNestSuggestionsFromEvents(events){
@@ -1513,57 +1493,7 @@ function removeKid(kidId){
   save();renderLife();
 }
 
-function toggleChore(kidId,choreId,dayKey){const k=D.kids.find(x=>x.id===kidId);if(!k)return;const ch=k.chores.find(c=>c.id===choreId);if(!ch)return;if(!ch.done)ch.done={};ch.done[dayKey]=!ch.done[dayKey];save();renderLife();}
-
-function openAddKid(){
-  document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-kid" onclick="closeModal('modal-kid')"><div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-hdr"><span class="sheet-title">add a child or dependent</span><button class="sheet-close" onclick="closeModal('modal-kid')">close</button></div>
-    <div class="stack" style="gap:12px;">
-      <div class="inp-row"><div class="field"><label class="lbl">name</label><input class="inp" id="ak-name" placeholder="name"/></div><div class="field"><label class="lbl">age</label><input type="number" class="inp" id="ak-age" placeholder="age"/></div></div>
-      <button class="btn-primary" onclick="const name=document.getElementById('ak-name').value.trim();if(!name)return;D.kids.push({id:uid(),name:lc(name),age:document.getElementById('ak-age').value||'',birthday:'',activities:[],chores:[],allowance:0,allowanceSplit:{givePct:10,savePct:25,spendPct:65},allowanceDay:'sunday',allowanceFreq:'weekly'});activeKidId=D.kids[D.kids.length-1].id;activeLifeSection='kids';save();closeModal('modal-kid');renderLife();">add</button>
-    </div>
-  </div></div>`);
-}
-function openEditKid(id){
-  const k=D.kids.find(x=>x.id===id);if(!k)return;
-  document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-edit-kid" onclick="closeModal('modal-edit-kid')"><div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-hdr"><span class="sheet-title">edit</span><button class="sheet-close" onclick="closeModal('modal-edit-kid')">close</button></div>
-    <div class="stack" style="gap:12px;">
-      <div class="inp-row"><div class="field"><label class="lbl">name</label><input class="inp" id="ek-name" value="${esc(k.name)}"/></div><div class="field"><label class="lbl">age</label><input type="number" class="inp" id="ek-age" value="${k.age||''}"/></div></div>
-      <button class="btn-primary" onclick="const k=D.kids.find(x=>x.id==='${id}');if(k){k.name=lc(document.getElementById('ek-name').value.trim())||k.name;k.age=document.getElementById('ek-age').value||k.age;save();closeModal('modal-edit-kid');renderLife();}">save</button>
-    </div>
-  </div></div>`);
-}
-function openEditAllowanceSplit(kidId){
-  const k=D.kids.find(x=>x.id===kidId);if(!k)return;const split=k.allowanceSplit||{givePct:10,savePct:25,spendPct:65};
-  document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-split" onclick="closeModal('modal-split')"><div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-hdr"><span class="sheet-title">allowance split</span><button class="sheet-close" onclick="closeModal('modal-split')">close</button></div>
-    <p style="font-size:13px;color:var(--cocoa);opacity:.5;margin-bottom:14px;line-height:1.6;">set the percentage for give and save. the rest goes to spending.</p>
-    <div class="stack" style="gap:12px;">
-      <div class="field"><label class="lbl">give %</label><input type="number" class="inp" id="sp-give" value="${split.givePct}" oninput="const g=+this.value;const s=parseFloat(document.getElementById('sp-save')?.value)||0;document.getElementById('sp-rem').textContent='spend: '+(Math.max(0,100-g-s))+'%'"/></div>
-      <div class="field"><label class="lbl">save %</label><input type="number" class="inp" id="sp-save" value="${split.savePct}" oninput="const s=+this.value;const g=parseFloat(document.getElementById('sp-give')?.value)||0;document.getElementById('sp-rem').textContent='spend: '+(Math.max(0,100-g-s))+'%'"/></div>
-      <div class="sub" id="sp-rem" style="text-align:right;font-size:13px;">spend: ${split.spendPct}%</div>
-      <button class="btn-primary" onclick="const k=D.kids.find(x=>x.id==='${kidId}');if(k){const g=parseFloat(document.getElementById('sp-give').value)||0;const s=parseFloat(document.getElementById('sp-save').value)||0;k.allowanceSplit={givePct:g,savePct:s,spendPct:Math.max(0,100-g-s)};save();closeModal('modal-split');renderLife();}">save split</button>
-    </div>
-  </div></div>`);
-}
 const ACTIVITIES=[{name:'art class',ageMin:3},{name:'basketball',ageMin:5},{name:'cheer',ageMin:6},{name:'chess',ageMin:6},{name:'coding or robotics',ageMin:6},{name:'dance',ageMin:3},{name:'football',ageMin:8},{name:'guitar',ageMin:7},{name:'gymnastics',ageMin:3},{name:'martial arts',ageMin:4},{name:'piano',ageMin:5},{name:'swimming',ageMin:3},{name:'t-ball or baseball',ageMin:4},{name:'tennis',ageMin:6},{name:'theater',ageMin:6},{name:'track',ageMin:8},{name:'other',ageMin:0}];
-function openAddActivity(kidId){
-  const k=D.kids.find(x=>x.id===kidId);const age=parseInt(k?.age)||0;const relevant=ACTIVITIES.filter(a=>a.ageMin<=age||age===0);
-  document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-activity" onclick="closeModal('modal-activity')"><div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-hdr"><span class="sheet-title">add activity</span><button class="sheet-close" onclick="closeModal('modal-activity')">close</button></div>
-    <div class="stack" style="gap:12px;">
-      <div class="inp-row"><div class="field"><label class="lbl">activity</label><select class="inp" id="act-select" style="padding:11px 14px;" onchange="document.getElementById('act-custom-wrap').classList.toggle('hidden',this.value!=='other')"><option value="" disabled selected>select one</option>${relevant.map(a=>`<option value="${esc(a.name)}">${a.name}</option>`).join('')}</select></div>
-      <div class="field"><label class="lbl">emoji</label><input class="inp" id="act-emoji-val" placeholder="\u26BD" maxlength="2" style="text-align:center;font-size:20px;"/></div></div>
-      <div class="field hidden" id="act-custom-wrap"><label class="lbl">describe it</label><input class="inp" id="act-custom" placeholder="e.g. pottery"/></div>
-      <div class="inp-row"><div class="field"><label class="lbl">cost</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="act-cost" placeholder="0"/></div></div>
-      <div class="field"><label class="lbl">how often</label><select class="inp" id="act-freq" style="padding:11px 14px;"><option value="monthly">monthly</option><option value="weekly">weekly</option><option value="seasonal">per season</option><option value="annual">annual</option></select></div></div>
-      <div class="field"><label class="lbl">registration date (optional)</label><input class="inp" type="month" id="act-regdate"/></div>
-      <div class="toggle-row" style="padding:8px 0;border:none;"><div class="toggle-lbl" style="font-size:13px;">include in monthly budget</div><label class="toggle"><input type="checkbox" id="act-monthly"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label></div>
-      <button class="btn-primary" onclick="const sel=document.getElementById('act-select').value;const isOther=sel==='other';const name=isOther?(document.getElementById('act-custom').value.trim().toLowerCase()||'other'):sel;const emoji=document.getElementById('act-emoji-val')?.value||'\u26BD';const cost=parseFloat(document.getElementById('act-cost').value)||0;const freq=document.getElementById('act-freq').value;const monthly=document.getElementById('act-monthly')?.checked;const k=D.kids.find(x=>x.id==='${kidId}');if(!k)return;k.activities=k.activities||[];k.activities.push({id:uid(),name,emoji,cost,freq,monthly});if(monthly&&cost>0){D.budget=D.budget||{plan:[],months:{}};D.budget.plan=D.budget.plan||[];let bl=D.budget.plan.find(b=>(b.name||'').toLowerCase().includes('childcare'));if(!bl){bl={id:uid(),name:name,emoji:emoji,budgeted:0,group:'personal',logged:[]};D.budget.plan.push(bl);}bl.budgeted=(bl.budgeted||0)+cost;}save();closeModal('modal-activity');renderLife();">add activity</button>
-    </div>
-  </div></div>`);
-}
 function openEditActivity(kidId,index){
   const k=D.kids.find(x=>x.id===kidId);if(!k)return;const act=k.activities[index];if(!act)return;
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-edit-act" onclick="closeModal('modal-edit-act')"><div class="sheet" onclick="event.stopPropagation()">
@@ -1595,37 +1525,6 @@ function openEditPet(id){
       <div class="inp-row"><div class="field"><label class="lbl">name</label><input class="inp" id="ep-name" value="${esc(p.name)}"/></div>
       <div class="field"><label class="lbl">type</label><select class="inp" id="ep-type" style="padding:11px 14px;">${['dog','cat','bird','rabbit','hamster','fish','reptile','other'].map(t=>`<option value="${t}" ${p.type===t?'selected':''}>${t}</option>`).join('')}</select></div></div>
       <button class="btn-primary" onclick="const p=D.pets.find(x=>x.id==='${id}');if(p){p.name=lc(document.getElementById('ep-name').value.trim())||p.name;p.type=document.getElementById('ep-type').value;save();closeModal('modal-edit-pet');renderLife();}">save</button>
-    </div>
-  </div></div>`);
-}
-function openAddChore(kidId){
-  const QUICK=[{name:'make bed',pay:.5,days:['M','T','W','Th','F']},{name:'set the table',pay:.75,days:['M','T','W','Th','F','Sa']},{name:'clear the table',pay:.75,days:['M','T','W','Th','F','Sa']},{name:'unload the dishwasher',pay:1,days:['M','W','F']},{name:'take out trash',pay:1.5,days:['T','F']},{name:'sweep or vacuum',pay:2,days:['Sa']},{name:'feed the pets',pay:.5,days:['M','T','W','Th','F','Sa','Su']},{name:'pick up room',pay:1,days:['M','W','F']},{name:'wipe down sink',pay:1,days:['W','Sa']}];
-  document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-chore" onclick="closeModal('modal-chore')"><div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-hdr"><span class="sheet-title">add a chore</span><button class="sheet-close" onclick="closeModal('modal-chore')">close</button></div>
-    <div class="stack" style="gap:14px;">
-      <div><span class="sec-head">quick suggestions</span>${QUICK.map(q=>`<div class="fc" style="padding:9px 12px;background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r-md);cursor:pointer;margin-bottom:4px;" onclick="document.getElementById('ch-name').value='${esc(q.name)}';document.getElementById('ch-pay').value=${q.pay};['M','T','W','Th','F','Sa','Su'].forEach(d=>{const el=document.getElementById('chd-'+d);if(el){if(${JSON.stringify(q.days)}.includes(d))el.classList.add('on');else el.classList.remove('on');}})"><span style="font-size:13px;flex:1;">${q.name}</span><span style="font-size:11px;color:var(--sage);font-weight:500;">+$${q.pay.toFixed(2)}/ea</span></div>`).join('')}</div>
-      <div class="card" style="padding:14px;"><span class="sec-head">customize</span>
-        <div class="stack" style="gap:10px;">
-          <div class="field"><label class="lbl">chore name</label><input class="inp" id="ch-name" placeholder="what's the task?"/></div>
-          <div class="field"><label class="lbl">pay per completion</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ch-pay" placeholder="0.50" step="0.25"/></div></div>
-          <div class="field"><label class="lbl">active days</label>
-            <div class="fc" style="gap:6px;margin-bottom:6px;"><button type="button" class="btn-ghost" style="opacity:.6;" onclick="['M','T','W','Th','F'].forEach(d=>{document.getElementById('chd-'+d)?.classList.add('on')});['Sa','Su'].forEach(d=>{document.getElementById('chd-'+d)?.classList.remove('on')})">weekdays only</button><button type="button" class="btn-ghost" style="opacity:.6;" onclick="['M','T','W','Th','F','Sa','Su'].forEach(d=>document.getElementById('chd-'+d)?.classList.add('on'))">select all</button><button type="button" class="btn-ghost" style="opacity:.6;" onclick="['M','T','W','Th','F','Sa','Su'].forEach(d=>document.getElementById('chd-'+d)?.classList.remove('on'))">clear all</button></div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;">${['M','T','W','Th','F','Sa','Su'].map(d=>`<button type="button" class="day-btn" id="chd-${d}" onclick="this.classList.toggle('on')">${d}</button>`).join('')}</div></div>
-          <button class="btn-primary" onclick="const name=document.getElementById('ch-name').value.trim();if(!name)return;const pay=parseFloat(document.getElementById('ch-pay').value)||0;const days=['M','T','W','Th','F','Sa','Su'].filter(d=>document.getElementById('chd-'+d)?.classList.contains('on'));const k=D.kids.find(x=>x.id==='${kidId}');if(!k)return;k.chores=k.chores||[];k.chores.push({id:uid(),name,pay,days,done:{}});save();closeModal('modal-chore');renderLife();">add chore</button>
-        </div>
-      </div>
-    </div>
-  </div></div>`);
-}
-function openEditChore(kidId,choreId){
-  const k=D.kids.find(x=>x.id===kidId);if(!k)return;const ch=k.chores.find(c=>c.id===choreId);if(!ch)return;
-  document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-edit-chore" onclick="closeModal('modal-edit-chore')"><div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-hdr"><span class="sheet-title">edit chore</span><button class="sheet-close" onclick="closeModal('modal-edit-chore')">close</button></div>
-    <div class="stack" style="gap:12px;">
-      <div class="field"><label class="lbl">chore name</label><input class="inp" id="ec-name" value="${esc(ch.name)}"/></div>
-      <div class="field"><label class="lbl">pay per completion</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ec-pay" value="${ch.pay||0}" step="0.25"/></div></div>
-      <div class="field"><label class="lbl">active days</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">${['M','T','W','Th','F','Sa','Su'].map(d=>`<button type="button" class="day-btn ${(ch.days||[]).includes(d)?'on':''}" id="ecd-${d}" onclick="this.classList.toggle('on')">${d}</button>`).join('')}</div></div>
-      <button class="btn-primary" onclick="const k=D.kids.find(x=>x.id==='${kidId}');if(!k)return;const ch=k.chores.find(c=>c.id==='${choreId}');if(!ch)return;ch.name=document.getElementById('ec-name').value.trim()||ch.name;ch.pay=parseFloat(document.getElementById('ec-pay').value)||0;ch.days=['M','T','W','Th','F','Sa','Su'].filter(d=>document.getElementById('ecd-'+d)?.classList.contains('on'));save();closeModal('modal-edit-chore');renderLife();">save</button>
     </div>
   </div></div>`);
 }
