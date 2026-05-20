@@ -1868,13 +1868,14 @@ function logChorePayoutAsExpense(kidId,amt){
   if(!amt)return;
   const k=D.kids.find(x=>x.id===kidId);if(!k)return;
   const m=ensureMonth();m.logged=m.logged||[];m.actuals=m.actuals||{};
-  let line=D.budget.plan.find(b=>(b.name||'').toLowerCase().includes('childcare')||(b.name||'').toLowerCase().includes('child'));
+  const lineName=k.name+' chore payout';
+  let line=D.budget.plan.find(b=>(b.name||'').toLowerCase()===lineName.toLowerCase());
   if(!line){
-    line={id:uid(),emoji:'\u{1F476}',name:'childcare',group:'personal',budgeted:0};
+    line={id:uid(),emoji:'💸',name:lineName,group:'personal',budgeted:0};
     D.budget.plan.push(line);
   }
   m.actuals[line.id]=(m.actuals[line.id]||0)+amt;
-  m.logged.push({id:uid(),budgetId:line.id,amount:amt,category:'💸 '+k.name+' chore payout',note:k.name+' chore payout',date:today()});
+  m.logged.push({id:uid(),budgetId:line.id,amount:amt,category:lineName,note:lineName,date:today()});
   save();renderLife();
 }
 
