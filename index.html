@@ -670,7 +670,7 @@ function renderBudget(){
   const trueMargin=income-spent-nestAlloc;
 
   if(budgetView==='plan'){
-    const planRows=D.budget.plan.map(b=>`<div style="padding:12px 0;border-bottom:1px solid var(--mist);"><div class="fb"><div class="fc"><span style="font-size:16px;">${b.emoji||'\u{1F4CC}'}</span><span style="font-size:13px;font-weight:500;">${esc(b.name)}</span></div><div class="fc" style="gap:6px;"><span style="font-family:var(--ff-serif);font-size:16px;color:var(--cocoa);">${$(b.budgeted)}</span><button class="btn-icon" onclick="openEditBudget('${b.id}')">&#9998;</button><button class="btn-icon" style="color:var(--ruby);opacity:.6;" onclick="if(confirm('remove '+${JSON.stringify(b.name)}+'?')){D.budget.plan=D.budget.plan.filter(x=>x.id!=='${b.id}');save();renderBudget();}">&#10005;</button></div></div></div>`).join('');
+    const planRows=D.budget.plan.map(b=>`<div style="padding:12px 0;border-bottom:1px solid var(--mist);"><div class="fb"><div class="fc"><span style="font-size:16px;">${b.emoji||'\u{1F4CC}'}</span><span style="font-size:13px;font-weight:500;">${esc(b.name)}</span></div><div class="fc" style="gap:6px;"><span style="font-family:var(--ff-serif);font-size:16px;color:var(--cocoa);">${$(b.budgeted)}</span><button class="btn-icon" onclick="openEditBudget('${b.id}')">&#9998;</button><button class="btn-icon" style="color:var(--ruby);opacity:.6;" onclick="removeBudgetItem('${b.id}')">&#10005;</button></div></div></div>`).join('');
     document.getElementById('content').innerHTML=`<div class="stack fade-in">
       <div class="tab-row"><button class="tab-btn on">plan</button><button class="tab-btn" onclick="budgetView='track';renderBudget()">track</button></div>
       <div class="card-dark" style="background:linear-gradient(135deg,var(--cocoa),#5C3020);">
@@ -857,6 +857,8 @@ function openBulkAddExpenses(){
     <button class="btn-primary" style="margin-top:8px;" onclick="submitBulkExpenses()">add selected expenses</button>
   </div></div>`);
 }
+
+function removeBudgetItem(id){var b=D.budget.plan.find(function(x){return x.id===id;});if(!b)return;if(!confirm('remove '+b.name+'?'))return;D.budget.plan=D.budget.plan.filter(function(x){return x.id!==id;});save();renderBudget();}
 
 function openAddBudget(){
   const existing=D.budget.plan.map(b=>b.name.toLowerCase());
@@ -1289,7 +1291,7 @@ function renderForecast(){
   const t6=n6.reduce((s,n)=>s+n.proj,0);const t12=n12.reduce((s,n)=>s+n.proj,0);
   const f6=n6.filter(n=>n.willFund).length;const f12=n12.filter(n=>n.willFund).length;
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
-    <div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">your financial forecast</span><span style="font-family:var(--ff-serif);font-size:28px;color:var(--linen);display:block;font-weight:300;">looking changes everything.</span><span style="font-size:12px;color:rgba(245,239,228,.4);">see where you land if you stay the course.</span></div>
+    <div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">your financial forecast</span><span style="font-family:var(--ff-serif);font-size:28px;color:var(--linen);display:block;font-weight:300;">looking changes everything.</span><span style="font-size:12px;color:rgba(245,239,228,.4);">see where you will land by staying the course.</span></div>
     <div class="card"><span class="sec-head">what my finances look like in...</span>
       <div style="display:flex;gap:6px;flex-wrap:wrap;" id="forecast-tabs">
         ${[1,3,6,12,18,24].map(m=>`<button class="profile-chip ${m===6?'active':''}" onclick="document.querySelectorAll('#forecast-tabs .profile-chip').forEach(b=>b.classList.remove('active'));this.classList.add('active');showForecast(${m})">${m} mo</button>`).join('')}
@@ -1666,7 +1668,19 @@ function renderKidSection(){
 
 function toggleChore(kidId,choreId,dayKey){const k=D.kids.find(x=>x.id===kidId);if(!k)return;const ch=k.chores.find(c=>c.id===choreId);if(!ch)return;if(!ch.done)ch.done={};ch.done[dayKey]=!ch.done[dayKey];save();renderLife();}
 
-function logChorePayoutAsExpense(kidId,amt){const k=D.kids.find(x=>x.id===kidId);if(!k)return;const m=ensureMonth();m.logged=m.logged||[];m.actuals=m.actuals||{};const line=D.budget.plan.find(b=>(b.name||'').toLowerCase().includes('childcare')||(b.name||'').toLowerCase().includes('child'));if(line)m.actuals[line.id]=(m.actuals[line.id]||0)+amt;m.logged.push({id:uid(),budgetId:line?line.id:'childcare',amount:amt,category:'childcare',note:lc(k.name)+' chore payout',date:today()});save();alert('$'+amt.toFixed(2)+' logged as a child expense.');}
+function logChorePayoutAsExpense(kidId,amt){
+  if(!amt)return;
+  const k=D.kids.find(x=>x.id===kidId);if(!k)return;
+  const m=ensureMonth();m.logged=m.logged||[];m.actuals=m.actuals||{};
+  let line=D.budget.plan.find(b=>(b.name||'').toLowerCase().includes('childcare')||(b.name||'').toLowerCase().includes('child'));
+  if(!line){
+    line={id:uid(),emoji:'\u{1F476}',name:'childcare',group:'personal',budgeted:0};
+    D.budget.plan.push(line);
+  }
+  m.actuals[line.id]=(m.actuals[line.id]||0)+amt;
+  m.logged.push({id:uid(),budgetId:line.id,amount:amt,category:'chore payout',note:k.name+' chore payout',date:today()});
+  save();renderLife();
+}
 
 function openAddKid(){document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-kid" onclick="closeModal('modal-kid')"><div class="sheet" onclick="event.stopPropagation()"><div class="sheet-hdr"><span class="sheet-title">add a child or dependent</span><button class="sheet-close" onclick="closeModal('modal-kid')">close</button></div><div class="stack" style="gap:12px;"><div class="inp-row"><div class="field"><label class="lbl">name</label><input class="inp" id="ak-name" placeholder="name" oninput="this.value=this.value.toLowerCase()"/></div><div class="field"><label class="lbl">age</label><input type="number" class="inp" id="ak-age" placeholder="age" min="0" max="25"/></div></div><button class="btn-primary" onclick="const nm=document.getElementById('ak-name').value.trim();if(!nm)return;D.kids=D.kids||[];const kid={id:uid(),name:lc(nm),age:document.getElementById('ak-age').value||'',activities:[],chores:[],allowance:0,allowanceSplit:{givePct:10,savePct:30,spendPct:60},allowanceFreq:'weekly'};D.kids.push(kid);activeKidId=kid.id;activeLifeSection='kids';save();closeModal('modal-kid');renderLife();">add</button></div></div></div>`);}
 
@@ -1790,8 +1804,8 @@ function openSettings(sec){
       ${connectFooter}`;
   } else if(_hausSec==='terms'){
     sectionHtml=`
-      <p class="sub" style="margin-bottom:4px;line-height:1.6;">common finance terminology, in plain language.</p>
-      <div class="card" style="padding:0;overflow:hidden;">
+      <div class="fb" style="margin-bottom:8px;"><p class="sub" style="line-height:1.6;margin:0;">common finance terminology, in plain language.</p><button onclick="(function(){const all=document.querySelectorAll('#haus-terms-list details');const anyOpen=[...all].some(d=>d.open);all.forEach(d=>d.open=!anyOpen);this.textContent=anyOpen?'expand all':'collapse all';}).call(this)" style="font-size:11px;color:var(--ruby);background:none;border:none;cursor:pointer;white-space:nowrap;padding:0;">expand all</button></div>
+      <div class="card" style="padding:0;overflow:hidden;" id="haus-terms-list">
         ${TERMS.map(term=>`<details style="border-bottom:1px solid var(--mist);"><summary style="font-size:14px;font-weight:500;color:var(--cocoa);cursor:pointer;padding:13px 16px;list-style:none;display:flex;justify-content:space-between;align-items:center;">${term.t} <span style="font-size:10px;opacity:.3;">&#9660;</span></summary><p style="font-size:12.5px;color:var(--cocoa);opacity:.6;line-height:1.75;margin:0;padding:0 16px 14px;">${term.d}</p></details>`).join('')}
       </div>
       ${connectFooter}`;
@@ -1802,9 +1816,10 @@ function openSettings(sec){
         <summary style="font-family:var(--ff-serif);font-size:19px;color:var(--cocoa);list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:0;">debt payoff strategies <span style="font-size:11px;color:var(--cocoa);opacity:.4;font-family:var(--ff-sans);font-weight:normal;">tap to expand</span></summary>
         <div style="margin-top:14px;">
           <p style="font-size:12.5px;color:var(--cocoa);opacity:.5;margin-bottom:12px;line-height:1.65;">all roads lead to zero. choose the approach that fits how you think.</p>
-          ${Object.entries(METHODS).map(([k,v])=>`<div class="fc" style="padding:10px 12px;background:var(--white);border:1.5px solid ${method===k?'var(--ruby)':'var(--mist)'};border-radius:var(--r-md);cursor:pointer;gap:10px;margin-bottom:6px;" onclick="D.debtMethod='${k}';save();openSettings('recommendations');">
-            <div style="width:18px;height:18px;border-radius:50%;border:2px solid ${method===k?'var(--ruby)':'var(--mist)'};background:${method===k?'var(--ruby)':'transparent'};flex-shrink:0;"></div>
-            <div><div style="font-size:13px;font-weight:500;">${v.label}</div><div class="sub" style="line-height:1.5;margin-top:2px;">${v.desc}</div></div></div>`).join('')}
+          ${Object.entries(METHODS).map(([k,v])=>`<div style="padding:12px;background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r-md);margin-bottom:6px;">
+            <div style="font-size:13px;font-weight:500;margin-bottom:3px;">${v.label}</div>
+            <div class="sub" style="line-height:1.55;">${v.desc}</div>
+          </div>`).join('')}
         </div>
       </details>
       <details class="card" style="padding:14px;">
