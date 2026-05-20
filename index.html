@@ -565,7 +565,7 @@ function startApp(){
   document.getElementById('app-shell').classList.add('show');
   updateTopbar();nav('home',document.querySelector('.nb[data-tab=home]'));
 }
-function updateTopbar(){const n=D.name||'friend';document.getElementById('tb-name').textContent=n+"'s haus";}
+function updateTopbar(){const n=D.name||'friend';const pos=n.endsWith('s')?n+"' haus":n+"'s haus";document.getElementById('tb-name').textContent=pos;}
 
 function nav(tab,btn){
   activeTab=tab;document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
@@ -601,6 +601,7 @@ function renderHome(){
   const budgeted=D.budget.plan.reduce((s,b)=>s+(b.budgeted||0),0);
   const nestMo=D.nests.reduce((s,n)=>s+(n.monthly||0),0);
   const debtMo=D.debts.reduce((s,d)=>s+(d.min||0)+(d.extra||0),0);
+  const distributed=mData.distributed||0;
   const margin=income-budgeted-nestMo-debtMo;
   const nestedThisMo=D.nests.reduce((s,n)=>{const m=mData;return s+(n.log||[]).filter(l=>l.date&&l.date.startsWith(getCurMonth())).reduce((ss,l)=>ss+(l.type==='withdrawal'?0:l.amount||0),0);},0);
 
@@ -644,7 +645,7 @@ function renderHome(){
         <div class="fb" style="border-top:1px solid var(--mist);margin-top:4px;padding-top:4px;"><span style="font-weight:500;">remaining to direct</span><span style="font-weight:600;color:${margin>=0?'var(--sage)':'var(--ruby)'};">${$(margin)}</span></div>
       </div>
     </div>
-        ${seasonalItems.length?`<div class="stack" style="gap:8px;"><span class="sec-head">on your radar</span>${seasonalItems.map(s=>{const targetNest=D.nests.find(n=>n.name.toLowerCase().includes(s.nestHint.toLowerCase()));return`<div class="suggestion"><span class="sug-icon">${s.icon}</span><div style="flex:1;"><p class="sug-text" style="margin-bottom:6px;"><strong>${s.label}:</strong> ${s.note}</p>${targetNest?`<button class="btn-sky btn-sm" onclick="openDeposit('${targetNest.id}')">add to ${esc(targetNest.name)}</button>`:`<button class="btn-sky btn-sm" onclick="openNewNest({name:'${esc(s.label.toLowerCase())} fund',emoji:'${s.icon}'})">create a nest</button>`}</div></div>`;}).join('')}</div>`:''}
+        ${seasonalItems.length?`<div class="stack" style="gap:8px;"><span class="sec-head">on your radar</span>${seasonalItems.map(s=>{const targetNest=D.nests.find(n=>n.name.toLowerCase().includes(s.nestHint.toLowerCase()));return`<div class="suggestion"><span class="sug-icon">${s.icon}</span><div style="flex:1;"><p class="sug-text" style="margin-bottom:6px;"><strong>${s.label}:</strong> ${s.note}</p>${targetNest?`<button class="btn-sky btn-sm" onclick="openDeposit('${targetNest.id}')">add to ${esc(targetNest.name)}</button>`:`<button class="btn-sky btn-sm" onclick="prefillAndOpenNest('${esc(s.label.toLowerCase())} fund','${s.icon}',0,0)">create a nest</button>`}</div></div>`;}).join('')}</div>`:''}
     ${D.nests.length?`<div><div class="fb" style="margin-bottom:10px;"><span class="sec-head" style="margin:0;">your nests</span><button onclick="nav('nests',document.querySelector('.nb[data-tab=nests]'))" style="background:none;border:none;font-size:11px;color:var(--ruby);font-weight:500;cursor:pointer;">see all</button></div><div class="g2" style="gap:10px;">${topNests}</div></div>`:`<div class="card" style="text-align:center;padding:32px 20px;"><div style="font-size:36px;margin-bottom:10px;">&#129319;</div><span class="card-title" style="display:block;margin-bottom:6px;">no nests yet</span><p class="sub">add your first savings goal and give this money a home.</p><button class="btn-ruby btn-sm" style="margin-top:14px;" onclick="nav('nests',document.querySelector('.nb[data-tab=nests]'))">+ create a nest</button></div>`}
     <div style="text-align:center;padding:4px 0;"><span style="font-family:var(--ff-serif);font-size:12px;color:var(--cocoa);opacity:.15;font-style:italic;letter-spacing:1px;">by solari haus</span></div>
   </div>`;
@@ -665,7 +666,7 @@ function renderBudget(){
   const spent=D.budget.plan.reduce((s,b)=>s+(mData.actuals[b.id]||0),0)+(mData.actuals?.['uncategorized']||0);
   const nestAlloc=D.nests.reduce((s,n)=>s+(n.monthly||0),0);
   const budgeted=D.budget.plan.reduce((s,b)=>s+b.budgeted,0);
-  const totalPlanned=budgeted+nestAlloc;const unallocated=income-totalPlanned;
+  const totalPlanned=budgeted+nestAlloc;const distributed=(mData.distributed||0);const unallocated=income-totalPlanned-distributed;
   const trueMargin=income-spent-nestAlloc;
 
   if(budgetView==='plan'){
@@ -741,8 +742,10 @@ function openDistributeToNests(amount){
   </div></div>`);
 }
 function submitDistribute(nestIds){
-  nestIds.forEach(id=>{const n=D.nests.find(x=>x.id===id);if(!n)return;const amt=parseFloat(document.getElementById('dist-'+id)?.value)||0;if(!amt)return;n.saved=Math.min(n.goal,n.saved+amt);n.lastContributed=today();n.log=n.log||[];n.log.push({id:uid(),type:'distribution from budget',amount:amt,date:today()});D.transactions=D.transactions||[];D.transactions.push({id:uid(),type:'deposit',depositType:'distribution',nestId:id,amount:amt,date:today()});});
-  save();closeModal('modal-distribute');renderBudget();
+  const m=ensureMonth();let totalDist=0;
+  nestIds.forEach(id=>{const n=D.nests.find(x=>x.id===id);if(!n)return;const amt=parseFloat(document.getElementById('dist-'+id)?.value)||0;if(!amt)return;n.saved=Math.min(n.goal||999999,n.saved+amt);n.lastContributed=today();n.log=n.log||[];n.log.push({id:uid(),type:'distribution from budget',amount:amt,date:today(),balanceAfter:n.saved});D.transactions=D.transactions||[];D.transactions.push({id:uid(),type:'deposit',depositType:'distribution',nestId:id,amount:amt,date:today()});totalDist+=amt;});
+  m.distributed=(m.distributed||0)+totalDist;
+  save();closeModal('modal-distribute');renderHome();
 }
 
 function openReallocateFromBudget(budgetId,diff){
@@ -1010,13 +1013,28 @@ function renderNests(){
   </div>`;
 }
 
+function prefillAndOpenNest(name,emoji,goal,monthly){
+  openNewNest({name:name,emoji:emoji,goal:goal||0,monthly:monthly||0});
+}
+function prefillNestSugg(name,emoji,goal,monthly){
+  var ni=document.getElementById('nn-name');
+  var ei=document.getElementById('nn-emoji');
+  var gi=document.getElementById('nn-goal');
+  var mi=document.getElementById('nn-monthly');
+  if(ni)ni.value=name;
+  if(ei)ei.value=emoji;
+  if(gi)gi.value=goal||'';
+  if(mi)mi.value=monthly||'';
+  if(typeof updateNestPreview==='function')updateNestPreview();
+}
+
 function openNewNest(pf){
   pf=pf||{};
   // build quick start suggestions from life events + nest defs
   const leSuggs=getLifeNestSuggestionsFromEvents(D.lifeEvents||[]).filter(s=>!D.nests.find(n=>n.name.toLowerCase()===s.name.toLowerCase())).slice(0,4);
   const defSuggs=allStarterNests().filter(s=>!D.nests.find(n=>n.name.toLowerCase()===s.name.toLowerCase())).slice(0,6);
   const suggs=[...leSuggs,...defSuggs].slice(0,8);
-  const suggHtml=suggs.length?`<div><span class="sec-head">quick start</span><div style="display:flex;flex-wrap:wrap;gap:6px;">${suggs.map(s=>`<button type="button" onclick="document.getElementById('nn-name').value='${esc(s.name)}';document.getElementById('nn-emoji').value='${s.emoji}';document.getElementById('nn-goal').value='${s.goal||''}';document.getElementById('nn-monthly').value='${s.monthly||''}';document.getElementById('nn-note').value='${esc(s.note||'')}';updateNestPreview();" style="display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:99px;border:1.5px solid var(--mist);background:var(--white);font-size:12px;cursor:pointer;">${s.emoji} ${esc(s.name)}</button>`).join('')}</div></div>`:'';
+  const suggHtml=suggs.length?`<div><span class="sec-head">quick start</span><div style="display:flex;flex-wrap:wrap;gap:6px;">${suggs.map(s=>`<button type="button" onclick="prefillNestSugg('${esc(s.name)}','${s.emoji}','${s.goal||0}','${s.monthly||0}')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:99px;border:1.5px solid var(--mist);background:var(--white);font-size:12px;cursor:pointer;">${s.emoji} ${esc(s.name)}</button>`).join('')}</div></div>`:'';
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-new-nest" onclick="closeModal('modal-new-nest')"><div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-hdr"><span class="sheet-title">new nest</span><button class="sheet-close" onclick="closeModal('modal-new-nest')">close</button></div>
     <div class="stack" style="gap:12px;">
@@ -1233,6 +1251,7 @@ function submitAddDebt(){
 }
 function openEditDebt(id){
   const d=D.debts.find(x=>x.id===id);if(!d)return;
+  const hasBudgetLine=!!(D.budget.plan||[]).find(b=>b.debtId===id||b.name.toLowerCase()===d.name.toLowerCase());
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-edit-debt" onclick="closeModal('modal-edit-debt')"><div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-hdr"><span class="sheet-title">edit</span><button class="sheet-close" onclick="closeModal('modal-edit-debt')">close</button></div>
     <div class="stack" style="gap:12px;">
@@ -1241,7 +1260,11 @@ function openEditDebt(id){
       <div class="field"><label class="lbl">rate %</label><input class="inp" type="number" id="ed-rate" value="${d.rate||0}" step="0.01"/></div></div>
       <div class="inp-row"><div class="field"><label class="lbl">minimum</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ed-min" value="${d.min||0}"/></div></div>
       <div class="field"><label class="lbl">extra to principal</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ed-extra" value="${d.extra||0}"/></div></div></div>
-      <button class="btn-primary" onclick="const d=D.debts.find(x=>x.id==='${id}');if(d){d.name=document.getElementById('ed-name').value.trim()||d.name;d.balance=parseFloat(document.getElementById('ed-balance').value)||0;d.rate=parseFloat(document.getElementById('ed-rate').value)||0;d.min=parseFloat(document.getElementById('ed-min').value)||0;d.extra=parseFloat(document.getElementById('ed-extra').value)||0;save();closeModal('modal-edit-debt');renderDebt();}">save</button>
+      <div class="toggle-row" style="background:rgba(195,219,238,.1);border-radius:var(--r-md);padding:10px 12px;">
+        <div><div class="toggle-lbl" style="font-size:13px;">track this payment in my budget</div><div class="toggle-sub">adds the minimum as a monthly expense so you don't enter it twice</div></div>
+        <label class="toggle"><input type="checkbox" id="ed-track" ${hasBudgetLine?'checked':''}/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+      </div>
+      <button class="btn-primary" onclick="const d=D.debts.find(x=>x.id==='${id}');if(d){const oldName=d.name;d.name=document.getElementById('ed-name').value.trim()||d.name;d.balance=parseFloat(document.getElementById('ed-balance').value)||0;d.rate=parseFloat(document.getElementById('ed-rate').value)||0;d.min=parseFloat(document.getElementById('ed-min').value)||0;d.extra=parseFloat(document.getElementById('ed-extra').value)||0;const track=document.getElementById('ed-track')?.checked;const existing=(D.budget.plan||[]).find(b=>b.debtId==='${id}'||b.name.toLowerCase()===oldName.toLowerCase());if(track&&!existing&&d.min>0){D.budget.plan.push({id:uid(),emoji:d.emoji||'\u{1F4B3}',name:d.name,group:'housing',budgeted:d.min,debtId:'${id}'});}else if(!track&&existing){D.budget.plan=D.budget.plan.filter(b=>b.id!==existing.id);}else if(track&&existing){existing.budgeted=d.min;existing.name=d.name;}save();closeModal('modal-edit-debt');renderDebt();}">save</button>
     </div>
   </div></div>`);
 }
@@ -1413,7 +1436,7 @@ function renderLife(){
               <span style="font-size:10px;opacity:.3;flex-shrink:0;">&#9660;</span>
             </summary>
             <div style="padding:0 16px 14px;">
-              ${suggs.length?`<span class="sec-head" style="margin-bottom:8px;display:block;">suggested nests</span>${suggs.map(s=>`<div class="fc" style="padding:10px 12px;background:var(--linen);border-radius:var(--r-md);margin-bottom:6px;gap:10px;"><span style="font-size:18px;">${s.emoji}</span><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${s.name}</div><div class="sub">${s.desc}</div></div><button class="btn-sky btn-sm" onclick="openNewNest({name:'${esc(s.name)}',emoji:'${s.emoji}',goal:${s.goal||0},monthly:${s.monthly||0},note:'${esc(s.note||'')}''})">add</button></div>`).join('')}`:'<p class="sub" style="font-size:12px;">all suggested nests for this event are already in your plan.</p>'}
+              ${suggs.length?`<span class="sec-head" style="margin-bottom:8px;display:block;">suggested nests</span>${suggs.map(s=>`<div class="fc" style="padding:10px 12px;background:var(--linen);border-radius:var(--r-md);margin-bottom:6px;gap:10px;"><span style="font-size:18px;">${s.emoji}</span><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${s.name}</div><div class="sub">${s.desc}</div></div><button class="btn-sky btn-sm" onclick="prefillAndOpenNest('${esc(s.name)}','${s.emoji}',${s.goal||0},${s.monthly||0})">add</button></div>`).join('')}`:'<p class="sub" style="font-size:12px;">all suggested nests for this event are already in your plan.</p>'}
             </div>
           </details>`;
         }).join(''):`<div style="padding:24px;text-align:center;"><p class="sub">no life events selected yet.</p></div>`}
