@@ -1003,7 +1003,7 @@ function renderNests(){
       <span style="font-size:12px;color:rgba(245,239,228,.35);display:block;margin-bottom:12px;">of ${$(totalGoal)} &middot; ${pct(totalSaved,totalGoal)}% funded &middot; ${$(totalMonthly)}/mo</span>
       <div class="bar-track" style="height:5px;"><div class="bar-fill" style="width:${pct(totalSaved,totalGoal)}%;height:100%;background:var(--sky);"></div></div>
     </div>
-    <div class="fb"><button class="btn-add" style="flex:1;margin-right:8px;" onclick="openNewNest({})">+ new nest</button>
+    <div style="display:flex;gap:8px;"><button class="btn-add" style="flex:1;" onclick="openNewNest({})">+ new nest</button><button class="btn-secondary" style="flex:0;white-space:nowrap;" onclick="openBulkAddNests()">add multiple</button></div>
       <select class="inp" style="padding:9px 12px;font-size:12px;border-radius:var(--r-md);flex-shrink:0;width:auto;" onchange="nestSort=this.value;renderNests()">
         <option value="deadline" ${nestSort==='deadline'?'selected':''}>deadline</option>
         <option value="progress-asc" ${nestSort==='progress-asc'?'selected':''}>least funded</option>
@@ -1202,11 +1202,210 @@ function renderDebt(){
   const strategyHtml='';
 
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
-    ${total>0?`<div class="card-dark" style="background:linear-gradient(135deg,#7A1030,var(--ruby));"><span class="sec-head" style="color:rgba(255,255,255,.5);margin-bottom:8px;">total debt</span><span style="font-family:var(--ff-serif);font-size:40px;color:white;display:block;font-weight:300;">${$(total)}</span></div>`:`<div class="card-dark" style="background:linear-gradient(135deg,var(--sage),#3D6B41);"><span style="font-family:var(--ff-serif);font-size:30px;color:white;display:block;font-weight:300;">no debt on record.</span></div>`}
-    <button class="btn-add" onclick="openAddDebt()">+ add a debt</button>
+    <div class="card-dark" style="background:var(--cocoa);">
+      <span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">${total>0?'total debt':'debt'}</span>
+      <span style="font-family:var(--ff-serif);font-size:36px;color:var(--linen);display:block;font-weight:300;">${total>0?$(total):'nothing owed.'}</span>
+      ${total>0?`<span style="font-size:12px;color:rgba(245,239,228,.35);display:block;margin-top:4px;">${D.debts.length} account${D.debts.length===1?'':'s'} &middot; ${$(D.debts.reduce((s,d)=>s+(d.min||0),0))}/mo minimum</span>`:'<span style="font-size:12px;color:rgba(245,239,228,.35);display:block;margin-top:4px;">keep it that way.</span>'}
+    </div>
+    <div style="display:flex;gap:8px;"><button class="btn-add" style="flex:1;" onclick="openAddDebt()">+ add a debt</button><button class="btn-secondary" style="flex-shrink:0;white-space:nowrap;" onclick="openBulkAddDebts()">add multiple</button></div>
     ${cards}
   </div>`;
 }
+
+// ─── BULK ADD NESTS ──────────────────────────────────────────────────────────
+function openBulkAddNests(){
+  var COMMON=[
+    {emoji:'\u{1F6E1}',name:'emergency fund',cat:'safety',suggested:5000,monthly:200,note:'3 to 6 months of expenses. start here.'},
+    {emoji:'\u{1F3E0}',name:'home repairs',cat:'home',suggested:3000,monthly:100,note:'because something always comes up.'},
+    {emoji:'\u{1F511}',name:'down payment',cat:'home',suggested:25000,monthly:500,note:'3 to 20% of purchase price.'},
+    {emoji:'\u{1F381}',name:'holidays and gifts',cat:'seasonal',suggested:1200,monthly:100,note:'spread the cost all year.'},
+    {emoji:'\u2708\uFE0F',name:'travel fund',cat:'lifestyle',suggested:3000,monthly:150,note:'the trip you actually want to take.'},
+    {emoji:'\u{1F697}',name:'car replacement',cat:'transport',suggested:8000,monthly:200,note:'so the next car is a choice, not a crisis.'},
+    {emoji:'\u{1FA7A}',name:'medical out-of-pocket',cat:'health',suggested:2500,monthly:100,note:'deductibles, copays, and the unexpected.'},
+    {emoji:'\u{1F4DA}',name:'education',cat:'growth',suggested:5000,monthly:150,note:'courses, certifications, or tuition.'},
+    {emoji:'\u{1F4C5}',name:'annual subscriptions',cat:'lifestyle',suggested:600,monthly:50,note:'software, memberships, renewals.'},
+    {emoji:'\u{1F527}',name:'home renovation',cat:'home',suggested:10000,monthly:300,note:'add 20% to whatever was quoted.'},
+    {emoji:'\u{1F476}',name:'baby fund',cat:'family',suggested:5000,monthly:300,note:'gear, childcare, medical.'},
+    {emoji:'\u{1F48D}',name:'wedding fund',cat:'family',suggested:10000,monthly:300,note:'the day, the honeymoon, the details.'},
+    {emoji:'\u{1F4B0}',name:'investment account',cat:'investing',suggested:0,monthly:200,note:'post-tax investing outside retirement.'},
+    {emoji:'\u{1F43E}',name:'pet care',cat:'health',suggested:1500,monthly:80,note:'vet, food, grooming, boarding.'},
+    {emoji:'\u2728',name:'haus money',cat:'lifestyle',suggested:0,monthly:150,note:'your intentional fun fund.'},
+    {emoji:'\u{1F309}',name:'job loss buffer',cat:'safety',suggested:5000,monthly:150,note:'a bridge if income stops unexpectedly.'},
+  ];
+  var existingNames=D.nests.map(function(n){return n.name.toLowerCase();});
+  var alreadyHave=COMMON.filter(function(c){return existingNames.indexOf(c.name.toLowerCase())>=0;});
+  var available=COMMON.filter(function(c){return existingNames.indexOf(c.name.toLowerCase())<0;});
+  var cats=[...new Set(COMMON.map(function(c){return c.cat;}))];
+  var amounts={};
+  available.forEach(function(c){amounts[c.name]=c.monthly||0;});
+  var goals={};
+  available.forEach(function(c){goals[c.name]=c.suggested||0;});
+  window._bnSelected={};
+  window._bnAmounts=amounts;
+  window._bnGoals=goals;
+
+  function renderNestRows(){
+    var html='';
+    if(alreadyHave.length){
+      html+='<div style="margin-bottom:14px;"><span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--cocoa);opacity:.35;display:block;margin-bottom:6px;">already in your plan</span>';
+      alreadyHave.forEach(function(c){
+        html+='<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r-md);margin-bottom:4px;border:1.5px solid var(--mist);background:var(--linen);opacity:.5;">'
+          +'<span style="font-size:18px;">'+c.emoji+'</span>'
+          +'<span style="font-size:13px;flex:1;color:var(--cocoa);">'+c.name+'</span>'
+          +'<span style="font-size:11px;color:var(--sage);">&#10003; added</span>'
+          +'</div>';
+      });
+      html+='</div>';
+    }
+    cats.forEach(function(cat){
+      var items=available.filter(function(c){return c.cat===cat;});
+      if(!items.length)return;
+      html+='<div style="margin-bottom:12px;">';
+      html+='<span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--cocoa);opacity:.35;display:block;margin-bottom:4px;">'+cat+'</span>';
+      items.forEach(function(c){
+        var sel=!!window._bnSelected[c.name];
+        var rowId='bn-row-'+c.name.replace(/\s+/g,'-');
+        html+='<div id="'+rowId+'" style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r-md);cursor:pointer;margin-bottom:4px;border:1.5px solid '+(sel?'var(--ruby)':'var(--mist)')+';background:'+(sel?'rgba(168,32,64,.04)':'var(--white)')+';" onclick="toggleBulkNest(\''+c.name.replace(/'/g,"\\'")+'\')">'
+          +'<span style="font-size:18px;flex-shrink:0;">'+c.emoji+'</span>'
+          +'<div style="flex:1;pointer-events:none;"><div style="font-size:13px;font-weight:'+(sel?500:400)+';">'+c.name+'</div>'
+          +(c.note?'<div style="font-size:11px;color:var(--cocoa);opacity:.4;margin-top:1px;">'+c.note+'</div>':'')
+          +'</div>'
+          +(sel?'<div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0;" onclick="event.stopPropagation()">'
+            +'<div style="display:flex;align-items:center;gap:4px;"><span style="font-size:10px;color:var(--cocoa);opacity:.4;width:32px;">goal</span><div class="amt-wrap" style="width:72px;border:1.5px solid var(--mist);border-radius:8px;padding:3px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="bn-goal-'+c.name.replace(/\s+/g,'-')+'" value="'+(window._bnGoals[c.name]||0)+'" style="font-size:11px;width:46px;" oninput="window._bnGoals[\''+c.name.replace(/'/g,"\\'")+'\']=(+this.value)||0"/></div></div>'
+            +'<div style="display:flex;align-items:center;gap:4px;"><span style="font-size:10px;color:var(--cocoa);opacity:.4;width:32px;">/mo</span><div class="amt-wrap" style="width:72px;border:1.5px solid var(--mist);border-radius:8px;padding:3px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="bn-amt-'+c.name.replace(/\s+/g,'-')+'" value="'+(window._bnAmounts[c.name]||0)+'" style="font-size:11px;width:46px;" oninput="window._bnAmounts[\''+c.name.replace(/'/g,"\\'")+'\']=(+this.value)||0"/></div></div>'
+            +'</div>':'')
+          +'</div>';
+      });
+      html+='</div>';
+    });
+    // custom nest row
+    html+='<div style="margin-bottom:8px;"><span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--cocoa);opacity:.35;display:block;margin-bottom:4px;">your own</span>'
+      +'<div style="display:flex;gap:8px;align-items:center;padding:9px 12px;border:1.5px dashed var(--mist);border-radius:var(--r-md);">'
+      +'<input class="inp" id="bn-custom-name" placeholder="nest name" style="flex:1;padding:7px 10px;font-size:13px;" oninput="this.value=this.value.toLowerCase()"/>'
+      +'<div class="amt-wrap" style="width:70px;border:1.5px solid var(--mist);border-radius:8px;padding:3px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="bn-custom-monthly" placeholder="0" style="font-size:12px;width:44px;"/></div>'
+      +'<span style="font-size:10px;color:var(--cocoa);opacity:.4;">/mo</span>'
+      +'</div></div>';
+    return html;
+  }
+
+  window.toggleBulkNest=function(name){
+    window._bnSelected[name]=!window._bnSelected[name];
+    var el=document.getElementById('bulk-nests-rows');
+    if(el)el.innerHTML=renderNestRows();
+  };
+  window.submitBulkNests=function(){
+    available.forEach(function(c){
+      if(!window._bnSelected[c.name])return;
+      var goal=window._bnGoals[c.name]||0;
+      var monthly=window._bnAmounts[c.name]||0;
+      D.nests.push({id:uid(),emoji:c.emoji,name:c.name,goal:goal,saved:0,monthly:monthly,deadline:'',note:c.note||'',lastContributed:null,startingGoal:goal,log:[]});
+    });
+    var cn=document.getElementById('bn-custom-name');
+    var cm=document.getElementById('bn-custom-monthly');
+    if(cn&&cn.value.trim()){
+      var cname=cn.value.trim();
+      D.nests.push({id:uid(),emoji:'\u{1F3AF}',name:cname,goal:0,saved:0,monthly:parseFloat(cm&&cm.value)||0,deadline:'',note:'',lastContributed:null,startingGoal:0,log:[]});
+    }
+    save();closeModal('modal-bulk-nests');renderNests();
+  };
+
+  var el=document.createElement('div');
+  el.id='modal-bulk-nests';
+  el.className='overlay';
+  el.onclick=function(){closeModal('modal-bulk-nests');};
+  var sheet=document.createElement('div');
+  sheet.className='sheet';
+  sheet.onclick=function(e){e.stopPropagation();};
+  sheet.innerHTML='<div class="sheet-hdr"><span class="sheet-title">add nests</span><button class="sheet-close" id="bln-close">close</button></div>'
+    +'<p class="sub" style="margin-bottom:14px;line-height:1.6;">tap to select, adjust the goal and monthly contribution, then add all at once. nests you already have are shown grayed out.</p>'
+    +'<div id="bulk-nests-rows"></div>'
+    +'<button class="btn-primary" style="margin-top:8px;" onclick="submitBulkNests()">add selected nests</button>';
+  el.appendChild(sheet);
+  document.body.appendChild(el);
+  document.getElementById('bln-close').onclick=function(){closeModal('modal-bulk-nests');};
+  document.getElementById('bulk-nests-rows').innerHTML=renderNestRows();
+}
+
+// ─── BULK ADD DEBTS ──────────────────────────────────────────────────────────
+function openBulkAddDebts(){
+  var TYPES=[
+    {id:'credit_card',emoji:'\u{1F4B3}',name:'credit card',hint:'visa, mastercard, store card'},
+    {id:'student_loan',emoji:'\u{1F393}',name:'student loan',hint:'federal or private'},
+    {id:'car_loan',emoji:'\u{1F697}',name:'car loan',hint:'auto financing'},
+    {id:'medical',emoji:'\u{1FA7A}',name:'medical debt',hint:'hospital or clinic bills'},
+    {id:'personal_loan',emoji:'\u{1F4C4}',name:'personal loan',hint:'bank or online lender'},
+    {id:'line_of_credit',emoji:'\u{1F3E6}',name:'line of credit',hint:'home equity or personal'},
+    {id:'family_loan',emoji:'\u{1F91D}',name:'family or friend loan',hint:'someone you know'},
+    {id:'other',emoji:'\u{1F4CB}',name:'other',hint:'describe it below'},
+  ];
+  var rows=[];// {type, name, balance, rate, min, extra, track}
+
+  function renderDebtInputRows(){
+    var html='';
+    rows.forEach(function(r,i){
+      html+='<div style="background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r-md);padding:12px;margin-bottom:8px;" id="bdr-'+i+'">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+        +'<div class="fc" style="gap:8px;">'
+        +'<select style="padding:6px 10px;border:1.5px solid var(--mist);border-radius:8px;font-size:12px;background:var(--white);color:var(--ink);outline:none;" onchange="window._bdRows['+i+'].type=this.value;var t='+JSON.stringify(TYPES)+'.find(function(x){return x.id===this.value;},this);if(t)this.parentElement.querySelector(\'.bd-emoji\').textContent=t.emoji;">'
+        +TYPES.map(function(t){return'<option value="'+t.id+'"'+(r.type===t.id?' selected':'')+'>'+t.emoji+' '+t.name+'</option>';}).join('')
+        +'</select>'
+        +'</div>'
+        +'<button onclick="window._bdRows.splice('+i+',1);var el=document.getElementById(\'bulk-debt-rows\');if(el)el.innerHTML=renderDebtInputRows();" style="background:none;border:none;font-size:16px;color:var(--ruby);opacity:.5;cursor:pointer;">&#10005;</button>'
+        +'</div>'
+        +'<input class="inp" placeholder="name (e.g. chase freedom)" style="margin-bottom:6px;padding:8px 12px;font-size:13px;" value="'+r.name+'" oninput="window._bdRows['+i+'].name=this.value.toLowerCase()" onkeydown="this.value=this.value" />'
+        +'<div class="g4" style="margin-bottom:8px;">'
+        +'<div class="ie-field"><span class="ie-lbl">balance</span><div class="amt-wrap" style="border:1.5px solid var(--mist);border-radius:8px;padding:5px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;" value="'+r.balance+'" oninput="window._bdRows['+i+'].balance=+this.value"/></div></div>'
+        +'<div class="ie-field"><span class="ie-lbl">rate %</span><div class="amt-wrap" style="border:1.5px solid var(--mist);border-radius:8px;padding:5px 8px;"><span class="amt-pre"></span><input type="number" class="amt-inp" style="font-size:12px;" value="'+r.rate+'" step="0.01" oninput="window._bdRows['+i+'].rate=+this.value"/></div></div>'
+        +'<div class="ie-field"><span class="ie-lbl">minimum</span><div class="amt-wrap" style="border:1.5px solid var(--mist);border-radius:8px;padding:5px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;" value="'+r.min+'" oninput="window._bdRows['+i+'].min=+this.value"/></div></div>'
+        +'<div class="ie-field"><span class="ie-lbl">extra</span><div class="amt-wrap" style="border:1.5px solid var(--mist);border-radius:8px;padding:5px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;" value="'+r.extra+'" oninput="window._bdRows['+i+'].extra=+this.value"/></div></div>'
+        +'</div>'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(195,219,238,.1);border-radius:8px;padding:8px 10px;">'
+        +'<div><div style="font-size:12px;font-weight:500;color:var(--cocoa);">track in my budget</div><div style="font-size:11px;color:var(--cocoa);opacity:.4;">adds minimum as monthly expense</div></div>'
+        +'<label class="toggle"><input type="checkbox" '+(r.track?'checked':'')+' onchange="window._bdRows['+i+'].track=this.checked"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>'
+        +'</div></div>';
+    });
+    return html;
+  }
+
+  window._bdRows=rows;
+  window.addBulkDebtRow=function(){
+    window._bdRows.push({type:'credit_card',name:'',balance:0,rate:0,min:0,extra:0,track:true});
+    var el=document.getElementById('bulk-debt-rows');
+    if(el)el.innerHTML=renderDebtInputRows();
+  };
+  window.submitBulkDebts=function(){
+    window._bdRows.forEach(function(r){
+      if(!r.name.trim()&&!r.balance)return;
+      var typeDef=TYPES.find(function(t){return t.id===r.type;});
+      var debt={id:uid(),emoji:typeDef?typeDef.emoji:'\u{1F4B3}',name:r.name.trim()||typeDef.name,balance:r.balance,originalBalance:r.balance,rate:r.rate,min:r.min,extra:r.extra,payments:[]};
+      D.debts.push(debt);
+      if(r.track&&r.min>0){
+        var existing=(D.budget.plan||[]).find(function(b){return b.name.toLowerCase()===(debt.name.toLowerCase());});
+        if(!existing)D.budget.plan.push({id:uid(),emoji:debt.emoji,name:debt.name,group:'housing',budgeted:r.min,debtId:debt.id});
+      }
+    });
+    save();closeModal('modal-bulk-debts');renderDebt();
+  };
+
+  var el=document.createElement('div');
+  el.id='modal-bulk-debts';
+  el.className='overlay';
+  el.onclick=function(){closeModal('modal-bulk-debts');};
+  var sheet=document.createElement('div');
+  sheet.className='sheet';
+  sheet.onclick=function(e){e.stopPropagation();};
+  sheet.innerHTML='<div class="sheet-hdr"><span class="sheet-title">add debts</span><button class="sheet-close" id="bld-close">close</button></div>'
+    +'<p class="sub" style="margin-bottom:14px;line-height:1.6;">add as many as you need. the "track in my budget" toggle adds the minimum payment to your expense plan automatically so you don\'t enter it twice.</p>'
+    +'<div id="bulk-debt-rows"></div>'
+    +'<button class="btn-secondary" style="width:100%;margin-bottom:8px;" onclick="addBulkDebtRow()">+ add another debt</button>'
+    +'<button class="btn-primary" onclick="submitBulkDebts()">save all debts</button>';
+  el.appendChild(sheet);
+  document.body.appendChild(el);
+  document.getElementById('bld-close').onclick=function(){closeModal('modal-bulk-debts');};
+  // start with one empty row
+  window.addBulkDebtRow();
+}
+
 
 function openAddDebt(){
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-debt" onclick="closeModal('modal-debt')"><div class="sheet" onclick="event.stopPropagation()">
@@ -1697,7 +1896,7 @@ function openAddChore(kidId){
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-chore" onclick="closeModal('modal-chore')"><div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-hdr"><span class="sheet-title">add a chore</span><button class="sheet-close" onclick="closeModal('modal-chore')">close</button></div>
     <div class="stack" style="gap:14px;">
-      <div><span class="sec-head">quick suggestions</span>${QUICK.map(q=>`<div class="fc" style="padding:8px 12px;background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r-md);cursor:pointer;margin-bottom:4px;" onclick="document.getElementById('ch-name').value='${q.name}';document.getElementById('ch-pay').value=${q.pay};const wdo=document.getElementById('ch-wdo');const isWd=${JSON.stringify(q.days.every(d=>['M','T','W','Th','F'].includes(d)))};if(wdo){wdo.checked=isWd;toggleWeekdaysOnly();}['M','T','W','Th','F','Sa','Su'].forEach(function(d){const el=document.getElementById('chd-'+d);if(el)el.classList.toggle('on',${JSON.stringify(q.days)}.includes(d));});"><span style="font-size:13px;flex:1;">${q.name}</span><span style="font-size:11px;color:var(--sage);font-weight:500;">+$$${q.pay.toFixed(2)}/ea</span></div>`).join('')}</div>
+      <div><span class="sec-head">quick suggestions</span><div id="chore-quick-list"></div></div>
       <div class="card" style="padding:14px;"><span class="sec-head">customize</span><div class="stack" style="gap:10px;margin-top:6px;">
         <div class="field"><label class="lbl">chore name</label><input class="inp" id="ch-name" placeholder="what's the task?" oninput="this.value=this.value.toLowerCase()"/></div>
         <div class="field"><label class="lbl">pay per completion</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ch-pay" placeholder="0.50" step="0.25"/></div></div>
@@ -1713,6 +1912,15 @@ function openAddChore(kidId){
       </div></div>
     </div>
   </div></div>`);
+  var ql=document.getElementById('chore-quick-list');
+  if(ql){var _QUICK=[{name:'make bed',pay:.5,days:['M','T','W','Th','F']},{name:'set the table',pay:.75,days:['M','T','W','Th','F']},{name:'clear the table',pay:.75,days:['M','T','W','Th','F']},{name:'unload dishwasher',pay:1,days:['M','W','F']},{name:'take out trash',pay:1.5,days:['T','F']},{name:'sweep or vacuum',pay:2,days:['Sa']},{name:'feed the pets',pay:.5,days:['M','T','W','Th','F']},{name:'pick up room',pay:1,days:['M','W','F']},{name:'wipe down sink',pay:1,days:['W','Sa']}];ql.innerHTML=_QUICK.map(function(q,i){return'<div class="fc" style="padding:8px 12px;background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r-md);cursor:pointer;margin-bottom:4px;" onclick="applyChoreQuick('+i+')">'+'<span style="font-size:13px;flex:1;">'+q.name+'</span>'+'<span style="font-size:11px;color:var(--sage);font-weight:500;">+$'+q.pay.toFixed(2)+'/ea</span>'+'</div>';}).join('');}
+}
+function applyChoreQuick(qi){
+  var Q=[{name:'make bed',pay:.5,days:['M','T','W','Th','F']},{name:'set the table',pay:.75,days:['M','T','W','Th','F']},{name:'clear the table',pay:.75,days:['M','T','W','Th','F']},{name:'unload dishwasher',pay:1,days:['M','W','F']},{name:'take out trash',pay:1.5,days:['T','F']},{name:'sweep or vacuum',pay:2,days:['Sa']},{name:'feed the pets',pay:.5,days:['M','T','W','Th','F']},{name:'pick up room',pay:1,days:['M','W','F']},{name:'wipe down sink',pay:1,days:['W','Sa']}];
+  var q=Q[qi];if(!q)return;
+  var n=document.getElementById('ch-name');var p=document.getElementById('ch-pay');
+  if(n)n.value=q.name;if(p)p.value=q.pay;
+  ['M','T','W','Th','F','Sa','Su'].forEach(function(d){var el=document.getElementById('chd-'+d);if(el)el.classList.toggle('on',q.days.indexOf(d)>=0);});
 }
 
 function toggleWeekdaysOnly(){const on=document.getElementById('ch-wdo')?.checked;if(on===undefined)return;['M','T','W','Th','F'].forEach(d=>{const el=document.getElementById('chd-'+d);if(el)el.classList.toggle('on',on);});if(on)['Sa','Su'].forEach(d=>{const el=document.getElementById('chd-'+d);if(el)el.classList.remove('on');});}
@@ -1747,6 +1955,9 @@ function renderLifeEventPills(){const wrap=document.getElementById('life-events-
 
 
 let _hausSec='account';
+function settingsEditKid(btn){var id=btn.getAttribute('data-kid');closeModal('modal-settings');openEditKid(id);}
+function settingsRemoveKid(btn){var id=btn.getAttribute('data-kid');removeKid(id);if(document.getElementById('modal-settings'))return;openSettings('account');}
+
 function openSettings(sec){
   if(sec)_hausSec=sec;
   const incList=D.income||[];
@@ -1781,6 +1992,9 @@ function openSettings(sec){
 
   let sectionHtml='';
   if(_hausSec==='account'){
+    const kidsHtml=(D.kids&&D.kids.length)
+      ?D.kids.map(function(k){return '<div class="row-item"><div class="fb"><div class="fc" style="gap:8px;"><span style="font-size:16px;">✨</span><div><div style="font-size:13px;font-weight:500;">'+esc(k.name)+'</div><div class="sub">age '+k.age+'</div></div></div><div class="fc" style="gap:6px;"><button class="btn-icon" onclick="settingsEditKid(this);" data-kid="'+k.id+'">&#9998;</button><button class="btn-icon" style="color:var(--ruby);opacity:.5;" onclick="settingsRemoveKid(this);" data-kid="'+k.id+'">&#10005;</button></div></div></div>';}).join('')
+      :'<p class="sub" style="font-size:12px;padding:6px 0;">no children added yet.</p>';
     sectionHtml=`
       <div class="card" style="padding:14px;">
         <span class="card-title" style="display:block;margin-bottom:10px;">your name</span>
@@ -1795,6 +2009,10 @@ function openSettings(sec){
         <span class="card-title" style="display:block;margin-bottom:6px;">email</span>
         <p class="sub" style="margin-bottom:8px;line-height:1.5;">optional. for haus updates and staying in touch.</p>
         <div class="fc" style="gap:8px;"><input class="inp" type="email" style="flex:1;" id="set-email" value="${esc(D.email||'')}"/><button class="btn-sky btn-sm" onclick="D.email=document.getElementById('set-email').value.trim();save();this.textContent='saved!';setTimeout(()=>this.textContent='save',1500);">save</button></div>
+      </div>
+      <div class="card" style="padding:14px;">
+        <div class="card-hdr"><span class="card-title">children and dependents</span><button class="btn-ruby btn-sm" onclick="closeModal('modal-settings');openAddKid()">+ add a child</button></div>
+        ${kidsHtml}
       </div>
       <div class="card" style="padding:14px;border-color:rgba(168,32,64,.2);">
         <span class="card-title" style="display:block;margin-bottom:6px;color:var(--ruby);">reset</span>
