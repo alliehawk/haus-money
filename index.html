@@ -153,11 +153,13 @@ button{cursor:pointer;}
   <div class="ob-step on" id="ob-0">
     <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:52px 0 28px;">
       <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--ruby);font-weight:600;margin-bottom:14px;">haus money</div>
-      <div class="splash-logo">your money,<br><em>tended.</em></div>
+      <div class="splash-logo">your margins,<br><em>tended.</em></div>
       <p style="font-size:13px;color:var(--cocoa);opacity:.5;line-height:1.8;max-width:280px;margin:0 auto 28px;">most people avoid looking at their money.<br>facing it changes everything.</p>
       <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cocoa);opacity:.18;margin-top:28px;">by solari haus</div>
     </div>
     <button class="btn-primary" onclick="obGo(1)">let's get started</button>
+    <button class="btn-ghost" style="margin-top:8px;font-size:12px;color:var(--cocoa);opacity:.5;" onclick="document.getElementById('ob0-how').classList.toggle('hidden')">how does this work?</button>
+    <div id="ob0-how" class="hidden" style="margin-top:12px;text-align:left;">${['add every fixed expense in your budget tab','add any debts you carry','your home tab reveals your true margin','open nests for what you want to save toward','log expenses as you go to stay honest'].map((s,i)=>`<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--mist);font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">${i+1}</span>${s}</div>`).join('')}</div>
     <p style="text-align:center;font-size:11px;color:var(--cocoa);opacity:.3;margin-top:10px;line-height:1.8;">about three minutes. future you will appreciate this.</p>
     <p style="text-align:center;font-size:10px;color:var(--cocoa);opacity:.3;margin-top:8px;line-height:1.6;">your data stays on your device.<br>nothing is collected, stored, or shared.</p>
   </div>
@@ -626,7 +628,7 @@ function renderHome(){
       <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:rgba(195,219,238,.05);pointer-events:none;"></div>
       <span style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(195,219,238,.45);display:block;margin-bottom:6px;">${greeting}, ${name}.</span>
       <span style="font-family:var(--ff-serif);font-weight:300;font-size:50px;line-height:1;display:block;color:${margin>=0?'var(--linen)':'var(--ruby)'};">${$(margin)}</span>
-      <span style="font-size:11px;color:rgba(245,239,228,.35);letter-spacing:1px;text-transform:uppercase;margin-top:4px;display:block;">remaining to direct</span>
+      <span style="font-size:11px;color:rgba(250,247,242,.55);letter-spacing:1px;text-transform:uppercase;margin-top:4px;display:block;">remaining to direct</span>
       <div class="g2" style="margin-top:18px;gap:8px;">
         <div class="stat-mini"><span class="stat-mini-lbl">net income</span><span class="stat-mini-val" style="color:var(--sky);">${$(income)}</span></div>
         <div class="stat-mini"><span class="stat-mini-lbl">spent this month</span><span class="stat-mini-val" style="color:var(--linen);">${$(spent)}</span></div>
@@ -670,11 +672,11 @@ function renderBudget(){
   const trueMargin=income-spent-nestAlloc;
 
   if(budgetView==='plan'){
-    const planRows=D.budget.plan.map(b=>`<div style="padding:12px 0;border-bottom:1px solid var(--mist);"><div class="fb"><div class="fc"><span style="font-size:16px;">${b.emoji||'\u{1F4CC}'}</span><span style="font-size:13px;font-weight:500;">${esc(b.name)}</span></div><div class="fc" style="gap:6px;"><span style="font-family:var(--ff-serif);font-size:16px;color:var(--cocoa);">${$(b.budgeted)}</span><button class="btn-icon" onclick="openEditBudget('${b.id}')">&#9998;</button><button class="btn-icon" style="color:var(--ruby);opacity:.6;" onclick="removeBudgetItem('${b.id}')">&#10005;</button></div></div></div>`).join('');
+    const planRows=D.budget.plan.map(b=>`<div style="padding:12px 0;border-bottom:1px solid var(--mist);"><div class="fb"><div class="fc"><span style="font-size:16px;">${b.emoji||'\u{1F4CC}'}</span><div><span style="font-size:13px;font-weight:500;">${esc(b.name)}</span>${b.dueDay?'<div style="font-size:11px;color:var(--cocoa);opacity:.4;margin-top:1px;">due the '+b.dueDay+(b.dueDay===1?'st':b.dueDay===2?'nd':b.dueDay===3?'rd':'th')+'</div>':''}</div></div><div class="fc" style="gap:6px;"><span style="font-family:var(--ff-serif);font-size:16px;color:var(--cocoa);">${$(b.budgeted)}</span><button class="btn-icon" onclick="openEditBudget('${b.id}')">&#9998;</button><button class="btn-icon" style="color:var(--ruby);opacity:.6;" onclick="removeBudgetItem('${b.id}')">&#10005;</button></div></div></div>`).join('');
     document.getElementById('content').innerHTML=`<div class="stack fade-in">
       <div class="tab-row"><button class="tab-btn on">plan</button><button class="tab-btn" onclick="budgetView='track';renderBudget()">track</button></div>
       <div class="card-dark" style="background:linear-gradient(135deg,var(--cocoa),#5C3020);">
-        <span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">${getMonthLabel()} your plan</span>
+        <span class="sec-head" style="color:rgba(220,235,245,.8);margin-bottom:8px;">${getMonthLabel()} your plan</span>
         <div class="g3" style="gap:8px;">
           <div class="stat-mini"><span class="stat-mini-lbl">net income</span><span class="stat-mini-val" style="color:var(--sky);font-size:16px;">${$(income)}</span></div>
           <div class="stat-mini"><span class="stat-mini-lbl">planned out</span><span class="stat-mini-val" style="color:var(--linen);font-size:16px;">${$(totalPlanned)}</span></div>
@@ -682,7 +684,7 @@ function renderBudget(){
         </div>
       </div>
       <div class="card" style="background:${Math.abs(unallocated)<50?'rgba(106,140,110,.07)':'rgba(168,32,64,.05)'};border-color:${Math.abs(unallocated)<50?'rgba(106,140,110,.25)':'rgba(168,32,64,.18)'};">
-        <div class="fb"><div class="fc" style="gap:8px;"><span style="font-size:20px;">${Math.abs(unallocated)<50?'&#9989;':'&#128270;'}</span><div><div style="font-size:13px;font-weight:500;">${Math.abs(unallocated)<50?'every dollar has a plan.':'these dollars are waiting on a job.'}</div><div class="sub">${$(Math.abs(unallocated))} ${unallocated>=0?'not yet assigned':'over your income'}</div></div></div>${unallocated>50?`<button class="btn-sky btn-sm" style="flex-shrink:0;" onclick="openDistributeToNests(${Math.floor(unallocated)})">assign</button>`:''}</div>
+        <div class="fb"><div class="fc" style="gap:8px;"><span style="font-size:20px;">${Math.abs(unallocated)<50?'&#9989;':'&#128270;'}</span><div><div style="font-size:13px;font-weight:500;">${Math.abs(unallocated)<50?'every dollar has a plan.':'these dollars are waiting on a job.'}</div><div class="sub">${!D.budget.plan.length?'add your expenses first to see your true margin':$(Math.abs(unallocated))+' '+(unallocated>=0?'not yet assigned':'over your income')}</div></div></div>${unallocated>50?`<button class="btn-sky btn-sm" style="flex-shrink:0;" onclick="openDistributeToNests(${Math.floor(unallocated)})">assign</button>`:''}</div>
       </div>
       ${!D.budget.plan.length?`<div class="card" style="text-align:center;padding:28px 20px;"><div style="font-size:32px;margin-bottom:10px;">&#128203;</div><span class="card-title" style="display:block;margin-bottom:8px;">start with what goes out every month</span><p class="sub" style="margin-bottom:16px;line-height:1.7;">add rent, utilities, subscriptions. the fixed stuff. once you see it all, your true margin becomes clear.</p><div style="display:flex;gap:8px;flex-direction:column;"><button class="btn-primary" onclick="openBulkAddExpenses()">add multiple at once</button><button class="btn-secondary" onclick="openAddBudget()">+ add one at a time</button></div></div>`:`<div class="card" style="padding:0;overflow:hidden;"><div style="padding:16px 20px 0;" class="fb"><span class="card-title">monthly expenses</span><button class="btn-ruby btn-sm" onclick="openAddBudget()">+ add</button></div><div style="padding:0 16px 8px;">${planRows}</div></div>`}
       ${nestAlloc>0?`<div class="card"><div class="card-hdr"><span class="card-title">nest contributions</span><span style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);">${$(nestAlloc)}/mo</span></div>${D.nests.filter(n=>n.monthly>0).map(n=>{const mo=n.deadline?(()=>{const d=new Date(n.deadline+'-01'),now=new Date();const diff=Math.max(0,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()));return diff;})():null;const lbl=mo!==null?(mo<=0?'reached goal':mo===1?'1 mo left':mo<=3?mo+' mo left':'until '+fmtDl(n.deadline)):'';return`<div class="row-item"><div class="fb"><div class="fc"><span>${n.emoji}</span><span style="font-size:13px;">${esc(n.name)}</span></div><div style="text-align:right;"><span style="font-size:13px;font-weight:500;color:var(--cocoa);">${$(n.monthly)}/mo</span>${lbl?`<div class="sub" style="font-size:11px;">${lbl}</div>`:''}</div></div></div>`;}).join('')}</div>`:''}
@@ -701,7 +703,7 @@ function renderBudget(){
     document.getElementById('content').innerHTML=`<div class="stack fade-in">
       <div class="tab-row"><button class="tab-btn" onclick="budgetView='plan';renderBudget()">plan</button><button class="tab-btn on">track</button></div>
       <div class="card-dark" style="background:linear-gradient(135deg,var(--cocoa),#5C3020);">
-        <span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">${getMonthLabel()} what's actually happened</span>
+        <span class="sec-head" style="color:rgba(220,235,245,.8);margin-bottom:8px;">${getMonthLabel()} what's actually happened</span>
         <div class="g3" style="gap:8px;">
           <div class="stat-mini"><span class="stat-mini-lbl">net income</span><span class="stat-mini-val" style="color:var(--sky);font-size:16px;">${$(income)}</span></div>
           <div class="stat-mini"><span class="stat-mini-lbl">spent so far</span><span class="stat-mini-val" style="color:${spent>budgeted?'var(--ruby)':'var(--linen)'};font-size:16px;">${$(spent)}</span></div>
@@ -847,6 +849,8 @@ function openBulkAddExpenses(){
       const amt=window._bulkAmts[c.name]||0;
       D.budget.plan.push({id:uid(),emoji:c.emoji,name:c.name,group:c.group,budgeted:amt});
     });
+    var ecn=document.getElementById('bulk-custom-name');var eca=document.getElementById('bulk-custom-amt');
+    if(ecn&&ecn.value.trim())D.budget.plan.push({id:uid(),emoji:'\u{1F4CB}',name:ecn.value.trim(),group:'other',budgeted:parseFloat(eca&&eca.value)||0});
     save();closeModal('modal-bulk');renderBudget();
   };
 
@@ -854,11 +858,85 @@ function openBulkAddExpenses(){
     <div class="sheet-hdr"><span class="sheet-title">add your expenses</span><button class="sheet-close" onclick="closeModal('modal-bulk')">close</button></div>
     <p class="sub" style="margin-bottom:14px;line-height:1.6;">tap to select, then adjust the amounts to match yours. we've pre-filled common amounts to get you started.</p>
     <div id="bulk-rows">${renderBulkRows()}</div>
+    <div style="margin-top:12px;"><span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--cocoa);opacity:.35;display:block;margin-bottom:6px;">add your own</span><div style="display:flex;gap:8px;align-items:center;padding:9px 12px;border:1.5px dashed var(--mist);border-radius:var(--r-md);background:var(--white);"><input class="inp" id="bulk-custom-name" placeholder="expense name" style="flex:1;padding:7px 10px;font-size:13px;" oninput="this.value=this.value.toLowerCase()"/><div class="amt-wrap" style="width:72px;border:1.5px solid var(--mist);border-radius:8px;padding:3px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="bulk-custom-amt" placeholder="0" style="font-size:12px;width:46px;"/></div></div></div>
     <button class="btn-primary" style="margin-top:8px;" onclick="submitBulkExpenses()">add selected expenses</button>
   </div></div>`);
 }
 
 function removeBudgetItem(id){var b=D.budget.plan.find(function(x){return x.id===id;});if(!b)return;if(!confirm('remove '+b.name+'?'))return;D.budget.plan=D.budget.plan.filter(function(x){return x.id!==id;});save();renderBudget();}
+
+const SUBSCRIPTION_NEST_SUGGESTIONS={
+  streaming:[
+    {name:'netflix fund',emoji:'\u{1F4FA}',monthly:18,goal:216},
+    {name:'spotify fund',emoji:'\u{1F3B5}',monthly:11,goal:132},
+    {name:'apple tv+ fund',emoji:'\u{1F34E}',monthly:10,goal:120},
+    {name:'hulu fund',emoji:'\u{1F4FA}',monthly:18,goal:216},
+    {name:'disney+ fund',emoji:'\u2728',monthly:14,goal:168},
+    {name:'youtube premium fund',emoji:'\u{1F3A5}',monthly:14,goal:168},
+  ],
+  fitness:[
+    {name:'peloton fund',emoji:'\u{1F6B4}',monthly:44,goal:528},
+    {name:'strava fund',emoji:'\u{1F3C3}',monthly:8,goal:96},
+    {name:'gym membership fund',emoji:'\u{1F3CB}\uFE0F',monthly:50,goal:600},
+    {name:'apple fitness+ fund',emoji:'\u{1F34E}',monthly:10,goal:120},
+    {name:'classpass fund',emoji:'\u{1F3C8}',monthly:79,goal:948},
+  ],
+  memberships:[
+    {name:'amazon prime fund',emoji:'\u{1F4E6}',monthly:15,goal:180},
+    {name:'costco membership fund',emoji:'\u{1F6D2}',monthly:5,goal:65},
+    {name:'sams club fund',emoji:'\u{1F6D2}',monthly:5,goal:55},
+    {name:'aaa membership fund',emoji:'\u{1F697}',monthly:8,goal:96},
+  ],
+  software:[
+    {name:'adobe creative cloud fund',emoji:'\u{1F3A8}',monthly:55,goal:660},
+    {name:'microsoft 365 fund',emoji:'\u{1F4BB}',monthly:10,goal:120},
+    {name:'notion fund',emoji:'\u{1F4DD}',monthly:16,goal:192},
+    {name:'ai tools fund',emoji:'\u{1F916}',monthly:20,goal:240},
+  ],
+};
+function getSubscriptionNestSuggestions(name){
+  const n=(name||'').toLowerCase();
+  if(n.includes('stream')||n.includes('netflix')||n.includes('hulu')||n.includes('disney')||n.includes('spotify')||n.includes('apple music'))return SUBSCRIPTION_NEST_SUGGESTIONS.streaming;
+  if(n.includes('fitness')||n.includes('gym')||n.includes('peloton')||n.includes('strava')||n.includes('workout'))return SUBSCRIPTION_NEST_SUGGESTIONS.fitness;
+  if(n.includes('amazon')||n.includes('costco')||n.includes('sams')||n.includes('membership')||n.includes('prime'))return SUBSCRIPTION_NEST_SUGGESTIONS.memberships;
+  if(n.includes('software')||n.includes('adobe')||n.includes('microsoft')||n.includes('subscription')||n.includes('cloud'))return SUBSCRIPTION_NEST_SUGGESTIONS.software;
+  return null;
+}
+function showSubscriptionNestPrompt(suggs,expName){
+  var el=document.createElement('div');
+  el.id='modal-sub-nest';el.className='overlay';
+  el.onclick=function(){closeModal('modal-sub-nest');};
+  var sheet=document.createElement('div');sheet.className='sheet';
+  sheet.onclick=function(e){e.stopPropagation();};
+  var rows=suggs.map(function(s){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--linen);border-radius:var(--r-md);margin-bottom:6px;">'
+      +'<span style="font-size:18px;">'+s.emoji+'</span>'
+      +'<div style="flex:1;"><div style="font-size:13px;font-weight:500;">'+s.name+'</div>'
+      +'<div style="font-size:11px;color:var(--cocoa);opacity:.4;">$'+s.monthly+'/mo</div></div>'
+      +'<button class="btn-sky btn-sm" data-e="'+encodeURIComponent(s.emoji)+'" data-n="'+encodeURIComponent(s.name)+'" data-g="'+s.goal+'" data-m="'+s.monthly+'" onclick="addSubNest(this)">add nest</button>'
+      +'</div>';
+  }).join('');
+  sheet.innerHTML='<div class="sheet-hdr"><span class="sheet-title">nest ideas for this</span><button class="sheet-close" id="sns-close">skip</button></div>'
+    +'<p class="sub" style="margin-bottom:14px;line-height:1.6;">you added <strong>'+expName+'</strong>. these nests cover the annual cost so a renewal never catches you off guard.</p>'
+    +rows
+    +'<button class="btn-ghost" style="width:100%;margin-top:8px;" id="sns-skip">skip for now</button>';
+  el.appendChild(sheet);document.body.appendChild(el);
+  document.getElementById('sns-close').onclick=function(){closeModal('modal-sub-nest');};
+  var snskip=document.getElementById('sns-skip');if(snskip)snskip.onclick=function(){closeModal('modal-sub-nest');};
+}
+
+function addSubNest(btn){
+  var e=decodeURIComponent(btn.getAttribute('data-e'));
+  var n=decodeURIComponent(btn.getAttribute('data-n'));
+  var g=parseInt(btn.getAttribute('data-g'))||0;
+  var m=parseInt(btn.getAttribute('data-m'))||0;
+  if(D.nests.find(function(x){return x.name.toLowerCase()===n.toLowerCase();}))return;
+  D.nests.push({id:uid(),emoji:e,name:n,goal:g,saved:0,monthly:m,deadline:'',note:'',log:[]});
+  save();
+  btn.textContent='added ✓';
+  btn.disabled=true;
+  btn.style.background='var(--sage)';
+}
 
 function openAddBudget(){
   const existing=D.budget.plan.map(b=>b.name.toLowerCase());
@@ -873,7 +951,7 @@ function openAddBudget(){
             <div class="field"><label class="lbl">emoji</label><input class="inp" id="nb-emoji" placeholder="&#128204;" maxlength="2" style="text-align:center;font-size:20px;"/></div>
             <div class="field"><label class="lbl">name</label><input class="inp" id="nb-name" placeholder="expense name" onkeydown="if(event.key==='Enter')submitAddBudget()"/></div>
           </div>
-          <div class="field" style="margin-bottom:10px;"><label class="lbl">planned monthly amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="nb-budgeted" placeholder="0"/></div></div>
+          <div class="inp-row" style="margin-bottom:10px;"><div class="field"><label class="lbl">monthly amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="nb-budgeted" placeholder="0"/></div></div><div class="field" style="max-width:90px;"><label class="lbl">due day</label><input class="inp" type="number" id="nb-dueday" placeholder="1-31" min="1" max="31"/></div></div>
           <div class="field"><label class="lbl">category type</label>
             <select class="inp" id="nb-group" style="padding:11px 14px;" onchange="document.getElementById('ins-warn').classList.toggle('hidden',this.value!=='insurance')">
               ${['housing','food','transport','subscriptions','personal','health','insurance','investing','other'].map(g=>`<option value="${g}">${g}</option>`).join('')}
@@ -895,8 +973,9 @@ function openAddBudget(){
 }
 function submitAddBudget(){
   const name=document.getElementById('nb-name').value.trim();if(!name)return;
-  D.budget.plan.push({id:uid(),emoji:document.getElementById('nb-emoji').value||'\u{1F4CC}',name,group:document.getElementById('nb-group').value||'other',budgeted:parseFloat(document.getElementById('nb-budgeted').value)||0});
+  const _dd=parseInt(document.getElementById('nb-dueday')?.value)||0;D.budget.plan.push({id:uid(),emoji:document.getElementById('nb-emoji').value||'\u{1F4CC}',name,group:document.getElementById('nb-group').value||'other',budgeted:parseFloat(document.getElementById('nb-budgeted').value)||0,dueDay:_dd});
   save();closeModal('modal-budget');renderBudget();
+  const _ss=getSubscriptionNestSuggestions(name);if(_ss&&_ss.length){const _ns=_ss.filter(s=>!D.nests.find(n=>n.name.toLowerCase()===s.name.toLowerCase())).slice(0,3);if(_ns.length)showSubscriptionNestPrompt(_ns,name);}
 }
 function openEditBudget(id){
   const b=D.budget.plan.find(x=>x.id===id);if(!b)return;
@@ -905,9 +984,9 @@ function openEditBudget(id){
     <div class="stack" style="gap:12px;">
       <div class="inp-row"><div class="field"><label class="lbl">emoji</label><input class="inp" id="eb-emoji" value="${esc(b.emoji||'\u{1F4CC}')}" maxlength="2" style="text-align:center;font-size:20px;"/></div>
       <div class="field"><label class="lbl">name</label><input class="inp" id="eb-name" value="${esc(b.name)}"/></div></div>
-      <div class="field"><label class="lbl">planned amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="eb-budgeted" value="${b.budgeted||0}"/></div></div>
+      <div class="inp-row"><div class="field"><label class="lbl">planned amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="eb-budgeted" value="${b.budgeted||0}"/></div></div><div class="field" style="max-width:90px;"><label class="lbl">due day</label><input class="inp" type="number" id="eb-dueday" value="${b.dueDay||''}" placeholder="1-31" min="1" max="31"/></div></div>
       <div class="field"><label class="lbl">category</label><select class="inp" id="eb-group" style="padding:11px 14px;">${['housing','food','transport','subscriptions','personal','health','insurance','investing','other'].map(g=>`<option value="${g}" ${b.group===g?'selected':''}>${g}</option>`).join('')}</select></div>
-      <button class="btn-primary" onclick="const b=D.budget.plan.find(x=>x.id==='${id}');if(b){const _obn=b.name;b.emoji=document.getElementById('eb-emoji').value||b.emoji;b.name=document.getElementById('eb-name').value.trim()||b.name;b.budgeted=parseFloat(document.getElementById('eb-budgeted').value)||0;b.group=document.getElementById('eb-group').value;syncBudgetNameToDebt(_obn,b.name);save();closeModal('modal-edit-budget');renderBudget();}">save changes</button>
+      <button class="btn-primary" onclick="const b=D.budget.plan.find(x=>x.id==='${id}');if(b){const _obn=b.name;b.emoji=document.getElementById('eb-emoji').value||b.emoji;b.name=document.getElementById('eb-name').value.trim()||b.name;b.budgeted=parseFloat(document.getElementById('eb-budgeted').value)||0;b.dueDay=parseInt(document.getElementById('eb-dueday')?.value)||0;b.group=document.getElementById('eb-group').value;syncBudgetNameToDebt(_obn,b.name);save();closeModal('modal-edit-budget');renderBudget();}">save changes</button>
     </div>
   </div></div>`);
 }
@@ -998,12 +1077,13 @@ function renderNests(){
 
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
     <div class="card-dark" style="background:linear-gradient(135deg,var(--cocoa),#4A2A18);">
-      <span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">all nests</span>
+      <span class="sec-head" style="color:rgba(220,235,245,.8);margin-bottom:8px;">all nests</span>
       <span style="font-family:var(--ff-serif);font-size:38px;color:var(--linen);display:block;font-weight:300;">${$(totalSaved)}</span>
-      <span style="font-size:12px;color:rgba(245,239,228,.35);display:block;margin-bottom:12px;">of ${$(totalGoal)} &middot; ${pct(totalSaved,totalGoal)}% funded &middot; ${$(totalMonthly)}/mo</span>
+      <span style="font-size:12px;color:rgba(250,247,242,.55);display:block;margin-bottom:12px;">of ${$(totalGoal)} &middot; ${pct(totalSaved,totalGoal)}% funded &middot; ${$(totalMonthly)}/mo</span>
       <div class="bar-track" style="height:5px;"><div class="bar-fill" style="width:${pct(totalSaved,totalGoal)}%;height:100%;background:var(--sky);"></div></div>
     </div>
     <div style="display:flex;gap:8px;"><button class="btn-add" style="flex:1;" onclick="openNewNest({})">+ new nest</button><button class="btn-secondary" style="flex:0;white-space:nowrap;" onclick="openBulkAddNests()">add multiple</button></div>
+      ${_nestsNudge}
       <div style="display:flex;gap:4px;flex-wrap:wrap;">
         ${[['deadline','date'],['progress-asc','least'],['progress-desc','most'],['amount-desc','largest']].map(([v,l])=>`<button onclick="nestSort='${v}';renderNests();" style="padding:5px 10px;border-radius:99px;border:1.5px solid ${nestSort===v?'var(--ruby)':'var(--mist)'};background:${nestSort===v?'rgba(168,32,64,.06)':'transparent'};font-size:11px;color:${nestSort===v?'var(--ruby)':'var(--cocoa)'};font-weight:${nestSort===v?600:400};opacity:${nestSort===v?1:.6};cursor:pointer;">${l}</button>`).join('')}
       </div>
@@ -1198,13 +1278,17 @@ function renderDebt(){
 
   const strategyHtml='';
 
+  const _nonEfNests=D.nests.filter(n=>!n.name.toLowerCase().includes('emergency'));
+  const _nestsNudge=_nonEfNests.length===0?`<div style="background:rgba(195,219,238,.1);border:1px solid rgba(195,219,238,.25);border-radius:var(--r-md);padding:16px 18px;"><div style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);margin-bottom:6px;">your margin is waiting.</div><p style="font-size:12px;color:var(--cocoa);opacity:.55;line-height:1.7;margin-bottom:12px;">nests are where your goals live. a vacation, a new car, a down payment, an emergency cushion. once you name what you are saving toward, your margin starts working for you instead of sitting still.</p><button class="btn-sky btn-sm" onclick="openNewNest({})">open your first nest</button></div>`:'';
+  const _debtNudge=D.debts.length===0?`<div style="background:rgba(106,140,110,.07);border:1px solid rgba(106,140,110,.22);border-radius:var(--r-md);padding:16px 18px;"><div style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);margin-bottom:6px;">nothing owed. keep it that way.</div><p style="font-size:12px;color:var(--cocoa);opacity:.55;line-height:1.7;">if you do carry debt, adding it here connects your payments to your budget and shows you a real payoff timeline. it makes your margin picture honest.</p></div>`:'';
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
     <div class="card-dark" style="background:var(--cocoa);">
-      <span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">${total>0?'total debt':'debt'}</span>
+      <span class="sec-head" style="color:rgba(220,235,245,.8);margin-bottom:8px;">${total>0?'total debt':'debt'}</span>
       <span style="font-family:var(--ff-serif);font-size:36px;color:var(--linen);display:block;font-weight:300;">${total>0?$(total):'nothing owed.'}</span>
-      ${total>0?`<span style="font-size:12px;color:rgba(245,239,228,.35);display:block;margin-top:4px;">${D.debts.length} account${D.debts.length===1?'':'s'} &middot; ${$(D.debts.reduce((s,d)=>s+(d.min||0),0))}/mo minimum</span>`:'<span style="font-size:12px;color:rgba(245,239,228,.35);display:block;margin-top:4px;">keep it that way.</span>'}
+      ${total>0?`<span style="font-size:12px;color:rgba(250,247,242,.55);display:block;margin-top:4px;">${D.debts.length} account${D.debts.length===1?'':'s'} &middot; ${$(D.debts.reduce((s,d)=>s+(d.min||0),0))}/mo minimum</span>`:'<span style="font-size:12px;color:rgba(250,247,242,.55);display:block;margin-top:4px;">keep it that way.</span>'}
     </div>
     <div style="display:flex;gap:8px;"><button class="btn-add" style="flex:1;" onclick="openAddDebt()">+ add a debt</button><button class="btn-secondary" style="flex:1;" onclick="openBulkAddDebts()">add multiple</button></div>
+    ${_debtNudge}
     ${cards}
   </div>`;
 }
@@ -1487,7 +1571,7 @@ function renderForecast(){
   const t6=n6.reduce((s,n)=>s+n.proj,0);const t12=n12.reduce((s,n)=>s+n.proj,0);
   const f6=n6.filter(n=>n.willFund).length;const f12=n12.filter(n=>n.willFund).length;
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
-    <div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:8px;">your financial forecast</span><span style="font-family:var(--ff-serif);font-size:28px;color:var(--linen);display:block;font-weight:300;">looking changes everything.</span><span style="font-size:12px;color:rgba(245,239,228,.4);">see where you will land by staying the course.</span></div>
+    <div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(220,235,245,.8);margin-bottom:8px;">your financial forecast</span><span style="font-family:var(--ff-serif);font-size:28px;color:var(--linen);display:block;font-weight:300;">looking changes everything.</span><span style="font-size:12px;color:rgba(250,247,242,.6);">see where you will land by staying the course.</span></div>
     <div class="card"><span class="sec-head">what my finances look like in...</span>
       <div style="display:flex;gap:6px;flex-wrap:wrap;" id="forecast-tabs">
         ${[1,3,6,12,18,24].map(m=>`<button class="profile-chip ${m===6?'active':''}" onclick="document.querySelectorAll('#forecast-tabs .profile-chip').forEach(b=>b.classList.remove('active'));this.classList.add('active');showForecast(${m})">${m} mo</button>`).join('')}
@@ -1929,9 +2013,9 @@ function openQuickSetup(){
   let step=0;
   const QC=[{k:'housing',e:'\u{1F3E0}',l:'housing / rent'},{k:'utilities',e:'\u{1F4A1}',l:'utilities'},{k:'groceries',e:'\u{1F6D2}',l:'groceries'},{k:'dining',e:'\u{1F37D}\uFE0F',l:'dining'},{k:'transport',e:'\u{1F697}',l:'transport'},{k:'subscriptions',e:'\u{1F4F1}',l:'subscriptions'},{k:'healthcare',e:'\u{1FA7A}',l:'healthcare'},{k:'childcare',e:'\u{1F476}',l:'childcare'},{k:'personal',e:'\u{1F484}',l:'personal'},{k:'entertainment',e:'\u{1F3AC}',l:'entertainment'},{k:'other',e:'\u{1F4CB}',l:'other'}];
   function rStep(){const body=document.getElementById('qs-body');if(!body)return;
-    if(step===0){body.innerHTML=`<div class="stack" style="gap:8px;"><div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:6px;">step 1 of 3</span><span style="font-family:var(--ff-serif);font-size:20px;color:var(--linen);display:block;font-weight:300;">what goes out every month?</span></div>${QC.map(cat=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r-md);"><span style="font-size:16px;">${cat.e}</span><span style="font-size:13px;flex:1;">${cat.l}</span><div class="amt-wrap" style="width:80px;border:1.5px solid var(--mist);border-radius:8px;padding:3px 7px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;" placeholder="0" id="qs-cat-${cat.k}"/></div></div>`).join('')}<button class="btn-primary" onclick="QC.forEach(cat=>{const el=document.getElementById('qs-cat-'+cat.k);if(el){const v=parseFloat(el.value)||0;if(v>0){D.budget=D.budget||{plan:[],months:{}};D.budget.plan=D.budget.plan||[];const ex=D.budget.plan.find(b=>b.name===cat.l);if(ex)ex.budgeted=v;else D.budget.plan.push({id:uid(),name:cat.l,emoji:cat.e,budgeted:v,logged:[]});}}});save();step=1;rStep();">next: debts</button><button class="btn-ghost" onclick="step=1;rStep();">skip</button></div>`;}
-    else if(step===1){const DT=[{e:'\u{1F4B3}',n:'credit card'},{e:'\u{1F393}',n:'student loan'},{e:'\u{1F697}',n:'car loan'},{e:'\u{1F48A}',n:'medical'},{e:'\u{1F4CB}',n:'other'}];body.innerHTML=`<div class="stack" style="gap:8px;"><div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:6px;">step 2 of 3</span><span style="font-family:var(--ff-serif);font-size:20px;color:var(--linen);display:block;font-weight:300;">any debts?</span></div>${DT.map((dt,i)=>`<div style="padding:10px 12px;background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r-md);"><div class="fc" style="gap:8px;margin-bottom:6px;"><span>${dt.e}</span><span style="font-size:13px;font-weight:500;">${dt.n}</span></div><div style="display:flex;gap:8px;"><div class="amt-wrap" style="flex:1;border:1.5px solid var(--mist);border-radius:8px;padding:3px 7px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;" placeholder="balance" id="qs-debt-${i}-bal"/></div><div class="amt-wrap" style="width:85px;border:1.5px solid var(--mist);border-radius:8px;padding:3px 7px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;" placeholder="min/mo" id="qs-debt-${i}-min"/></div></div></div>`).join('')}<button class="btn-primary" onclick="DT.forEach((dt,i)=>{const bal=parseFloat(document.getElementById('qs-debt-'+i+'-bal')?.value)||0;if(bal>0){D.debts=D.debts||[];D.debts.push({id:uid(),emoji:dt.e,name:dt.n,balance:bal,originalBalance:bal,rate:0,min:parseFloat(document.getElementById('qs-debt-'+i+'-min')?.value)||0,extra:0,active:true,payments:[]});}});save();step=2;rStep();">next: nests</button><button class="btn-ghost" onclick="step=2;rStep();">skip</button></div>`;}
-    else{const ns=[...(D.lifeEvents||[]).flatMap(id=>(LIFE_NEST_SUGGESTIONS&&LIFE_NEST_SUGGESTIONS[id])||[]),...(NEST_DEFS_MAP?Object.values(NEST_DEFS_MAP):[])].filter((s,i,a)=>a.findIndex(x=>x.name===s.name)===i).slice(0,8);body.innerHTML=`<div class="stack" style="gap:8px;"><div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(195,219,238,.5);margin-bottom:6px;">step 3 of 3</span><span style="font-family:var(--ff-serif);font-size:20px;color:var(--linen);display:block;font-weight:300;">what are you saving toward?</span></div>${ns.map(n=>{const exists=D.nests.find(x=>x.name.toLowerCase()===n.name.toLowerCase());return`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${exists?'rgba(106,140,110,.08)':'var(--white)'};border:1.5px solid ${exists?'var(--sage)':'var(--mist)'};border-radius:var(--r-md);cursor:pointer;" onclick="if(!D.nests.find(x=>x.name.toLowerCase()==='${n.name.toLowerCase()}')){D.nests.push({id:uid(),emoji:'${n.emoji}',name:'${n.name.replace(/'/g,"\\'")}',goal:${n.goal||0},saved:0,monthly:${n.monthly||0},deadline:'',note:'',log:[],createdAt:today()});save();this.style.background='rgba(106,140,110,.08)';this.style.borderColor='var(--sage)';}"><span style="font-size:18px;">${n.emoji}</span><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${n.name}</div><div class="sub">${n.note||''}</div></div>${exists?'<span>&#10003;</span>':''}</div>`;}).join('')}<button class="btn-primary" style="margin-top:4px;" onclick="closeModal('modal-quicksetup');renderHome();">done</button></div>`;}
+    if(step===0){body.innerHTML=`<div class="stack" style="gap:8px;"><div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(220,235,245,.8);margin-bottom:6px;">step 1 of 3</span><span style="font-family:var(--ff-serif);font-size:20px;color:var(--linen);display:block;font-weight:300;">what goes out every month?</span></div>${QC.map(cat=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r-md);"><span style="font-size:16px;">${cat.e}</span><span style="font-size:13px;flex:1;">${cat.l}</span><div class="amt-wrap" style="width:80px;border:1.5px solid var(--mist);border-radius:8px;padding:3px 7px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;" placeholder="0" id="qs-cat-${cat.k}"/></div></div>`).join('')}<button class="btn-primary" onclick="QC.forEach(cat=>{const el=document.getElementById('qs-cat-'+cat.k);if(el){const v=parseFloat(el.value)||0;if(v>0){D.budget=D.budget||{plan:[],months:{}};D.budget.plan=D.budget.plan||[];const ex=D.budget.plan.find(b=>b.name===cat.l);if(ex)ex.budgeted=v;else D.budget.plan.push({id:uid(),name:cat.l,emoji:cat.e,budgeted:v,logged:[]});}}});save();step=1;rStep();">next: debts</button><button class="btn-ghost" onclick="step=1;rStep();">skip</button></div>`;}
+    else if(step===1){const DT=[{e:'\u{1F4B3}',n:'credit card'},{e:'\u{1F393}',n:'student loan'},{e:'\u{1F697}',n:'car loan'},{e:'\u{1F48A}',n:'medical'},{e:'\u{1F4CB}',n:'other'}];body.innerHTML=`<div class="stack" style="gap:8px;"><div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(220,235,245,.8);margin-bottom:6px;">step 2 of 3</span><span style="font-family:var(--ff-serif);font-size:20px;color:var(--linen);display:block;font-weight:300;">any debts?</span></div>${DT.map((dt,i)=>`<div style="padding:10px 12px;background:var(--white);border:1.5px solid var(--mist);border-radius:var(--r-md);"><div class="fc" style="gap:8px;margin-bottom:6px;"><span>${dt.e}</span><span style="font-size:13px;font-weight:500;">${dt.n}</span></div><div style="display:flex;gap:8px;"><div class="amt-wrap" style="flex:1;border:1.5px solid var(--mist);border-radius:8px;padding:3px 7px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;" placeholder="balance" id="qs-debt-${i}-bal"/></div><div class="amt-wrap" style="width:85px;border:1.5px solid var(--mist);border-radius:8px;padding:3px 7px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" style="font-size:12px;" placeholder="min/mo" id="qs-debt-${i}-min"/></div></div></div>`).join('')}<button class="btn-primary" onclick="DT.forEach((dt,i)=>{const bal=parseFloat(document.getElementById('qs-debt-'+i+'-bal')?.value)||0;if(bal>0){D.debts=D.debts||[];D.debts.push({id:uid(),emoji:dt.e,name:dt.n,balance:bal,originalBalance:bal,rate:0,min:parseFloat(document.getElementById('qs-debt-'+i+'-min')?.value)||0,extra:0,active:true,payments:[]});}});save();step=2;rStep();">next: nests</button><button class="btn-ghost" onclick="step=2;rStep();">skip</button></div>`;}
+    else{const ns=[...(D.lifeEvents||[]).flatMap(id=>(LIFE_NEST_SUGGESTIONS&&LIFE_NEST_SUGGESTIONS[id])||[]),...(NEST_DEFS_MAP?Object.values(NEST_DEFS_MAP):[])].filter((s,i,a)=>a.findIndex(x=>x.name===s.name)===i).slice(0,8);body.innerHTML=`<div class="stack" style="gap:8px;"><div class="card-dark" style="background:var(--cocoa);"><span class="sec-head" style="color:rgba(220,235,245,.8);margin-bottom:6px;">step 3 of 3</span><span style="font-family:var(--ff-serif);font-size:20px;color:var(--linen);display:block;font-weight:300;">what are you saving toward?</span></div>${ns.map(n=>{const exists=D.nests.find(x=>x.name.toLowerCase()===n.name.toLowerCase());return`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${exists?'rgba(106,140,110,.08)':'var(--white)'};border:1.5px solid ${exists?'var(--sage)':'var(--mist)'};border-radius:var(--r-md);cursor:pointer;" onclick="if(!D.nests.find(x=>x.name.toLowerCase()==='${n.name.toLowerCase()}')){D.nests.push({id:uid(),emoji:'${n.emoji}',name:'${n.name.replace(/'/g,"\\'")}',goal:${n.goal||0},saved:0,monthly:${n.monthly||0},deadline:'',note:'',log:[],createdAt:today()});save();this.style.background='rgba(106,140,110,.08)';this.style.borderColor='var(--sage)';}"><span style="font-size:18px;">${n.emoji}</span><div style="flex:1;"><div style="font-size:13px;font-weight:500;">${n.name}</div><div class="sub">${n.note||''}</div></div>${exists?'<span>&#10003;</span>':''}</div>`;}).join('')}<button class="btn-primary" style="margin-top:4px;" onclick="closeModal('modal-quicksetup');renderHome();">done</button></div>`;}
   }
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-quicksetup" onclick="closeModal('modal-quicksetup')"><div class="sheet" onclick="event.stopPropagation()"><div class="sheet-hdr"><span class="sheet-title">finish setting up</span><button class="sheet-close" onclick="closeModal('modal-quicksetup')">close</button></div><div id="qs-body"></div></div></div>`);
   rStep();
@@ -1998,7 +2082,21 @@ function openSettings(sec){
   </div>`;
 
   let sectionHtml='';
-  if(_hausSec==='account'){
+  if(_hausSec==='howto'){
+    sectionHtml=`
+      <div class="card-dark" style="background:var(--cocoa);padding:20px;">
+        <span style="font-family:var(--ff-serif);font-size:24px;color:var(--linen);display:block;font-weight:300;margin-bottom:6px;">get the most out of this.</span>
+        <span style="font-size:12px;color:rgba(220,235,245,.7);line-height:1.7;display:block;">haus money works best when you treat it like a sitting-down moment, not a quick check-in.</span>
+      </div>
+      ${[
+        {n:'1. understand what goes out',i:'\u{1F4CB}',d:'open the budget tab. sit with your bank statements and add every fixed expense you carry. rent, utilities, car payments, subscriptions, insurance. the ones that leave whether you think about them or not. do not skip the easy-to-forget ones: fitness memberships, streaming services, annual dues, recurring donations.'},
+        {n:'2. add your debts',i:'\u{1F4B3}',d:'go to the debt tab. add every balance you carry and mark whether each payment should count as a monthly expense. this connects your debt to your budget so the math is honest.'},
+        {n:'3. see your true margin',i:'\u{1F4CA}',d:'once your expenses and debts are in, your home tab shows what is actually left. not what you think is left. what is actually left. that number is your margin and it is the most important number in this app.'},
+        {n:'4. give your margin a purpose',i:'\u{1F3AF}',d:'open the nests tab. name what you are saving toward. a vacation, a down payment, a car, a cushion. assign a monthly amount to each nest. watch your margin work for you.'},
+        {n:'5. stay hands on',i:'\u{1F331}',d:'log expenses as you go. track what you spend against what you planned. adjust as life changes. the people who check in consistently get the most out of this.'},
+      ].map(s=>`<div style="padding:14px 0;border-bottom:1px solid var(--mist);"><div class="fc" style="gap:10px;margin-bottom:5px;"><span style="font-size:18px;">${s.i}</span><span style="font-size:13px;font-weight:600;color:var(--cocoa);">${s.n}</span></div><p style="font-size:12.5px;color:var(--cocoa);opacity:.55;line-height:1.7;margin:0 0 0 28px;">${s.d}</p></div>`).join('')}
+      ${connectFooter}`;
+  } else if(_hausSec==='account'){
     const kidsHtml=(D.kids&&D.kids.length)
       ?D.kids.map(function(k){return '<div class="row-item"><div class="fb"><div class="fc" style="gap:8px;"><span style="font-size:16px;">✨</span><div><div style="font-size:13px;font-weight:500;">'+esc(k.name)+'</div><div class="sub">age '+k.age+'</div></div></div><div class="fc" style="gap:6px;"><button class="btn-icon" onclick="settingsEditKid(this);" data-kid="'+k.id+'">&#9998;</button><button class="btn-icon" style="color:var(--ruby);opacity:.5;" onclick="settingsRemoveKid(this);" data-kid="'+k.id+'">&#10005;</button></div></div></div>';}).join('')
       :'<p class="sub" style="font-size:12px;padding:6px 0;">no children added yet.</p>';
@@ -2063,7 +2161,7 @@ function openSettings(sec){
       ${connectFooter}`;
   }
 
-  const navItems=[{id:'account',label:'account'},{id:'terms',label:'haus terminology'},{id:'recommendations',label:'recommendations'}];
+  const navItems=[{id:'account',label:'account'},{id:'terms',label:'haus terminology'},{id:'recommendations',label:'recommendations'},{id:'howto',label:'how it works'}];
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-settings" onclick="closeModal('modal-settings')"><div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-hdr"><span class="sheet-title">hauskeeping</span><button class="sheet-close" onclick="closeModal('modal-settings')">close</button></div>
     <div class="tab-row" style="margin-bottom:14px;">${navItems.map(n=>`<button class="tab-btn ${_hausSec===n.id?'on':''}" onclick="closeModal('modal-settings');openSettings('${n.id}')">${n.label}</button>`).join('')}</div>
