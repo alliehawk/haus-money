@@ -165,7 +165,8 @@ button{cursor:pointer;}
       <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--mist);font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">4</span>open nests for what you want to save toward</div>
       <div style="display:flex;gap:10px;padding:8px 0;font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">5</span>log expenses as you go to stay honest</div>
     </div>
-    <div style="text-align:center;margin-top:20px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cocoa);opacity:.18;">by solari haus</div>
+    <div style="text-align:center;margin-top:20px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cocoa);opacity:.18;"><div style="text-align:center;margin-bottom:10px;"><button onclick="openSettings('howto')" style="background:none;border:none;font-size:11px;color:var(--cocoa);opacity:.35;cursor:pointer;letter-spacing:.5px;">how it works</button></div>
+    by solari haus</div>
     <p style="text-align:center;font-size:11px;color:var(--cocoa);opacity:.3;margin-top:10px;line-height:1.8;">about three minutes. future you will appreciate this.</p>
     <p style="text-align:center;font-size:10px;color:var(--cocoa);opacity:.3;margin-top:8px;line-height:1.6;">your data stays on your device.<br>nothing is collected, stored, or shared.</p>
   </div>
@@ -203,47 +204,11 @@ button{cursor:pointer;}
   <div class="ob-step" id="ob-5">
     <div class="ob-nav-row"><button class="ob-back" onclick="obGo(3)">&#8592;</button><div class="ob-prog" id="prog-5"></div></div>
     <div class="ob-h">what's shaping your life right now?</div>
-    <p class="ob-sub">the more you share, the more this becomes yours. pick everything that applies.</p>
-    <div id="life-events-pills" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;"></div>
-    <div class="card" style="padding:0;overflow:hidden;">
-      <div class="toggle-row">
-        <div><div class="toggle-lbl">i am a parent or guardian</div><div class="toggle-sub">children, dependents, activities, planning</div></div>
-        <label class="toggle"><input type="checkbox" id="tog-kids" onchange="toggleKids()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-      </div>
-      <div id="kids-section" class="hidden" style="padding:0 16px 14px;border-top:1px solid var(--mist);">
-        <div style="margin-top:12px;" id="kids-list"></div>
-        <button class="btn-add" style="margin-top:10px;" onclick="addObKid()">+ add a child or dependent</button>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-lbl">i have pets</div><div class="toggle-sub">food, grooming, vet, boarding</div></div>
-        <label class="toggle"><input type="checkbox" id="tog-pets" onchange="togglePets()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-      </div>
-      <div id="pets-section" class="hidden" style="padding:0 16px 14px;border-top:1px solid var(--mist);">
-        <div style="margin-top:12px;" id="pets-list"></div>
-        <button class="btn-add" style="margin-top:10px;" onclick="addObPet()">+ add a pet</button>
-      </div>
-      <div class="toggle-row">
-        <div><div class="toggle-lbl">i support someone financially</div><div class="toggle-sub">family member, caregiver, shared household</div></div>
-        <label class="toggle"><input type="checkbox" id="tog-support" onchange="toggleSupport()"/><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-      </div>
-      <div id="support-section" class="hidden" style="padding:0 16px 14px;border-top:1px solid var(--mist);">
-        <div style="margin-top:12px;">
-          <div class="field"><label class="lbl">who are you supporting?</label>
-            <select class="inp" id="ob-support-type" style="padding:11px 14px;">
-              <option value="aging_parent">aging parent</option><option value="sibling">sibling</option>
-              <option value="adult_child">adult child</option><option value="grandparent">grandparent</option>
-              <option value="partner">partner or spouse</option><option value="roommate">shared household</option>
-              <option value="other">someone else</option>
-            </select>
-          </div>
-          <div class="field" style="margin-top:8px;"><label class="lbl">monthly amount (if known)</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="ob-support-cost" placeholder="0"/></div></div>
-        </div>
-      </div>
-    </div>
+    <p class="ob-sub">select everything that applies. we'll surface the right nests and suggestions for where you are.</p>
+    <div id="life-events-pills" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;"></div>
     <button class="btn-primary" onclick="obSave5()">continue</button>
-    <button class="ob-skip" onclick="obGo(7)">i'll fill this in later</button>
   </div>
-
+  
   <div class="ob-step" id="ob-7">
     <div class="ob-nav-row"><button class="ob-back" onclick="obGo(5)">&#8592;</button><div class="ob-prog" id="prog-7"></div></div>
     <div class="ob-h">what are you building toward?</div>
@@ -605,8 +570,16 @@ function renderHomeSetup(){
   var isSetup=hasPlan&&(hasNest||hasDebt);
   var showHowTo=!hasNest;  // show until they open their first nest
   if(isSetup){
-    return '<div class="card"><div class="card-hdr"><span class="card-title">monthly expenses</span><button class="btn-ruby btn-sm" onclick="nav(\'budget\')">&#8594; budget</button></div><p class="sub" style="font-size:12px;">'
-      +window._fmt(D.budget.plan.reduce(function(s,b){return s+(b.budgeted||0);},0))+'/mo planned across '+D.budget.plan.length+' categor'+(D.budget.plan.length===1?'y':'ies')+'</p></div>';
+    return '<div class="card">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+      +'<span class="card-title">monthly expenses</span>'
+      +'<span style="font-family:var(--ff-serif);font-size:16px;color:var(--cocoa);">'+window._fmt(D.budget.plan.reduce(function(s,b){return s+(b.budgeted||0);},0))+'/mo</span>'
+      +'</div>'
+      +'<p class="sub" style="font-size:12px;margin-bottom:10px;">'+D.budget.plan.length+' categor'+(D.budget.plan.length===1?'y':'ies')+' planned</p>'
+      +'<div style="display:flex;gap:8px;">'
+      +'<button class="btn-ruby btn-sm" style="flex:1;" onclick="openLogExpenseGeneral()">log expense</button>'
+      +'<button style="flex:1;background:var(--warm);border:none;color:white;padding:7px 14px;border-radius:99px;font-size:12px;cursor:pointer;" onclick="openLogExpenseGeneral()">+ something came up</button>'
+      +'</div></div>';
   }
   var steps=[
     {done:hasPlan,label:'plan your expenses',desc:'add everything that goes out every month. rent, utilities, subscriptions, fixed costs.',
@@ -738,6 +711,52 @@ function renderBudget(){
   const trueMargin=income-spent-nestAlloc;
 
   if(budgetView==='plan'){
+    // pre-compute monthly expenses collapsible HTML
+    var _monthlyExpHtml='';
+    if(D.budget.plan.length){
+      var _expRows=D.budget.plan.map(function(b){
+        var dueLbl=b.dueDay?('<div style="font-size:11px;color:var(--cocoa);opacity:.4;margin-top:1px;">due the '+b.dueDay+(b.dueDay===1?'st':b.dueDay===2?'nd':b.dueDay===3?'rd':'th')+'</div>'):'';
+        return '<div style="padding:10px 16px;border-bottom:1px solid var(--mist);display:flex;justify-content:space-between;align-items:center;">'
+          +'<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:15px;">'+(b.emoji||'\u{1F4CC}')+'</span>'
+          +'<div><div style="font-size:13px;">'+esc(b.name)+'</div>'+dueLbl+'</div></div>'
+          +'<div style="display:flex;align-items:center;gap:6px;">'
+          +'<span style="font-size:13px;font-weight:500;color:var(--cocoa);">'+$(b.budgeted)+'/mo</span>'
+          +'<button class="btn-icon" onclick="openEditBudget(\''+b.id+'\')">&#9998;</button>'
+          +'<button class="btn-icon" style="color:var(--ruby);opacity:.5;" onclick="removeBudgetItem(\''+b.id+'\')">&#10005;</button>'
+          +'</div></div>';
+      }).join('');
+      _monthlyExpHtml='<details class="card" style="padding:0;overflow:hidden;"'+(D.budget.plan.length<=3?' open':'')+'>'
+        +'<summary style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;list-style:none;">'
+        +'<span class="card-title">monthly expenses</span>'
+        +'<div style="display:flex;align-items:center;gap:8px;">'
+        +'<span style="font-family:var(--ff-serif);font-size:16px;color:var(--cocoa);">'+$(budgeted)+'/mo</span>'
+        +'<span style="font-size:10px;color:var(--cocoa);opacity:.3;">&#9660;</span>'
+        +'</div></summary>'
+        +'<div style="border-top:1px solid var(--mist);">'+_expRows+'</div>'
+        +'<div style="padding:10px 16px;display:flex;gap:8px;">'
+        +'<button class="btn-add" style="flex:1;" onclick="openAddBudget()">+ add expense</button>'
+        +'<button class="btn-secondary" style="flex:0;white-space:nowrap;" onclick="openBulkAddExpenses()">add multiple</button>'
+        +'</div></details>';
+    }
+    var _nestContribHtml='';
+    if(nestAlloc>0){
+      var _ncRows=D.nests.filter(function(n){return n.monthly>0;}).map(function(n){
+        var mo=null;
+        if(n.deadline){var dd=new Date(n.deadline+'-01'),now2=new Date();mo=Math.max(0,(dd.getFullYear()-now2.getFullYear())*12+(dd.getMonth()-now2.getMonth()));}
+        var lbl=mo!==null?(mo<=0?'reached goal':mo===1?'1 mo left':mo<=3?mo+' mo left':'until '+fmtDl(n.deadline)):'';
+        return '<div style="padding:10px 16px;border-bottom:1px solid var(--mist);display:flex;justify-content:space-between;align-items:center;"><div class="fc" style="gap:8px;"><span>'+n.emoji+'</span><span style="font-size:13px;">'+esc(n.name)+'</span></div>'
+          +'<div style="text-align:right;"><span style="font-size:13px;font-weight:500;color:var(--cocoa);">'+$(n.monthly)+'/mo</span>'+(lbl?'<div class="sub" style="font-size:11px;">'+lbl+'</div>':'')+'</div></div>';
+      }).join('');
+      _nestContribHtml='<details class="card" style="padding:0;overflow:hidden;">'
+        +'<summary style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;list-style:none;">'
+        +'<span class="card-title">nest contributions</span>'
+        +'<div style="display:flex;align-items:center;gap:8px;">'
+        +'<span style="font-family:var(--ff-serif);font-size:16px;color:var(--cocoa);">'+$(nestAlloc)+'/mo</span>'
+        +'<span style="font-size:10px;color:var(--cocoa);opacity:.3;">&#9660;</span>'
+        +'</div></summary>'
+        +'<div style="border-top:1px solid var(--mist);">'+_ncRows+'</div>'
+        +'</details>';
+    }
     const planRows=D.budget.plan.map(b=>`<div style="padding:12px 0;border-bottom:1px solid var(--mist);"><div class="fb"><div class="fc"><span style="font-size:16px;">${b.emoji||'\u{1F4CC}'}</span><div><span style="font-size:13px;font-weight:500;">${esc(b.name)}</span>${b.dueDay?'<div style="font-size:11px;color:var(--cocoa);opacity:.4;margin-top:1px;">due the '+b.dueDay+(b.dueDay===1?'st':b.dueDay===2?'nd':b.dueDay===3?'rd':'th')+'</div>':''}</div></div><div class="fc" style="gap:6px;"><span style="font-family:var(--ff-serif);font-size:16px;color:var(--cocoa);">${$(b.budgeted)}</span><button class="btn-icon" onclick="openEditBudget('${b.id}')">&#9998;</button><button class="btn-icon" style="color:var(--ruby);opacity:.6;" onclick="removeBudgetItem('${b.id}')">&#10005;</button></div></div></div>`).join('');
     document.getElementById('content').innerHTML=`<div class="stack fade-in">
       <div class="tab-row"><button class="tab-btn on">plan</button><button class="tab-btn" onclick="budgetView='track';renderBudget()">track</button></div>
@@ -752,7 +771,31 @@ function renderBudget(){
       <div class="card" style="background:${Math.abs(unallocated)<50?'rgba(106,140,110,.07)':'rgba(168,32,64,.05)'};border-color:${Math.abs(unallocated)<50?'rgba(106,140,110,.25)':'rgba(168,32,64,.18)'};">
         <div class="fb"><div class="fc" style="gap:8px;"><span style="font-size:20px;">${Math.abs(unallocated)<50?'&#9989;':'&#128270;'}</span><div><div style="font-size:13px;font-weight:500;">${Math.abs(unallocated)<50?'every dollar has a plan.':'these dollars are waiting on a job.'}</div><div class="sub">${!D.budget.plan.length?'add your expenses first to see your true margin':$(Math.abs(unallocated))+' '+(unallocated>=0?'not yet assigned':'over your income')}</div></div></div>${!D.budget.plan.length?`<button class="btn-sky btn-sm" style="flex-shrink:0;" onclick="openBulkAddExpenses()">plan</button>`:unallocated>50?`<button class="btn-sky btn-sm" style="flex-shrink:0;" onclick="openDistributeToNests(${Math.floor(unallocated)})">assign</button>`:''}</div>
       </div>
-      ${nestAlloc>0?`<div class="card"><div class="card-hdr"><span class="card-title">nest contributions</span><span style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);">${$(nestAlloc)}/mo</span></div>${D.nests.filter(n=>n.monthly>0).map(n=>{const mo=n.deadline?(()=>{const d=new Date(n.deadline+'-01'),now=new Date();const diff=Math.max(0,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()));return diff;})():null;const lbl=mo!==null?(mo<=0?'reached goal':mo===1?'1 mo left':mo<=3?mo+' mo left':'until '+fmtDl(n.deadline)):'';return`<div class="row-item"><div class="fb"><div class="fc"><span>${n.emoji}</span><span style="font-size:13px;">${esc(n.name)}</span></div><div style="text-align:right;"><span style="font-size:13px;font-weight:500;color:var(--cocoa);">${$(n.monthly)}/mo</span>${lbl?`<div class="sub" style="font-size:11px;">${lbl}</div>`:''}</div></div></div>`;}).join('')}</div>`:''}
+      ${D.budget.plan.length?`<details class="card" style="padding:0;overflow:hidden;" ${D.budget.plan.length<=3?'open':''}>
+        <summary style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;list-style:none;">
+          <span class="card-title">monthly expenses</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-family:var(--ff-serif);font-size:16px;color:var(--cocoa);">${$(budgeted)}/mo</span>
+            <span style="font-size:10px;color:var(--cocoa);opacity:.3;">&#9660;</span>
+          </div>
+        </summary>
+        <div style="border-top:1px solid var(--mist);">
+          ${D.budget.plan.map(b=>`<div style="padding:10px 16px;border-bottom:1px solid var(--mist);display:flex;justify-content:space-between;align-items:center;">
+            <div class="fc" style="gap:8px;"><span style="font-size:15px;">${b.emoji||'\u{1F4CC}'}</span><div><div style="font-size:13px;">${esc(b.name)}</div>${b.dueDay?`<div style="font-size:11px;color:var(--cocoa);opacity:.4;">due the ${b.dueDay}${b.dueDay===1?'st':b.dueDay===2?'nd':b.dueDay===3?'rd':'th'}</div>`:''}</div></div>
+            <div class="fc" style="gap:6px;">
+              <span style="font-size:13px;font-weight:500;color:var(--cocoa);">${$(b.budgeted)}/mo</span>
+              <button class="btn-icon" onclick="openEditBudget('${b.id}')">&#9998;</button>
+              <button class="btn-icon" style="color:var(--ruby);opacity:.5;" onclick="removeBudgetItem('${b.id}')">&#10005;</button>
+            </div>
+          </div>`).join('')}
+        </div>
+        <div style="padding:10px 16px;display:flex;gap:8px;">
+          <button class="btn-add" style="flex:1;" onclick="openAddBudget()">+ add expense</button>
+          <button class="btn-secondary" style="flex:0;white-space:nowrap;" onclick="openBulkAddExpenses()">add multiple</button>
+        </div>
+      </details>`:''}
+      ${_nestContribHtml}
+      
       ${!D.budget.plan.length?`<div class="card" style="text-align:center;padding:28px 20px;">
         <div style="font-size:32px;margin-bottom:10px;">&#128203;</div>
         <span class="card-title" style="display:block;margin-bottom:8px;">start with what goes out every month</span>
@@ -770,7 +813,7 @@ function renderBudget(){
 
   } else if(budgetView==='track'){
     const trackRows=D.budget.plan.map(b=>{const s=mData.actuals[b.id]||0;const diff=b.budgeted-s;const over=diff<0;const p=b.budgeted>0?pct(s,b.budgeted):0;
-      return`<div style="padding:13px 0;border-bottom:1px solid var(--mist);"><div class="fb" style="margin-bottom:4px;"><div class="fc"><span style="font-size:15px;">${b.emoji||'\u{1F4CC}'}</span><span style="font-size:13px;font-weight:500;">${esc(b.name)}</span></div><div class="fc" style="gap:8px;"><span style="font-size:11px;font-weight:600;color:${over?'var(--ruby)':'var(--sage)'};">${over?'':'+'}${$(Math.abs(diff))}</span><button class="btn-ruby btn-sm" onclick="openLogExpense('${b.id}')">log</button>${!over&&diff>=10?`<button class="btn-sky btn-sm" onclick="openReallocateFromBudget('${b.id}',${Math.floor(diff)})">allocate</button>`:''}</div></div><div class="fb" style="margin:2px 0 5px;"><span class="sub">spent ${$(s)}</span><span class="sub">planned ${$(b.budgeted)}</span></div><div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:${Math.min(100,p)}%;height:100%;background:${over?'var(--ruby)':p>80?'var(--warm)':'var(--sky)'};"></div></div></div>`;}).join('');
+      return`<div style="padding:13px 0;border-bottom:1px solid var(--mist);"><div class="fb" style="margin-bottom:4px;"><div class="fc"><span style="font-size:15px;">${b.emoji||'\u{1F4CC}'}</span><span style="font-size:13px;font-weight:500;">${esc(b.name)}</span></div><div class="fc" style="gap:8px;"><span style="font-size:11px;font-weight:600;color:${over?'var(--ruby)':'var(--sage)'};">${over?'':'+'}${$(Math.abs(diff))}</span><button class="btn-ruby btn-sm" onclick="openLogExpense('${b.id}')">log</button></div></div><div class="fb" style="margin:2px 0 5px;"><span class="sub">spent ${$(s)}</span><span class="sub">planned ${$(b.budgeted)}</span></div><div class="bar-track" style="height:4px;"><div class="bar-fill" style="width:${Math.min(100,p)}%;height:100%;background:${over?'var(--ruby)':p>80?'var(--warm)':'var(--sky)'};"></div></div></div>`;}).join('');
     const recent=(mData.logged||[]).slice(-5).reverse();
     const _uncatTotal=(mData.actuals||{})['uncategorized']||0;
     const _uncatRow=_uncatTotal>0?('<div style="padding:13px 0;border-bottom:1px solid var(--mist);"><div class="fb" style="margin-bottom:4px;"><div class="fc"><span style="font-size:15px;">📋</span><span style="font-size:13px;font-weight:500;">uncategorized / unexpected</span></div><span style="font-size:11px;font-weight:600;color:var(--ruby);">-'+$(_uncatTotal)+'</span></div><div class="sub">logged outside your plan</div></div>'):'';
@@ -784,8 +827,12 @@ function renderBudget(){
           <div class="stat-mini"><span class="stat-mini-lbl">true margin</span><span class="stat-mini-val" style="color:${trueMargin>=0?'var(--linen)':'var(--ruby)'};font-size:16px;">${$(trueMargin)}</span></div>
         </div>
       </div>
-      ${trueMargin>0?`<div class="suggestion"><span class="sug-icon">&#10022;</span><p class="sug-text">you have ${$(trueMargin)} in true margin this month. real money to direct toward a nest, a debt, or whatever matters most right now.</p></div>`:''}
-      ${D.budget.plan.length?('<div class="card" style="padding:0;overflow:hidden;"><div style="padding:16px 20px 0;" class="fb"><span class="card-title">category tracker</span><button class="btn-ruby btn-sm" onclick="openLogExpenseGeneral()">+ log expense</button></div><div style="padding:0 16px 8px;">'+(trackRows||'<p style="padding:16px 0;text-align:center;" class="sub">set up your plan first.</p>')+(_uncatRow||'')+'</div></div>'):('<div class="card" style="text-align:center;padding:24px;"><p class="sub">build your plan first, then this tab comes to life.</p><button class="btn-ruby btn-sm" style="margin-top:12px;" onclick="budgetView=\'plan\';renderBudget()">go to plan</button></div>')}      ${recent.length?`<div class="card"><span class="sec-head">recently logged</span>${recent.map(l=>`<div class="row-item"><div class="fb"><div><div style="font-size:13px;">${esc(l.note||l.category)}</div><div class="sub">${l.date} &middot; ${esc(l.category||'')}</div></div><div class="fc" style="gap:6px;"><span style="font-size:13px;font-weight:500;color:var(--ruby);">${$(l.amount)}</span><button class="btn-icon" style="color:var(--ruby);opacity:.5;" onclick="removeLoggedExpense('${l.id}')">&#10005;</button></div></div></div>`).join('')}</div>`:''}
+      ${trueMargin>0?`      ${D.budget.plan.length?('<div class="card" style="padding:0;overflow:hidden;"><div style="padding:16px 20px 0;" class="fb"><span class="card-title">category tracker</span><div style="display:flex;gap:6px;"><button class="btn-ruby btn-sm" onclick="openLogExpenseGeneral()">log expense</button><button style="background:var(--warm);border:none;color:white;padding:6px 12px;border-radius:99px;font-size:12px;cursor:pointer;white-space:nowrap;" onclick="openLogExpenseGeneral()">+ something came up</button></div></div><div style="padding:0 16px 8px;">'+(trackRows||'<p style="padding:16px 0;text-align:center;" class="sub">set up your plan first.</p>')+(_uncatRow||'')+'</div></div>'):('<div class="card" style="text-align:center;padding:24px;"><p class="sub">build your plan first, then this tab comes to life.</p><button class="btn-ruby btn-sm" style="margin-top:12px;" onclick="budgetView=\'plan\';renderBudget()">go to plan</button></div>')}      ${recent.length?`<div class="card"><span class="sec-head">recently logged</span>${recent.map(l=>`<div class="row-item"><div class="fb"><div><div style="font-size:13px;">${esc(l.note||l.category)}</div><div class="sub">${l.date} &middot; ${esc(l.category||'')}</div></div><div class="fc" style="gap:6px;"><span style="font-size:13px;font-weight:500;color:var(--ruby);">${$(l.amount)}</span><button class="btn-icon" style="color:var(--ruby);opacity:.5;" onclick="removeLoggedExpense('${l.id}')">&#10005;</button></div></div></div>`).join('')}</div>`:''}
+      <div style="background:rgba(195,219,238,.08);border:1px solid rgba(195,219,238,.2);border-radius:var(--r-md);padding:16px 18px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;"><div style="font-family:var(--ff-serif);font-size:17px;color:var(--cocoa);">make your margin work harder.</div><button class="btn-sky btn-sm" onclick="openAllocateSurplus()" style="flex-shrink:0;margin-left:10px;">allocate</button></div>
+        <p style="font-size:12px;color:var(--cocoa);opacity:.55;line-height:1.75;margin:0;">once you have tracked your spending for the month, any category where you came in under plan is an opportunity. route that surplus into a nest or toward a debt. small moves made consistently are what separate the people who get there from the ones who almost do.</p>
+
+    `:''}      </div>
     </div>`;
 
   } else if(budgetView==='history'){
@@ -822,6 +869,44 @@ function submitDistribute(nestIds){
   nestIds.forEach(id=>{const n=D.nests.find(x=>x.id===id);if(!n)return;const amt=parseFloat(document.getElementById('dist-'+id)?.value)||0;if(!amt)return;n.saved=Math.min(n.goal||999999,n.saved+amt);n.lastContributed=today();n.log=n.log||[];n.log.push({id:uid(),type:'distribution from budget',amount:amt,date:today(),balanceAfter:n.saved});D.transactions=D.transactions||[];D.transactions.push({id:uid(),type:'deposit',depositType:'distribution',nestId:id,amount:amt,date:today()});totalDist+=amt;});
   m.distributed=(m.distributed||0)+totalDist;
   save();closeModal('modal-distribute');renderHome();
+}
+
+function openAllocateSurplus(){
+  var mData=ensureMonth();
+  var surplus=D.budget.plan.map(function(b){
+    var s=mData.actuals[b.id]||0;var diff=b.budgeted-s;
+    return {b:b,diff:diff};
+  }).filter(function(x){return x.diff>=5;});
+  if(!surplus.length){alert('no categories with surplus yet. log some expenses first, then route what you saved.');return;}
+  var destNests=D.nests.filter(function(n){return!n.goal||n.saved<n.goal;});
+  var destDebts=D.debts.filter(function(d){return d.balance>0;});
+  if(!destNests.length&&!destDebts.length){alert('open a savings nest or add a debt first.');return;}
+  var el=document.createElement('div');
+  el.id='modal-alloc-surplus';el.className='overlay';
+  el.onclick=function(){closeModal('modal-alloc-surplus');};
+  var sheet=document.createElement('div');sheet.className='sheet';
+  sheet.onclick=function(e){e.stopPropagation();};
+  var srcOpts=surplus.map(function(x){return'<option value="'+x.b.id+'">'+x.b.name+' ('+$(x.diff)+' available)</option>';}).join('');
+  var dstOpts='<optgroup label="nests">'+destNests.map(function(n){return'<option value="nest:'+n.id+'">'+n.emoji+' '+esc(n.name)+'</option>';}).join('')+'</optgroup>'+(destDebts.length?'<optgroup label="debts">'+destDebts.map(function(d){return'<option value="debt:'+d.id+'">'+d.emoji+' '+esc(d.name)+'</option>';}).join('')+'</optgroup>':'');
+  sheet.innerHTML='<div class="sheet-hdr"><span class="sheet-title">route your surplus</span><button class="sheet-close" id="as-close">close</button></div>'
+    +'<p class="sub" style="margin-bottom:14px;line-height:1.6;">pick a category where you spent less than planned, set the amount, then choose where to send it.</p>'
+    +'<div class="stack" style="gap:12px;">'
+    +'<div class="field"><label class="lbl">surplus from</label><select class="inp" id="as-src" style="padding:11px 14px;">'+srcOpts+'</select></div>'
+    +'<div class="field"><label class="lbl">amount to route</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="as-amt" placeholder="0"/></div></div>'
+    +'<div class="field"><label class="lbl">send to</label><select class="inp" id="as-dst" style="padding:11px 14px;">'+dstOpts+'</select></div>'
+    +'<button class="btn-primary" id="as-submit">route it</button>'
+    +'</div>';
+  el.appendChild(sheet);document.body.appendChild(el);
+  document.getElementById('as-close').onclick=function(){closeModal('modal-alloc-surplus');};
+  document.getElementById('as-submit').onclick=function(){
+    var srcId=document.getElementById('as-src').value;
+    var dstVal=document.getElementById('as-dst').value;
+    var amt=parseFloat(document.getElementById('as-amt').value)||0;
+    if(!amt)return;
+    if(dstVal.startsWith('nest:')){var n=D.nests.find(function(x){return x.id===dstVal.slice(5);});if(n){n.saved=Math.min(n.goal||999999,n.saved+amt);n.log=n.log||[];n.log.push({id:uid(),type:'surplus allocation',amount:amt,date:today(),balanceAfter:n.saved});}}
+    else if(dstVal.startsWith('debt:')){var d=D.debts.find(function(x){return x.id===dstVal.slice(5);});if(d){d.balance=Math.max(0,d.balance-amt);d.payments=d.payments||[];d.payments.push({id:uid(),amount:amt,type:'surplus',date:today(),note:'surplus allocation'});}}
+    save();closeModal('modal-alloc-surplus');renderBudget();
+  };
 }
 
 function openReallocateFromBudget(budgetId,diff){
@@ -926,8 +1011,6 @@ function openBulkAddExpenses(){
     var ecn=document.getElementById('bulk-custom-name');var eca=document.getElementById('bulk-custom-amt');
     if(ecn&&ecn.value.trim())D.budget.plan.push({id:uid(),emoji:'\u{1F4CB}',name:ecn.value.trim(),group:'other',budgeted:parseFloat(eca&&eca.value)||0});
     save();closeModal('modal-bulk');budgetView='plan';renderBudget();
-    // surface subscription suggestions for any newly added items
-    var _subMatches=[];Object.keys(window._bulkSelected||{}).forEach(function(n){if(window._bulkSelected[n]){var s=getSubscriptionNestSuggestions(n);if(s&&s.length){var ns=s.filter(function(x){return!D.nests.find(function(y){return y.name.toLowerCase()===x.name.toLowerCase();});}).slice(0,2);ns.forEach(function(x){if(!_subMatches.find(function(y){return y.name===x.name;}))_subMatches.push(x);});}}});if(_subMatches.length)setTimeout(function(){showSubscriptionNestPrompt(_subMatches.slice(0,3),'your subscriptions');},300);
   };
 
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-bulk" onclick="closeModal('modal-bulk')"><div class="sheet" onclick="event.stopPropagation()">
@@ -1052,7 +1135,6 @@ function submitAddBudget(){
   const name=document.getElementById('nb-name').value.trim();if(!name)return;
   const _dd=parseInt(document.getElementById('nb-dueday')?.value)||0;D.budget.plan.push({id:uid(),emoji:document.getElementById('nb-emoji').value||'\u{1F4CC}',name,group:document.getElementById('nb-group').value||'other',budgeted:parseFloat(document.getElementById('nb-budgeted').value)||0,dueDay:_dd});
   save();closeModal('modal-budget');budgetView='plan';renderBudget();
-  const _ss=getSubscriptionNestSuggestions(name);if(_ss&&_ss.length){const _ns=_ss.filter(s=>!D.nests.find(n=>n.name.toLowerCase()===s.name.toLowerCase())).slice(0,3);if(_ns.length)showSubscriptionNestPrompt(_ns,name);}
 }
 function openEditBudget(id){
   const b=D.budget.plan.find(x=>x.id===id);if(!b)return;
@@ -1082,9 +1164,9 @@ function openLogExpense(budgetId){
   </div></div>`);
 }
 function openLogExpenseGeneral(){
-  const opts='<option value="uncategorized">\u{1F4CB} uncategorized / unexpected</option>'+D.budget.plan.map(b=>`<option value="${b.id}">${b.emoji||'\u{1F4CC}'} ${esc(b.name)}</option>`).join('');
+  const opts=D.budget.plan.map(b=>`<option value="${b.id}">${b.emoji||'\u{1F4CC}'} ${esc(b.name)}</option>`).join('');
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-log-exp" onclick="closeModal('modal-log-exp')"><div class="sheet" onclick="event.stopPropagation()">
-    <div class="sheet-hdr"><span class="sheet-title">log expense</span><button class="sheet-close" onclick="closeModal('modal-log-exp')">close</button></div>
+    <div class="sheet-hdr"><span class="sheet-title">log fixed expense</span><button class="sheet-close" onclick="closeModal('modal-log-exp')">close</button></div>
     <div class="stack" style="gap:12px;">
       <div class="field"><label class="lbl">category</label><select class="inp" id="log-cat" style="padding:11px 14px;">${opts}</select></div>
       <div class="field"><label class="lbl">amount</label><div class="amt-wrap"><span class="amt-pre">$</span><input type="number" class="amt-inp" id="log-amt" placeholder="0"/></div></div>
@@ -1163,16 +1245,20 @@ function renderNests(){
       <span style="font-size:12px;color:rgba(250,247,242,.55);display:block;margin-bottom:12px;">of ${$(totalGoal)} &middot; ${pct(totalSaved,totalGoal)}% funded &middot; ${$(totalMonthly)}/mo</span>
       <div class="bar-track" style="height:5px;"><div class="bar-fill" style="width:${pct(totalSaved,totalGoal)}%;height:100%;background:var(--sky);"></div></div>
     </div>
-    <div style="display:flex;gap:8px;"><button class="btn-add" style="flex:1;" onclick="openNewNest({})">+ new nest</button><button class="btn-secondary" style="flex:0;white-space:nowrap;" onclick="openBulkAddNests()">add multiple</button></div>
+    <div style="display:flex;gap:8px;margin-bottom:4px;">
+      <button class="btn-add" style="flex:1;" onclick="openNewNest({})">+ new nest</button>
+      <button class="btn-secondary" style="flex:0;white-space:nowrap;" onclick="openBulkAddNests()">add multiple</button>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+      <select onchange="nestSort=this.value;renderNests();" style="padding:4px 8px;border:1px solid var(--mist);border-radius:6px;font-size:11px;color:var(--cocoa);opacity:.6;background:var(--white);outline:none;cursor:pointer;width:auto;">
+        <option value="deadline" ${nestSort==='deadline'?'selected':''}>sort: date</option>
+        <option value="progress-asc" ${nestSort==='progress-asc'?'selected':''}>sort: least funded</option>
+        <option value="progress-desc" ${nestSort==='progress-desc'?'selected':''}>sort: most funded</option>
+        <option value="amount-desc" ${nestSort==='amount-desc'?'selected':''}>sort: largest goal</option>
+      </select>
+    </div>
       ${_nestsNudgeHtml}
-      <div style="display:flex;justify-content:flex-end;">
-        <select onchange="nestSort=this.value;renderNests();" style="padding:5px 10px;border:1px solid var(--mist);border-radius:8px;font-size:12px;color:var(--cocoa);background:var(--white);outline:none;cursor:pointer;display:inline-block;width:auto;max-width:160px;">
-          <option value="deadline" ${nestSort==='deadline'?'selected':''}>date</option>
-          <option value="progress-asc" ${nestSort==='progress-asc'?'selected':''}>least funded</option>
-          <option value="progress-desc" ${nestSort==='progress-desc'?'selected':''}>most funded</option>
-          <option value="amount-desc" ${nestSort==='amount-desc'?'selected':''}>largest goal</option>
-        </select>
-      </div>
+
     </div>
     ${sorted.length?cards:`<div class="card" style="text-align:center;padding:32px 20px;"><div style="font-size:40px;margin-bottom:12px;">&#129319;</div><span class="card-title" style="display:block;margin-bottom:6px;">no nests yet</span><p class="sub">add your first savings goal to start building.</p></div>`}
   </div>`;
@@ -1404,7 +1490,7 @@ function openBulkAddNests(){
   var available=COMMON.filter(function(c){return existingNames.indexOf(c.name.toLowerCase())<0;});
   var cats=[...new Set(COMMON.map(function(c){return c.cat;}))];
   var amounts={};
-  available.forEach(function(c){amounts[c.name]=c.monthly||0;});
+  available.forEach(function(c){amounts[c.name]=0;});
   var goals={};
   available.forEach(function(c){goals[c.name]=c.suggested||0;});
   window._bnSelected={};
@@ -1741,7 +1827,8 @@ function renderLife(){
     </div>
   </div>`;
   if(!hasKids&&!lifeEvents.length){
-    document.getElementById('content').innerHTML='<div class="stack fade-in">'+lifeCtxCard+'</div>';return;
+    const lifeNudge='<div style="background:rgba(106,140,110,.07);border:1px solid rgba(106,140,110,.22);border-radius:var(--r-md);padding:16px 18px;"><div style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);margin-bottom:6px;">context changes everything.</div><p style="font-size:12px;color:var(--cocoa);opacity:.55;line-height:1.75;">your financial picture is shaped by your life. tell us what is happening and we will surface the nests, suggestions, and priorities that fit your situation.</p></div>';
+    document.getElementById('content').innerHTML='<div class="stack fade-in">'+lifeNudge+lifeCtxCard+'</div>';return;
   }
 
   const tabs=[];
@@ -2128,8 +2215,22 @@ function submitQuickAdd(){const name=(document.getElementById('qa-name')?.value|
 function applyIncomeProjection(){const newIncome=parseFloat(document.getElementById('proj-income-input')?.value)||0;if(!newIncome)return;const budgeted=(D.budget.plan||[]).reduce((s,b)=>s+(b.budgeted||0),0);const nestMo=(D.nests||[]).reduce((s,n)=>s+(n.monthly||0),0);const debtMo=(D.debts||[]).filter(d=>d.active!==false).reduce((s,d)=>s+(d.min||0)+(d.extra||0),0);const newMargin=newIncome-budgeted-nestMo-debtMo;const curMargin=(D.monthlyIncome||0)-budgeted-nestMo-debtMo;const diff=newMargin-curMargin;const el=document.getElementById('proj-income-result');if(!el)return;el.innerHTML=`<div class="suggestion"><span class="sug-icon">&#128200;</span><p class="sug-text">at <strong>${$(newIncome)}/mo</strong> your margin would be <strong style="color:${diff>=0?'var(--sage)':'var(--ruby)'};">${$(newMargin)}</strong> (${diff>=0?'+':''}${$(diff)} from now).</p></div>`;}
 
 // renderLifeEventPills – kept for onboarding
-function renderLifeEventPills(){const wrap=document.getElementById('life-events-pills');if(!wrap)return;wrap.innerHTML=ALL_LIFE_EVENTS.map(e=>{const sel=(OB.lifeEvents||[]).includes(e.id);return`<button onclick="const i=OB.lifeEvents.indexOf('${e.id}');if(i>=0)OB.lifeEvents.splice(i,1);else OB.lifeEvents.push('${e.id}');renderLifeEventPills();" style="display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:99px;border:1.5px solid ${sel?'var(--ruby)':'var(--mist)'};background:${sel?'rgba(168,32,64,.07)':'var(--white)'};font-size:12px;cursor:pointer;color:${sel?'var(--ruby)':'var(--ink)'};font-weight:${sel?600:400};">${e.icon} ${e.label}</button>`;}).join('');}
-
+function renderLifeEventPills(){
+  var container=document.getElementById('life-events-pills');
+  if(!container)return;
+  if(!OB.lifeEvents)OB.lifeEvents=[];
+  container.innerHTML=ALL_LIFE_EVENTS.map(function(e){
+    var sel=OB.lifeEvents.indexOf(e.id)>=0;
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:var(--r-md);cursor:pointer;border:1.5px solid '+(sel?'var(--ruby)':'var(--mist)')+';background:'+(sel?'rgba(168,32,64,.04)':'var(--white)')+';-webkit-tap-highlight-color:transparent;" onclick="(function(el){var id=\''+e.id+'\';var idx=OB.lifeEvents.indexOf(id);if(idx>=0)OB.lifeEvents.splice(idx,1);else OB.lifeEvents.push(id);renderLifeEventPills();})(this)">'
+      +'<div style="display:flex;align-items:center;gap:10px;pointer-events:none;">'
+      +'<span style="font-size:18px;">'+e.icon+'</span>'
+      +'<div><div style="font-size:13px;font-weight:'+(sel?600:400)+';color:var(--cocoa);">'+e.label+'</div>'
+      +'<div style="font-size:11px;color:var(--cocoa);opacity:.4;">'+e.desc+'</div></div></div>'
+      +'<div style="width:20px;height:20px;border-radius:50%;border:2px solid '+(sel?'var(--ruby)':'var(--mist)')+';background:'+(sel?'var(--ruby)':'transparent')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;pointer-events:none;">'
+      +(sel?'<span style="font-size:10px;color:white;font-weight:700;">✓</span>':'')
+      +'</div></div>';
+  }).join('');
+}
 
 function syncBudgetNameToDebt(oldName,newName){
   if(!oldName||!newName||oldName===newName)return;
@@ -2144,10 +2245,24 @@ let _hausSec='howto';
 function settingsEditKid(btn){var id=btn.getAttribute('data-kid');closeModal('modal-settings');openEditKid(id);}
 function settingsRemoveKid(btn){var id=btn.getAttribute('data-kid');removeKid(id);if(document.getElementById('modal-settings'))return;openSettings('account');}
 
+function addNestIdea(btn){
+  try{
+    var d=JSON.parse(decodeURIComponent(btn.getAttribute('data-ni')));
+    if(D.nests.find(function(n){return n.name.toLowerCase()===d.name.toLowerCase();})){btn.textContent='already added';return;}
+    D.nests.push({id:uid(),emoji:d.emoji,name:d.name,goal:d.goal,saved:0,monthly:0,deadline:'',note:d.note||'',log:[]});
+    save();
+    btn.textContent='added ✓';
+    btn.disabled=true;
+    btn.style.background='var(--sage)';
+    // Refresh the recommendations view after a moment
+    setTimeout(function(){openSettings('recommendations');},800);
+  }catch(e){console.error(e);}
+}
+
 function openSettings(sec){
   if(sec)_hausSec=sec;
   const incList=D.income||[];
-  const incHtml=incList.map((inc,i)=>`<div class="fc" style="gap:8px;padding:8px 0;border-bottom:1px solid var(--mist);"><input class="inp" style="flex:1;padding:9px 12px;font-size:13px;" value="${esc(inc.label||inc.name||'')}" oninput="this.value=this.value.toLowerCase();" onblur="const x=D.income[${i}];if(x){x.label=this.value.trim();x.name=this.value.trim();save();}" placeholder="source"/><div class="amt-wrap" style="width:100px;border:1.5px solid var(--mist);border-radius:8px;padding:4px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" value="${inc.amount||0}" onblur="const x=D.income[${i}];if(x){x.amount=+this.value;D.monthlyIncome=D.income.reduce((s,y)=>{const f=y.freq||'monthly';const m=f==='weekly'?4.333:f==='biweekly'?2.167:f==='twice-monthly'?2:1;return s+(y.amount||0)*m;},0);save();}"/></div><select style="padding:8px 10px;border:1.5px solid var(--mist);border-radius:8px;font-size:12px;background:var(--white);color:var(--ink);outline:none;" onchange="const x=D.income[${i}];if(x){x.freq=this.value;D.monthlyIncome=D.income.reduce((s,y)=>{const f=y.freq||'monthly';const m=f==='weekly'?4.333:f==='biweekly'?2.167:f==='twice-monthly'?2:1;return s+(y.amount||0)*m;},0);save();}"><option value="monthly" ${(inc.freq||'monthly')==='monthly'?'selected':''}>monthly</option><option value="twice-monthly" ${inc.freq==='twice-monthly'?'selected':''}>2x/mo</option><option value="biweekly" ${inc.freq==='biweekly'?'selected':''}>biweekly</option><option value="weekly" ${inc.freq==='weekly'?'selected':''}>weekly</option></select><button class="btn-icon" onclick="D.income.splice(${i},1);D.monthlyIncome=D.income.reduce((s,y)=>{const f=y.freq||'monthly';const m=f==='weekly'?4.333:f==='biweekly'?2.167:f==='twice-monthly'?2:1;return s+(y.amount||0)*m;},0);save();openSettings();">&#10005;</button></div>`).join('');
+  const incHtml=incList.map((inc,i)=>`<div class="fc" style="gap:8px;padding:8px 0;border-bottom:1px solid var(--mist);"><input class="inp" style="flex:1;padding:9px 12px;font-size:13px;" value="${esc(inc.label||inc.name||'')}" oninput="this.value=this.value.toLowerCase();" onblur="const x=D.income[${i}];if(x){x.label=this.value.trim();x.name=this.value.trim();save();}" placeholder="source"/><div class="amt-wrap" style="width:100px;border:1.5px solid var(--mist);border-radius:8px;padding:4px 8px;"><span class="amt-pre">$</span><input type="number" class="amt-inp" value="${inc.amount||0}" onblur="const x=D.income[${i}];if(x){x.amount=+this.value;D.monthlyIncome=D.income.reduce((s,y)=>{const f=y.freq||'monthly';const m=f==='weekly'?4.333:f==='biweekly'?2.167:f==='twice-monthly'?2:1;return s+(y.amount||0)*m;},0);save();}"/></div><select style="padding:8px 10px;border:1.5px solid var(--mist);border-radius:8px;font-size:12px;background:var(--white);color:var(--ink);outline:none;" onchange="const x=D.income[${i}];if(x){x.freq=this.value;D.monthlyIncome=D.income.reduce((s,y)=>{const f=y.freq||'monthly';const m=f==='weekly'?4.333:f==='biweekly'?2.167:f==='twice-monthly'?2:1;return s+(y.amount||0)*m;},0);save();}"><option value="monthly" ${(inc.freq||'monthly')==='monthly'?'selected':''}>monthly</option><option value="twice-monthly" ${inc.freq==='twice-monthly'?'selected':''}>2x/mo</option><option value="biweekly" ${inc.freq==='biweekly'?'selected':''}>biweekly</option><option value="weekly" ${inc.freq==='weekly'?'selected':''}>weekly</option></select><button class="btn-sky btn-sm" onclick="const x=D.income[${i}];if(x){x.label=document.querySelector('#inc-lbl-${i}')?.value||x.label;x.amount=+document.querySelector('#inc-amt-${i}')?.value||x.amount;D.monthlyIncome=D.income.reduce((s,y)=>{const f=y.freq||'monthly';const m=f==='weekly'?4.333:f==='biweekly'?2.167:f==='twice-monthly'?2:1;return s+(y.amount||0)*m;},0);save();this.textContent='saved!';setTimeout(()=>this.textContent='save',1500);}">save</button><button class="btn-icon" onclick="D.income.splice(${i},1);D.monthlyIncome=D.income.reduce((s,y)=>{const f=y.freq||'monthly';const m=f==='weekly'?4.333:f==='biweekly'?2.167:f==='twice-monthly'?2:1;return s+(y.amount||0)*m;},0);save();openSettings();">&#10005;</button></div>`).join('');
 
   const TERMS=[
     {t:'APR / interest rate',d:'the annual cost of borrowing money as a percentage. on credit cards, the higher the APR, the more you pay when you carry a balance.'},
@@ -2229,8 +2344,39 @@ function openSettings(sec){
       ${connectFooter}`;
   } else {
     const method=D.debtMethod||'avalanche';
-    sectionHtml=`
+        var _niHtml=(function(){
+      var CATS=[
+        {cat:'streaming services',icon:'\u{1F4FA}',items:[{name:'netflix fund',note:'with ads plan',monthly:8,annual:96},{name:'spotify fund',note:'individual',monthly:13,annual:156},{name:'hulu fund',note:'with ads',monthly:10,annual:120},{name:'disney+ fund',note:'with ads',monthly:10,annual:120},{name:'apple tv+ fund',note:'monthly',monthly:13,annual:156},{name:'youtube premium fund',note:'individual',monthly:14,annual:168}]},
+        {cat:'fitness memberships',icon:'\u{1F3CB}\uFE0F',items:[{name:'gym membership fund',note:'avg monthly cost',monthly:50,annual:600},{name:'peloton app fund',note:'app one tier',monthly:16,annual:192},{name:'classpass fund',note:'entry tier',monthly:49,annual:588},{name:'strava fund',note:'annual plan',monthly:8,annual:96}]},
+        {cat:'annual memberships',icon:'\u{1F4E6}',items:[{name:'amazon prime fund',note:'monthly plan',monthly:15,annual:180},{name:'costco membership fund',note:'annual fee',monthly:6,annual:65},{name:'sams club fund',note:'annual fee',monthly:5,annual:55},{name:'aaa fund',note:'basic plan',monthly:8,annual:96}]},
+        {cat:'insurance deductibles',icon:'\u{1FA7A}',items:[{name:'health deductible fund',note:'set aside monthly',monthly:100,annual:1200},{name:'auto deductible fund',note:'typically $500-$1,000',monthly:50,annual:600},{name:'homeowners deductible fund',note:'1-2% of home value',monthly:100,annual:1200},{name:'renters deductible fund',note:'typically $500',monthly:25,annual:300},{name:'pet insurance deductible fund',note:'per-incident or annual',monthly:40,annual:480},{name:'dental deductible fund',note:'annual max',monthly:20,annual:240}]},
+        {cat:'software and tools',icon:'\u{1F4BB}',items:[{name:'adobe creative cloud fund',note:'individual plan',monthly:55,annual:660},{name:'microsoft 365 fund',note:'personal plan',monthly:10,annual:120},{name:'notion fund',note:'plus plan',monthly:16,annual:192},{name:'ai tools fund',note:'avg cost',monthly:20,annual:240}]},
+      ];
+      return CATS.map(function(cat){
+        var items=cat.items.map(function(it){
+          var ex=D.nests.find(function(n){return n.name.toLowerCase().indexOf(it.name.replace(' fund','').toLowerCase())>=0;});
+          var addBtn=ex?'':'<button class="btn-sky btn-sm" style="flex-shrink:0;" data-ni="'+encodeURIComponent(JSON.stringify({emoji:cat.icon,name:it.name,goal:it.annual,note:it.note}))+'" onclick="addNestIdea(this)">add nest</button>';
+          return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--mist);">'
+            +'<div><div style="font-size:13px;">'+(ex?'<span style="opacity:.4;text-decoration:line-through;">'+it.name+'</span> <span style="font-size:11px;color:var(--sage);">\u2713</span>':it.name)+'</div>'
+            +'<div class="sub">'+it.note+' &middot; $'+it.monthly+'/mo &middot; $'+it.annual+'/yr</div></div>'
+            +addBtn+'</div>';
+        }).join('');
+        return '<details style="border:1px solid var(--mist);border-radius:var(--r-md);margin-bottom:6px;overflow:hidden;">'
+          +'<summary style="padding:11px 14px;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;">'
+          +'<span style="font-size:16px;">'+cat.icon+'</span>'
+          +'<span style="font-size:13px;font-weight:500;">'+cat.cat+'</span></summary>'
+          +'<div style="padding:0 14px 10px;">'+items+'</div></details>';
+      }).join('');
+    })();
+sectionHtml=`
       <details class="card" style="padding:14px;">
+        <summary style="font-family:var(--ff-serif);font-size:19px;color:var(--cocoa);list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:0;">nest ideas <span style="font-size:11px;color:var(--cocoa);opacity:.4;font-family:var(--ff-sans);font-weight:normal;">tap to expand</span></summary>
+        <div style="margin-top:14px;">
+          <p style="font-size:12px;color:var(--cocoa);opacity:.5;margin-bottom:12px;line-height:1.65;">the nests people forget to plan for. tap any category, then add the ones that apply to you.</p>
+          ${_niHtml}
+        </div>
+      </details>
+            <details class="card" style="padding:14px;">
         <summary style="font-family:var(--ff-serif);font-size:19px;color:var(--cocoa);list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:0;">debt payoff strategies <span style="font-size:11px;color:var(--cocoa);opacity:.4;font-family:var(--ff-sans);font-weight:normal;">tap to expand</span></summary>
         <div style="margin-top:14px;">
           <p style="font-size:12.5px;color:var(--cocoa);opacity:.5;margin-bottom:12px;line-height:1.65;">all roads lead to zero. choose the approach that fits how you think.</p>
