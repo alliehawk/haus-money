@@ -603,7 +603,7 @@ function renderHomeSetup(){
   var hasDebt=D.debts.length>0;
   var hasNest=D.nests.filter(function(n){return!n.name.toLowerCase().includes('emergency');}).length>0;
   var isSetup=hasPlan&&(hasNest||hasDebt);
-  var showHowTo=!hasPlan&&!hasNest;
+  var showHowTo=!hasNest;  // show until they open their first nest
   if(isSetup){
     return '<div class="card"><div class="card-hdr"><span class="card-title">monthly expenses</span><button class="btn-ruby btn-sm" onclick="nav(\'budget\')">&#8594; budget</button></div><p class="sub" style="font-size:12px;">'
       +window._fmt(D.budget.plan.reduce(function(s,b){return s+(b.budgeted||0);},0))+'/mo planned across '+D.budget.plan.length+' categor'+(D.budget.plan.length===1?'y':'ies')+'</p></div>';
@@ -753,6 +753,15 @@ function renderBudget(){
       </div>
       ${renderHomeSetup()}
       ${nestAlloc>0?`<div class="card"><div class="card-hdr"><span class="card-title">nest contributions</span><span style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);">${$(nestAlloc)}/mo</span></div>${D.nests.filter(n=>n.monthly>0).map(n=>{const mo=n.deadline?(()=>{const d=new Date(n.deadline+'-01'),now=new Date();const diff=Math.max(0,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()));return diff;})():null;const lbl=mo!==null?(mo<=0?'reached goal':mo===1?'1 mo left':mo<=3?mo+' mo left':'until '+fmtDl(n.deadline)):'';return`<div class="row-item"><div class="fb"><div class="fc"><span>${n.emoji}</span><span style="font-size:13px;">${esc(n.name)}</span></div><div style="text-align:right;"><span style="font-size:13px;font-weight:500;color:var(--cocoa);">${$(n.monthly)}/mo</span>${lbl?`<div class="sub" style="font-size:11px;">${lbl}</div>`:''}</div></div></div>`;}).join('')}</div>`:''}
+      ${!D.budget.plan.length?`<div class="card" style="text-align:center;padding:28px 20px;">
+        <div style="font-size:32px;margin-bottom:10px;">&#128203;</div>
+        <span class="card-title" style="display:block;margin-bottom:8px;">start with what goes out every month</span>
+        <p class="sub" style="margin-bottom:16px;line-height:1.7;">add rent, utilities, subscriptions. the fixed stuff. once you see it all, your true margin becomes clear.</p>
+        <div style="display:flex;gap:8px;flex-direction:column;">
+          <button class="btn-primary" onclick="openBulkAddExpenses()">add multiple at once</button>
+          <button class="btn-secondary" onclick="openAddBudget()">+ add one at a time</button>
+        </div>
+      </div>`:''}
       <div style="display:flex;gap:8px;">
         <button class="btn-add" style="flex:1;" onclick="openAddBudget()">+ add expense</button>
         <button class="btn-secondary" style="flex:0;white-space:nowrap;" onclick="openBulkAddExpenses()">add multiple</button>
