@@ -613,7 +613,7 @@ function renderHomeSetup(){
       cta:'<div style="display:flex;gap:8px;margin-top:10px;"><button class="btn-primary" style="flex:1;" onclick="openBulkAddExpenses()">add multiple at once</button><button class="btn-secondary" style="flex:1;" onclick="openAddBudget()">+ add one</button></div>'},
     {done:hasDebt,label:'add your debts',desc:'connect debt payments to your budget so your margin is honest. if you have none, skip it.',
       cta:'<div style="display:flex;gap:8px;margin-top:10px;"><button class="btn-primary" style="flex:1;" onclick="nav(\'debt\')">'+(hasDebt?'manage debts':'+ add a debt')+'</button><button class="btn-ghost" style="flex:1;font-size:12px;" onclick="skipChecklistStep(this)">i have no debt</button></div>'},
-    {done:hasNest,label:'open your first nest',desc:'name what you are saving toward. a vacation, a down payment, an emergency cushion.',
+    {done:hasNest,label:'open your first savings nest',desc:'name what you are saving toward. a vacation, a down payment, an emergency cushion.',
       cta:'<div style="display:flex;gap:8px;margin-top:10px;"><button class="btn-primary" style="flex:1;" onclick="openBulkAddNests()">add multiple</button><button class="btn-secondary" style="flex:1;" onclick="openNewNest({})">+ add one</button></div>'},
   ];
   var html='<div class="card" style="padding:0;overflow:hidden;">';
@@ -712,6 +712,7 @@ function renderHome(){
         <div class="fb" style="border-top:1px solid var(--mist);margin-top:4px;padding-top:4px;"><span style="font-weight:500;">remaining to direct</span><span style="font-weight:600;color:${margin>=0?'var(--sage)':'var(--ruby)'};">${$(margin)}</span></div>
       </div>
     </div>
+        ${renderHomeSetup()}
         ${seasonalItems.length?`<div class="stack" style="gap:8px;"><span class="sec-head">on your radar</span>${seasonalItems.map(s=>{const targetNest=D.nests.find(n=>n.name.toLowerCase().includes(s.nestHint.toLowerCase()));return`<div class="suggestion"><span class="sug-icon">${s.icon}</span><div style="flex:1;"><p class="sug-text" style="margin-bottom:6px;"><strong>${s.label}:</strong> ${s.note}</p>${targetNest?`<button class="btn-sky btn-sm" onclick="openDeposit('${targetNest.id}')">add to ${esc(targetNest.name)}</button>`:`<button class="btn-sky btn-sm" onclick="prefillAndOpenNest('${esc(s.label.toLowerCase())} fund','${s.icon}',0,0)">create a nest</button>`}</div></div>`;}).join('')}</div>`:''}
     ${D.nests.length?`<div><div class="fb" style="margin-bottom:10px;"><span class="sec-head" style="margin:0;">your nests</span><button onclick="nav('nests',document.querySelector('.nb[data-tab=nests]'))" style="background:none;border:none;font-size:11px;color:var(--ruby);font-weight:500;cursor:pointer;">see all</button></div><div class="g2" style="gap:10px;">${topNests}</div></div>`:`<div class="card" style="text-align:center;padding:32px 20px;"><div style="font-size:36px;margin-bottom:10px;">&#129319;</div><span class="card-title" style="display:block;margin-bottom:6px;">no nests yet</span><p class="sub">add your first savings goal and give this money a home.</p><button class="btn-ruby btn-sm" style="margin-top:14px;" onclick="nav('nests',document.querySelector('.nb[data-tab=nests]'))">+ create a nest</button></div>`}
     <div style="text-align:center;padding:4px 0;"><span style="font-family:var(--ff-serif);font-size:12px;color:var(--cocoa);opacity:.15;font-style:italic;letter-spacing:1px;">by solari haus</span></div>
@@ -751,7 +752,6 @@ function renderBudget(){
       <div class="card" style="background:${Math.abs(unallocated)<50?'rgba(106,140,110,.07)':'rgba(168,32,64,.05)'};border-color:${Math.abs(unallocated)<50?'rgba(106,140,110,.25)':'rgba(168,32,64,.18)'};">
         <div class="fb"><div class="fc" style="gap:8px;"><span style="font-size:20px;">${Math.abs(unallocated)<50?'&#9989;':'&#128270;'}</span><div><div style="font-size:13px;font-weight:500;">${Math.abs(unallocated)<50?'every dollar has a plan.':'these dollars are waiting on a job.'}</div><div class="sub">${!D.budget.plan.length?'add your expenses first to see your true margin':$(Math.abs(unallocated))+' '+(unallocated>=0?'not yet assigned':'over your income')}</div></div></div>${!D.budget.plan.length?`<button class="btn-sky btn-sm" style="flex-shrink:0;" onclick="openBulkAddExpenses()">plan</button>`:unallocated>50?`<button class="btn-sky btn-sm" style="flex-shrink:0;" onclick="openDistributeToNests(${Math.floor(unallocated)})">assign</button>`:''}</div>
       </div>
-      ${renderHomeSetup()}
       ${nestAlloc>0?`<div class="card"><div class="card-hdr"><span class="card-title">nest contributions</span><span style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);">${$(nestAlloc)}/mo</span></div>${D.nests.filter(n=>n.monthly>0).map(n=>{const mo=n.deadline?(()=>{const d=new Date(n.deadline+'-01'),now=new Date();const diff=Math.max(0,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()));return diff;})():null;const lbl=mo!==null?(mo<=0?'reached goal':mo===1?'1 mo left':mo<=3?mo+' mo left':'until '+fmtDl(n.deadline)):'';return`<div class="row-item"><div class="fb"><div class="fc"><span>${n.emoji}</span><span style="font-size:13px;">${esc(n.name)}</span></div><div style="text-align:right;"><span style="font-size:13px;font-weight:500;color:var(--cocoa);">${$(n.monthly)}/mo</span>${lbl?`<div class="sub" style="font-size:11px;">${lbl}</div>`:''}</div></div></div>`;}).join('')}</div>`:''}
       ${!D.budget.plan.length?`<div class="card" style="text-align:center;padding:28px 20px;">
         <div style="font-size:32px;margin-bottom:10px;">&#128203;</div>
@@ -925,7 +925,7 @@ function openBulkAddExpenses(){
     });
     var ecn=document.getElementById('bulk-custom-name');var eca=document.getElementById('bulk-custom-amt');
     if(ecn&&ecn.value.trim())D.budget.plan.push({id:uid(),emoji:'\u{1F4CB}',name:ecn.value.trim(),group:'other',budgeted:parseFloat(eca&&eca.value)||0});
-    save();closeModal('modal-bulk');renderBudget();
+    save();closeModal('modal-bulk');budgetView='plan';renderBudget();
     // surface subscription suggestions for any newly added items
     var _subMatches=[];Object.keys(window._bulkSelected||{}).forEach(function(n){if(window._bulkSelected[n]){var s=getSubscriptionNestSuggestions(n);if(s&&s.length){var ns=s.filter(function(x){return!D.nests.find(function(y){return y.name.toLowerCase()===x.name.toLowerCase();});}).slice(0,2);ns.forEach(function(x){if(!_subMatches.find(function(y){return y.name===x.name;}))_subMatches.push(x);});}}});if(_subMatches.length)setTimeout(function(){showSubscriptionNestPrompt(_subMatches.slice(0,3),'your subscriptions');},300);
   };
@@ -975,7 +975,7 @@ function getSubscriptionNestSuggestions(name){
   const n=(name||'').toLowerCase();
   if(n.includes('stream')||n.includes('netflix')||n.includes('hulu')||n.includes('disney')||n.includes('spotify')||n.includes('apple music'))return SUBSCRIPTION_NEST_SUGGESTIONS.streaming;
   if(n.includes('fitness')||n.includes('gym')||n.includes('peloton')||n.includes('strava')||n.includes('workout'))return SUBSCRIPTION_NEST_SUGGESTIONS.fitness;
-  if(n.includes('amazon')||n.includes('costco')||n.includes('sams')||n.includes('membership')||n.includes('prime'))return SUBSCRIPTION_NEST_SUGGESTIONS.memberships;
+  if(n.includes('amazon')||n.includes('costco')||n.includes('sams')||n.includes('membership')||n.includes('prime')||n.includes('annual'))return SUBSCRIPTION_NEST_SUGGESTIONS.memberships;
   if(n.includes('software')||n.includes('adobe')||n.includes('microsoft')||n.includes('subscription')||n.includes('cloud'))return SUBSCRIPTION_NEST_SUGGESTIONS.software;
   return null;
 }
@@ -1051,7 +1051,7 @@ function openAddBudget(){
 function submitAddBudget(){
   const name=document.getElementById('nb-name').value.trim();if(!name)return;
   const _dd=parseInt(document.getElementById('nb-dueday')?.value)||0;D.budget.plan.push({id:uid(),emoji:document.getElementById('nb-emoji').value||'\u{1F4CC}',name,group:document.getElementById('nb-group').value||'other',budgeted:parseFloat(document.getElementById('nb-budgeted').value)||0,dueDay:_dd});
-  save();closeModal('modal-budget');renderBudget();
+  save();closeModal('modal-budget');budgetView='plan';renderBudget();
   const _ss=getSubscriptionNestSuggestions(name);if(_ss&&_ss.length){const _ns=_ss.filter(s=>!D.nests.find(n=>n.name.toLowerCase()===s.name.toLowerCase())).slice(0,3);if(_ns.length)showSubscriptionNestPrompt(_ns,name);}
 }
 function openEditBudget(id){
@@ -1165,12 +1165,14 @@ function renderNests(){
     </div>
     <div style="display:flex;gap:8px;"><button class="btn-add" style="flex:1;" onclick="openNewNest({})">+ new nest</button><button class="btn-secondary" style="flex:0;white-space:nowrap;" onclick="openBulkAddNests()">add multiple</button></div>
       ${_nestsNudgeHtml}
-      <select onchange="nestSort=this.value;renderNests();" style="padding:5px 10px;border:1px solid var(--mist);border-radius:8px;font-size:12px;color:var(--cocoa);background:var(--white);outline:none;cursor:pointer;">
-        <option value="deadline" ${nestSort==='deadline'?'selected':''}>sort: by date</option>
-        <option value="progress-asc" ${nestSort==='progress-asc'?'selected':''}>sort: least funded</option>
-        <option value="progress-desc" ${nestSort==='progress-desc'?'selected':''}>sort: most funded</option>
-        <option value="amount-desc" ${nestSort==='amount-desc'?'selected':''}>sort: largest goal</option>
-      </select>
+      <div style="display:flex;justify-content:flex-end;">
+        <select onchange="nestSort=this.value;renderNests();" style="padding:5px 10px;border:1px solid var(--mist);border-radius:8px;font-size:12px;color:var(--cocoa);background:var(--white);outline:none;cursor:pointer;display:inline-block;width:auto;max-width:160px;">
+          <option value="deadline" ${nestSort==='deadline'?'selected':''}>date</option>
+          <option value="progress-asc" ${nestSort==='progress-asc'?'selected':''}>least funded</option>
+          <option value="progress-desc" ${nestSort==='progress-desc'?'selected':''}>most funded</option>
+          <option value="amount-desc" ${nestSort==='amount-desc'?'selected':''}>largest goal</option>
+        </select>
+      </div>
     </div>
     ${sorted.length?cards:`<div class="card" style="text-align:center;padding:32px 20px;"><div style="font-size:40px;margin-bottom:12px;">&#129319;</div><span class="card-title" style="display:block;margin-bottom:6px;">no nests yet</span><p class="sub">add your first savings goal to start building.</p></div>`}
   </div>`;
@@ -1373,10 +1375,7 @@ function renderDebt(){
     <div style="display:flex;gap:8px;"><button class="btn-add" style="flex:1;" onclick="openAddDebt()">+ add a debt</button><button class="btn-secondary" style="flex:1;" onclick="openBulkAddDebts()">add multiple</button></div>
     ${_debtNudge}
     ${cards}
-    <div style="display:flex;gap:8px;padding-top:4px;">
-      <button class="btn-add" style="flex:1;" onclick="openNewNest({})">+ new nest</button>
-      <button class="btn-secondary" style="flex:0;white-space:nowrap;" onclick="openBulkAddNests()">add multiple</button>
-    </div>
+
   </div>`;
 }
 
@@ -1548,8 +1547,9 @@ function openBulkAddDebts(){
       var debt={id:uid(),emoji:typeDef?typeDef.emoji:'\u{1F4B3}',name:r.name.trim()||typeDef.name,balance:r.balance,originalBalance:r.balance,rate:r.rate,min:r.min,extra:r.extra,payments:[]};
       D.debts.push(debt);
       if(r.track&&r.min>0){
-        var existing=(D.budget.plan||[]).find(function(b){return b.name.toLowerCase()===(debt.name.toLowerCase());});
-        if(!existing)D.budget.plan.push({id:uid(),emoji:debt.emoji,name:debt.name,group:'housing',budgeted:r.min,debtId:debt.id});
+        var existing=(D.budget.plan||[]).find(function(b){return b.name.toLowerCase()===debt.name.toLowerCase()||b.debtId===debt.id;});
+        if(!existing){D.budget.plan=D.budget.plan||[];D.budget.plan.push({id:uid(),emoji:debt.emoji,name:debt.name,group:'housing',budgeted:r.min,debtId:debt.id});}
+        else{existing.budgeted=r.min;existing.debtId=debt.id;}
       }
     });
     save();closeModal('modal-bulk-debts');renderDebt();
