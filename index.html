@@ -151,15 +151,21 @@ button{cursor:pointer;}
 <div id="onboarding">
 <div class="ob-wrap">
   <div class="ob-step on" id="ob-0">
-    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:52px 0 28px;">
-      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--ruby);font-weight:600;margin-bottom:14px;">haus money</div>
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:44px 0 20px;">
+      <div style="font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--ruby);font-weight:600;margin-bottom:12px;">haus money</div>
       <div class="splash-logo">your margins,<br><em>tended.</em></div>
-      <p style="font-size:13px;color:var(--cocoa);opacity:.5;line-height:1.8;max-width:280px;margin:0 auto 28px;">most people avoid looking at their money.<br>facing it changes everything.</p>
-      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cocoa);opacity:.18;margin-top:28px;">by solari haus</div>
+      <p style="font-size:13px;color:var(--cocoa);opacity:.5;line-height:1.8;max-width:280px;margin:0 auto 20px;">most people avoid looking at their money.<br>facing it changes everything.</p>
     </div>
     <button class="btn-primary" onclick="obGo(1)">let's get started</button>
-    <button class="btn-ghost" style="margin-top:8px;font-size:12px;color:var(--cocoa);opacity:.5;" onclick="document.getElementById('ob0-how').classList.toggle('hidden')">how does this work?</button>
-    <div id="ob0-how" class="hidden" style="margin-top:12px;text-align:left;">${['add every fixed expense in your budget tab','add any debts you carry','your home tab reveals your true margin','open nests for what you want to save toward','log expenses as you go to stay honest'].map((s,i)=>`<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--mist);font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">${i+1}</span>${s}</div>`).join('')}</div>
+    <button class="btn-ghost" style="margin-top:10px;font-size:12px;color:var(--cocoa);opacity:.5;" onclick="document.getElementById('ob0-how').classList.toggle('hidden')">how does this work?</button>
+    <div id="ob0-how" class="hidden" style="margin-top:10px;text-align:left;">
+      <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--mist);font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">1</span>add every fixed expense in your budget tab</div>
+      <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--mist);font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">2</span>add any debts you carry</div>
+      <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--mist);font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">3</span>your home tab reveals your true margin</div>
+      <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--mist);font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">4</span>open nests for what you want to save toward</div>
+      <div style="display:flex;gap:10px;padding:8px 0;font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">5</span>log expenses as you go to stay honest</div>
+    </div>
+    <div style="text-align:center;margin-top:20px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cocoa);opacity:.18;">by solari haus</div>
     <p style="text-align:center;font-size:11px;color:var(--cocoa);opacity:.3;margin-top:10px;line-height:1.8;">about three minutes. future you will appreciate this.</p>
     <p style="text-align:center;font-size:10px;color:var(--cocoa);opacity:.3;margin-top:8px;line-height:1.6;">your data stays on your device.<br>nothing is collected, stored, or shared.</p>
   </div>
@@ -551,7 +557,7 @@ function launchApp(){
   const monthly=OB.income.reduce((s,i)=>{const a=i.amount||0,f={monthly:1,biweekly:2.167,weekly:4.333,'twice-monthly':2}[i.freq]||1;return s+a*f;},0);
   let nests=[...OB.customNests];
   if(!nests.find(n=>n.name.toLowerCase().includes('emergency')))
-    nests.unshift({id:uid(),emoji:'\u{1F6E1}',name:'emergency fund',goal:5000,saved:0,monthly:200,deadline:'',note:'start here. even a small cushion changes how you move through the world.',lastContributed:null,startingGoal:5000,log:[]});
+    nests.unshift({id:uid(),emoji:'\u{1F6E1}',name:'emergency fund',goal:5000,saved:0,monthly:0,deadline:'',note:'start here. even a small cushion changes how you move through the world.',lastContributed:null,startingGoal:5000,log:[]});
   D={name:lc(OB.name),shared:OB.shared,income:OB.income,monthlyIncome:Math.round(monthly),email:OB.email,
     paydays:OB.paydays,budget:{plan:[],months:{}},nests,debts:[],transactions:[],
     kids:OB.kids.map(k=>({...k,chores:[],allowance:0,allowanceSplit:{givePct:10,savePct:25,spendPct:65},allowanceDay:'sunday',allowanceFreq:'weekly',birthday:'',activities:[]})),
@@ -602,7 +608,7 @@ function renderHome(){
   // true remaining = income minus all planned commitments
   const budgeted=D.budget.plan.reduce((s,b)=>s+(b.budgeted||0),0);
   const nestMo=D.nests.reduce((s,n)=>s+(n.monthly||0),0);
-  const debtMo=D.debts.reduce((s,d)=>s+(d.min||0)+(d.extra||0),0);
+  const debtMo=D.debts.filter(d=>!(D.budget.plan||[]).find(b=>b.debtId===d.id)).reduce((s,d)=>s+(d.min||0)+(d.extra||0),0);
   const distributed=mData.distributed||0;
   const margin=income-budgeted-nestMo-debtMo;
   const nestedThisMo=D.nests.reduce((s,n)=>{const m=mData;return s+(n.log||[]).filter(l=>l.date&&l.date.startsWith(getCurMonth())).reduce((ss,l)=>ss+(l.type==='withdrawal'?0:l.amount||0),0);},0);
@@ -684,7 +690,7 @@ function renderBudget(){
         </div>
       </div>
       <div class="card" style="background:${Math.abs(unallocated)<50?'rgba(106,140,110,.07)':'rgba(168,32,64,.05)'};border-color:${Math.abs(unallocated)<50?'rgba(106,140,110,.25)':'rgba(168,32,64,.18)'};">
-        <div class="fb"><div class="fc" style="gap:8px;"><span style="font-size:20px;">${Math.abs(unallocated)<50?'&#9989;':'&#128270;'}</span><div><div style="font-size:13px;font-weight:500;">${Math.abs(unallocated)<50?'every dollar has a plan.':'these dollars are waiting on a job.'}</div><div class="sub">${!D.budget.plan.length?'add your expenses first to see your true margin':$(Math.abs(unallocated))+' '+(unallocated>=0?'not yet assigned':'over your income')}</div></div></div>${unallocated>50?`<button class="btn-sky btn-sm" style="flex-shrink:0;" onclick="openDistributeToNests(${Math.floor(unallocated)})">assign</button>`:''}</div>
+        <div class="fb"><div class="fc" style="gap:8px;"><span style="font-size:20px;">${Math.abs(unallocated)<50?'&#9989;':'&#128270;'}</span><div><div style="font-size:13px;font-weight:500;">${Math.abs(unallocated)<50?'every dollar has a plan.':'these dollars are waiting on a job.'}</div><div class="sub">${!D.budget.plan.length?'add your expenses first to see your true margin':$(Math.abs(unallocated))+' '+(unallocated>=0?'not yet assigned':'over your income')}</div></div></div>${!D.budget.plan.length?`<button class="btn-sky btn-sm" style="flex-shrink:0;" onclick="openBulkAddExpenses()">plan</button>`:unallocated>50?`<button class="btn-sky btn-sm" style="flex-shrink:0;" onclick="openDistributeToNests(${Math.floor(unallocated)})">assign</button>`:''}</div>
       </div>
       ${!D.budget.plan.length?`<div class="card" style="text-align:center;padding:28px 20px;"><div style="font-size:32px;margin-bottom:10px;">&#128203;</div><span class="card-title" style="display:block;margin-bottom:8px;">start with what goes out every month</span><p class="sub" style="margin-bottom:16px;line-height:1.7;">add rent, utilities, subscriptions. the fixed stuff. once you see it all, your true margin becomes clear.</p><div style="display:flex;gap:8px;flex-direction:column;"><button class="btn-primary" onclick="openBulkAddExpenses()">add multiple at once</button><button class="btn-secondary" onclick="openAddBudget()">+ add one at a time</button></div></div>`:`<div class="card" style="padding:0;overflow:hidden;"><div style="padding:16px 20px 0;" class="fb"><span class="card-title">monthly expenses</span><button class="btn-ruby btn-sm" onclick="openAddBudget()">+ add</button></div><div style="padding:0 16px 8px;">${planRows}</div></div>`}
       ${nestAlloc>0?`<div class="card"><div class="card-hdr"><span class="card-title">nest contributions</span><span style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);">${$(nestAlloc)}/mo</span></div>${D.nests.filter(n=>n.monthly>0).map(n=>{const mo=n.deadline?(()=>{const d=new Date(n.deadline+'-01'),now=new Date();const diff=Math.max(0,(d.getFullYear()-now.getFullYear())*12+(d.getMonth()-now.getMonth()));return diff;})():null;const lbl=mo!==null?(mo<=0?'reached goal':mo===1?'1 mo left':mo<=3?mo+' mo left':'until '+fmtDl(n.deadline)):'';return`<div class="row-item"><div class="fb"><div class="fc"><span>${n.emoji}</span><span style="font-size:13px;">${esc(n.name)}</span></div><div style="text-align:right;"><span style="font-size:13px;font-weight:500;color:var(--cocoa);">${$(n.monthly)}/mo</span>${lbl?`<div class="sub" style="font-size:11px;">${lbl}</div>`:''}</div></div></div>`;}).join('')}</div>`:''}
@@ -852,6 +858,8 @@ function openBulkAddExpenses(){
     var ecn=document.getElementById('bulk-custom-name');var eca=document.getElementById('bulk-custom-amt');
     if(ecn&&ecn.value.trim())D.budget.plan.push({id:uid(),emoji:'\u{1F4CB}',name:ecn.value.trim(),group:'other',budgeted:parseFloat(eca&&eca.value)||0});
     save();closeModal('modal-bulk');renderBudget();
+    // surface subscription suggestions for any newly added items
+    var _subMatches=[];Object.keys(window._bulkSelected||{}).forEach(function(n){if(window._bulkSelected[n]){var s=getSubscriptionNestSuggestions(n);if(s&&s.length){var ns=s.filter(function(x){return!D.nests.find(function(y){return y.name.toLowerCase()===x.name.toLowerCase();});}).slice(0,2);ns.forEach(function(x){if(!_subMatches.find(function(y){return y.name===x.name;}))_subMatches.push(x);});}}});if(_subMatches.length)setTimeout(function(){showSubscriptionNestPrompt(_subMatches.slice(0,3),'your subscriptions');},300);
   };
 
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-bulk" onclick="closeModal('modal-bulk')"><div class="sheet" onclick="event.stopPropagation()">
@@ -1278,9 +1286,9 @@ function renderDebt(){
 
   const strategyHtml='';
 
-  const _nonEfNests=D.nests.filter(n=>!n.name.toLowerCase().includes('emergency'));
-  const _nestsNudge=_nonEfNests.length===0?`<div style="background:rgba(195,219,238,.1);border:1px solid rgba(195,219,238,.25);border-radius:var(--r-md);padding:16px 18px;"><div style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);margin-bottom:6px;">your margin is waiting.</div><p style="font-size:12px;color:var(--cocoa);opacity:.55;line-height:1.7;margin-bottom:12px;">nests are where your goals live. a vacation, a new car, a down payment, an emergency cushion. once you name what you are saving toward, your margin starts working for you instead of sitting still.</p><button class="btn-sky btn-sm" onclick="openNewNest({})">open your first nest</button></div>`:'';
+
   const _debtNudge=D.debts.length===0?`<div style="background:rgba(106,140,110,.07);border:1px solid rgba(106,140,110,.22);border-radius:var(--r-md);padding:16px 18px;"><div style="font-family:var(--ff-serif);font-size:18px;color:var(--cocoa);margin-bottom:6px;">nothing owed. keep it that way.</div><p style="font-size:12px;color:var(--cocoa);opacity:.55;line-height:1.7;">if you do carry debt, adding it here connects your payments to your budget and shows you a real payoff timeline. it makes your margin picture honest.</p></div>`:'';
+  const _nonEfNests=D.nests.filter(function(n){return!n.name.toLowerCase().includes('emergency');});
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
     <div class="card-dark" style="background:var(--cocoa);">
       <span class="sec-head" style="color:rgba(220,235,245,.8);margin-bottom:8px;">${total>0?'total debt':'debt'}</span>
@@ -1636,18 +1644,25 @@ function renderLife(){
   const hasKids=D.kids&&D.kids.length>0;
   const lifeEvents=(D.lifeEvents||[]);
 
+  // always show the life context card with appropriate content
+  const hasLifeContent=hasKids||lifeEvents.length>0;
+  const lifeCtxCard=hasLifeContent?`<div style="border:1px solid var(--mist);border-radius:var(--r-md);padding:12px 14px;background:rgba(61,35,20,.02);">
+    <div class="fb"><div class="fc" style="gap:8px;flex-wrap:wrap;">
+      ${lifeEvents.length?ALL_LIFE_EVENTS.filter(e=>lifeEvents.includes(e.id)).map(e=>`<span style="padding:4px 10px;border-radius:99px;background:rgba(168,32,64,.06);border:1px solid rgba(168,32,64,.14);font-size:11px;color:var(--ruby);">${e.icon} ${e.label}</span>`).join(''):''}
+      ${!hasKids?'<button class="btn-ruby btn-sm" style="font-size:11px;padding:4px 10px;" onclick="openAddKid()">+ add dependent</button>':''}
+      <button class="btn-sky btn-sm" style="font-size:11px;padding:4px 10px;" onclick="openManageLifeEvents()">${lifeEvents.length?'edit events':'+ life events'}</button>
+    </div></div>
+  </div>`:`<div class="card" style="text-align:center;padding:32px 20px;">
+    <div style="font-size:36px;margin-bottom:10px;">&#10022;</div>
+    <span class="card-title" style="display:block;margin-bottom:6px;">your life, your context</span>
+    <p class="sub" style="line-height:1.75;max-width:280px;margin:0 auto 16px;">add the things shaping your financial life right now. the more context you share, the smarter your plan becomes.</p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn-ruby btn-sm" onclick="openAddKid()">+ add a child or dependent</button>
+      <button class="btn-sky btn-sm" onclick="openManageLifeEvents()">+ life events</button>
+    </div>
+  </div>`;
   if(!hasKids&&!lifeEvents.length){
-    document.getElementById('content').innerHTML=`<div class="stack fade-in">
-      <div class="card" style="text-align:center;padding:40px 20px;">
-        <div style="font-size:44px;margin-bottom:12px;">&#10022;</div>
-        <span class="card-title" style="display:block;margin-bottom:8px;">your life, your context</span>
-        <p class="sub" style="line-height:1.75;max-width:280px;margin:0 auto;">add the things shaping your financial life right now. the more context you share, the smarter your plan becomes.</p>
-        <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;justify-content:center;">
-          <button class="btn-ruby btn-sm" onclick="openAddKid()">+ add a child or dependent</button>
-          <button class="btn-sky btn-sm" onclick="openManageLifeEvents()">+ life events</button>
-        </div>
-      </div>
-    </div>`;return;
+    document.getElementById('content').innerHTML='<div class="stack fade-in">'+lifeCtxCard+'</div>';return;
   }
 
   const tabs=[];
@@ -1729,6 +1744,7 @@ function renderLife(){
   document.getElementById('content').innerHTML=`<div class="stack fade-in">
     <div class="tab-row">${tabs.map(t=>`<button class="tab-btn ${t.id===activeLifeSection?'on':''}" onclick="activeLifeSection='${t.id}';renderLife()">${t.label}</button>`).join('')}</div>
     ${sectionHtml}
+    ${lifeCtxCard}
   </div>`;
 }
 
@@ -1840,7 +1856,7 @@ function getAgeInsight(age){const n=parseInt(age)||0;if(n<=2)return AGE_INSIGHTS
 function openManageLifeEvents(){
   document.body.insertAdjacentHTML('beforeend',`<div class="overlay" id="modal-life-events" onclick="closeModal('modal-life-events')"><div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-hdr"><span class="sheet-title">life events</span><button class="sheet-close" onclick="closeModal('modal-life-events')">close</button></div>
-    <p class="sub" style="margin-bottom:12px;line-height:1.65;">select everything that applies. tap again to remove.</p>
+    <p class="sub" style="margin-bottom:12px;line-height:1.65;">tap anywhere on a row to select or deselect it.</p>
     <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px;">
       ${ALL_LIFE_EVENTS.map(e=>{const sel=(D.lifeEvents||[]).includes(e.id);return`<div class="toggle-row" onclick="toggleLiveEvent('${e.id}',this)">
         <div class="fc" style="gap:10px;"><span style="font-size:18px;">${e.icon}</span><div><div class="toggle-lbl">${e.label}</div><div class="toggle-sub">${e.desc}</div></div></div>
@@ -2045,7 +2061,7 @@ function syncDebtNameToBudget(oldName,newName){
   (D.budget.plan||[]).forEach(function(b){if((b.name||'').toLowerCase()===oldName.toLowerCase())b.name=newName;});
 }
 
-let _hausSec='account';
+let _hausSec='howto';
 function settingsEditKid(btn){var id=btn.getAttribute('data-kid');closeModal('modal-settings');openEditKid(id);}
 function settingsRemoveKid(btn){var id=btn.getAttribute('data-kid');removeKid(id);if(document.getElementById('modal-settings'))return;openSettings('account');}
 
@@ -2086,7 +2102,7 @@ function openSettings(sec){
     sectionHtml=`
       <div class="card-dark" style="background:var(--cocoa);padding:20px;">
         <span style="font-family:var(--ff-serif);font-size:24px;color:var(--linen);display:block;font-weight:300;margin-bottom:6px;">get the most out of this.</span>
-        <span style="font-size:12px;color:rgba(220,235,245,.7);line-height:1.7;display:block;">haus money works best when you treat it like a sitting-down moment, not a quick check-in.</span>
+        <span style="font-size:12px;color:rgba(220,235,245,.7);line-height:1.7;display:block;">the setup is as simple or detailed as your finances are. start with what you know and add more as you go. this works best when you check in as often as feels right for you.</span>
       </div>
       ${[
         {n:'1. understand what goes out',i:'\u{1F4CB}',d:'open the budget tab. sit with your bank statements and add every fixed expense you carry. rent, utilities, car payments, subscriptions, insurance. the ones that leave whether you think about them or not. do not skip the easy-to-forget ones: fitness memberships, streaming services, annual dues, recurring donations.'},
