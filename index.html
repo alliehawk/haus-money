@@ -165,8 +165,7 @@ button{cursor:pointer;}
       <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--mist);font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">4</span>open nests for what you want to save toward</div>
       <div style="display:flex;gap:10px;padding:8px 0;font-size:12px;color:var(--cocoa);opacity:.6;"><span style="font-weight:600;color:var(--ruby);flex-shrink:0;">5</span>log expenses as you go to stay honest</div>
     </div>
-    <div style="text-align:center;margin-top:20px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cocoa);opacity:.18;"><div style="text-align:center;margin-bottom:10px;"><button onclick="openSettings('howto')" style="background:none;border:none;font-size:11px;color:var(--cocoa);opacity:.35;cursor:pointer;letter-spacing:.5px;">how it works</button></div>
-    by solari haus</div>
+    <div style="text-align:center;margin-top:20px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cocoa);opacity:.18;">by solari haus</div>
     <p style="text-align:center;font-size:11px;color:var(--cocoa);opacity:.3;margin-top:10px;line-height:1.8;">about three minutes. future you will appreciate this.</p>
     <p style="text-align:center;font-size:10px;color:var(--cocoa);opacity:.3;margin-top:8px;line-height:1.6;">your data stays on your device.<br>nothing is collected, stored, or shared.</p>
   </div>
@@ -590,11 +589,7 @@ function renderHomeSetup(){
       cta:'<div style="display:flex;gap:8px;margin-top:10px;"><button class="btn-primary" style="flex:1;" onclick="openBulkAddNests()">add multiple</button><button class="btn-secondary" style="flex:1;" onclick="openNewNest({})">+ add one</button></div>'},
   ];
   var html='<div class="card" style="padding:0;overflow:hidden;">';
-  if(showHowTo){
-    html+='<div style="padding:13px 16px;border-bottom:1px solid var(--mist);background:rgba(195,219,238,.06);display:flex;justify-content:space-between;align-items:center;">'
-      +'<span style="font-size:12px;color:var(--cocoa);opacity:.5;">new here?</span>'
-      +'<button onclick="openSettings(\'howto\')" style="background:none;border:none;font-size:12px;color:var(--ruby);cursor:pointer;opacity:.7;">how it works &#8594;</button></div>';
-  }
+  // how it works link is in the home page footer - no need to duplicate in checklist
   steps.forEach(function(s,i){
     html+='<div class="checklist-step" style="padding:14px 16px;border-bottom:1px solid var(--mist);">'
       +'<div style="display:flex;gap:10px;align-items:flex-start;">'
@@ -688,7 +683,7 @@ function renderHome(){
         ${renderHomeSetup()}
         ${seasonalItems.length?`<div class="stack" style="gap:8px;"><span class="sec-head">on your radar</span>${seasonalItems.map(s=>{const targetNest=D.nests.find(n=>n.name.toLowerCase().includes(s.nestHint.toLowerCase()));return`<div class="suggestion"><span class="sug-icon">${s.icon}</span><div style="flex:1;"><p class="sug-text" style="margin-bottom:6px;"><strong>${s.label}:</strong> ${s.note}</p>${targetNest?`<button class="btn-sky btn-sm" onclick="openDeposit('${targetNest.id}')">add to ${esc(targetNest.name)}</button>`:`<button class="btn-sky btn-sm" onclick="prefillAndOpenNest('${esc(s.label.toLowerCase())} fund','${s.icon}',0,0)">create a nest</button>`}</div></div>`;}).join('')}</div>`:''}
     ${D.nests.length?`<div><div class="fb" style="margin-bottom:10px;"><span class="sec-head" style="margin:0;">your nests</span><button onclick="nav('nests',document.querySelector('.nb[data-tab=nests]'))" style="background:none;border:none;font-size:11px;color:var(--ruby);font-weight:500;cursor:pointer;">see all</button></div><div class="g2" style="gap:10px;">${topNests}</div></div>`:`<div class="card" style="text-align:center;padding:32px 20px;"><div style="font-size:36px;margin-bottom:10px;">&#129319;</div><span class="card-title" style="display:block;margin-bottom:6px;">no nests yet</span><p class="sub">add your first savings goal and give this money a home.</p><button class="btn-ruby btn-sm" style="margin-top:14px;" onclick="nav('nests',document.querySelector('.nb[data-tab=nests]'))">+ create a nest</button></div>`}
-    <div style="text-align:center;padding:4px 0;"><span style="font-family:var(--ff-serif);font-size:12px;color:var(--cocoa);opacity:.15;font-style:italic;letter-spacing:1px;">by solari haus</span></div>
+    <div style="text-align:center;padding:8px 0 4px;"><button onclick="openSettings('howto')" style="background:none;border:none;font-size:11px;color:var(--cocoa);opacity:.35;cursor:pointer;letter-spacing:.5px;display:block;margin:0 auto 8px;">how it works</button><span style="font-family:var(--ff-serif);font-size:12px;color:var(--cocoa);opacity:.15;font-style:italic;letter-spacing:1px;">by solari haus</span></div>
   </div>`;
 }
 
